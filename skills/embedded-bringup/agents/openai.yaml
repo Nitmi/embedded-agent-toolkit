@@ -1,0 +1,6 @@
+interface:
+  display_name: "Embedded Bring-up"
+  short_description: "Safely coordinate a board's first boot and evidence"
+  default_prompt: "Use $embedded-bringup to identify this board and bring up its firmware safely."
+policy:
+  allow_implicit_invocation: true

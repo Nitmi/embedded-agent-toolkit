@@ -1,0 +1,16 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "embedded-agent-toolkit",
+  "version": "0.1.0",
+  "description": "Cross-tool embedded bring-up, debugging, test, and incident workflows for AI agents.",
+  "author": {
+    "name": "Nitmi",
+    "url": "https://github.com/Nitmi"
+  },
+  "homepage": "https://github.com/Nitmi/embedded-agent-toolkit",
+  "repository": "https://github.com/Nitmi/embedded-agent-toolkit",
+  "license": "MIT",
+  "keywords": ["embedded", "hardware", "serial", "ble", "debugging", "agent"],
+  "skills": "./skills/",
+  "mcpServers": "./mcp.json"
+}

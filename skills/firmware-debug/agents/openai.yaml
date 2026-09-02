@@ -1,0 +1,6 @@
+interface:
+  display_name: "Firmware Debug"
+  short_description: "Correlate target state with serial and BLE evidence"
+  default_prompt: "Use $firmware-debug to diagnose this firmware failure from bounded cross-tool evidence."
+policy:
+  allow_implicit_invocation: true

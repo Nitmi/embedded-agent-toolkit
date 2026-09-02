@@ -1,0 +1,6 @@
+interface:
+  display_name: "Hardware Test"
+  short_description: "Run staged embedded hardware tests with evidence"
+  default_prompt: "Use $hardware-test to build a guarded hardware-in-the-loop test for this board."
+policy:
+  allow_implicit_invocation: true

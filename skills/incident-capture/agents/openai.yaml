@@ -1,0 +1,6 @@
+interface:
+  display_name: "Incident Capture"
+  short_description: "Preserve embedded failure evidence before recovery"
+  default_prompt: "Use $incident-capture to preserve this embedded failure before any recovery action."
+policy:
+  allow_implicit_invocation: true
