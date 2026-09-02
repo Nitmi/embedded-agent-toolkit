@@ -40,10 +40,11 @@ Use `EMBEDDED_AGENT_BAUD`, `EMBEDDED_AGENT_BLE`, or
 
 ## MCP policy
 
-The aggregate manifest registers BLEA because its server can start without a
-device or target selection. It intentionally does not register a native debug
-server with a guessed default target. Configure embedded-debugger per project
-with an exact target:
+The aggregate manifest intentionally registers no component MCP servers.
+Install and enable the BLEA plugin separately when BLE MCP tools are needed.
+This avoids duplicate tool namespaces and duplicate server processes. Configure
+embedded-debugger per project rather than guessing a default target; use an
+exact target:
 
 ```json
 {

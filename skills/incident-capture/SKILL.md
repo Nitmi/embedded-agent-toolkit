@@ -5,8 +5,10 @@ description: Preserve and package evidence from an embedded crash, hang, reset, 
 
 # Incident Capture
 
-Treat the current device state as evidence. Use `$embedded-debugger`, `$baud`,
-and `$ble` only within their documented safety and identity boundaries.
+Treat the current device state as evidence. Prefer the installed
+`$embedded-debugger`, `$baud`, and `$ble` integrations; otherwise use their own
+CLIs with structured output. Keep every component's documented safety and
+identity boundaries.
 
 ## Freeze scope before state
 

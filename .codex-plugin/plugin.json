@@ -1,6 +1,6 @@
 {
   "name": "embedded-agent-toolkit",
-  "version": "0.1.0+codex.20260902071923",
+  "version": "0.1.0+codex.20260902073512",
   "description": "Cross-tool embedded bring-up, debugging, test, and incident workflows for AI agents.",
   "author": {
     "name": "Nitmi",
@@ -18,7 +18,6 @@
     "agent"
   ],
   "skills": "./skills/",
-  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Embedded Agent Toolkit",
     "shortDescription": "Coordinate serial, BLE, flashing, and debugging safely.",

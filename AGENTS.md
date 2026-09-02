@@ -6,6 +6,7 @@
   flash, halt, resume, write to, or otherwise touch physical devices.
 - Cross-tool workflows must preserve each component's identity checks,
   confirmation gates, bounded operations, structured evidence, and cleanup.
-- Do not add a native embedded-debugger MCP entry without an explicit target
-  selection mechanism. A friendly board name is not an exact target.
+- Do not register component MCP servers in this orchestration plugin. Component
+  plugins own those server lifecycles; duplicate registration creates ambiguous
+  tools and redundant processes.
 - Validate the plugin, every Skill, tests, and `git diff --check` before commit.

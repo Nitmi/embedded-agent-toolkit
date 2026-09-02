@@ -157,8 +157,6 @@ def check_plugin_layout(plugin_root: Path) -> dict[str, object]:
     errors: list[str] = []
     codex_manifest = load_json_object(plugin_root / ".codex-plugin" / "plugin.json", errors)
     portable_manifest = load_json_object(plugin_root / "plugin.json", errors)
-    codex_mcp = load_json_object(plugin_root / ".mcp.json", errors)
-    portable_mcp = load_json_object(plugin_root / "mcp.json", errors)
 
     for label, manifest in (
         ("Codex manifest", codex_manifest),
@@ -172,20 +170,12 @@ def check_plugin_layout(plugin_root: Path) -> dict[str, object]:
             errors.append(f"{label} must contain a string version")
         if manifest.get("skills") != "./skills/":
             errors.append(f"{label} skills must point to ./skills/")
+        if "mcpServers" in manifest:
+            errors.append(f"{label} must not register component MCP servers")
 
-    if codex_manifest and codex_manifest.get("mcpServers") != "./.mcp.json":
-        errors.append("Codex manifest mcpServers must point to ./.mcp.json")
-    if portable_manifest and portable_manifest.get("mcpServers") != "./mcp.json":
-        errors.append("portable manifest mcpServers must point to ./mcp.json")
-
-    expected_codex_server = {"blea": {"command": "ble", "args": ["mcp"]}}
-    expected_portable_server = {
-        "blea": {"type": "stdio", "command": "ble", "args": ["mcp"]}
-    }
-    if codex_mcp and codex_mcp.get("mcpServers") != expected_codex_server:
-        errors.append(".mcp.json must register only the target-neutral BLEA server")
-    if portable_mcp and portable_mcp.get("mcpServers") != expected_portable_server:
-        errors.append("mcp.json must register only the target-neutral BLEA stdio server")
+    for filename in (".mcp.json", "mcp.json"):
+        if (plugin_root / filename).exists():
+            errors.append(f"orchestration plugin must not contain active {filename}")
 
     if codex_manifest and portable_manifest:
         codex_version = base_plugin_version(codex_manifest.get("version"))
@@ -197,8 +187,8 @@ def check_plugin_layout(plugin_root: Path) -> dict[str, object]:
         "ok": not errors,
         "plugin_root": str(plugin_root.resolve()),
         "errors": errors,
-        "native_debug_mcp_registered": False,
-        "native_debug_mcp_reason": "an exact target must be configured per project",
+        "component_mcp_registered": False,
+        "component_mcp_reason": "component plugins own MCP server lifecycles",
     }
 
 

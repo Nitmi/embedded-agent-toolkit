@@ -85,7 +85,7 @@ class PluginLayoutTests(unittest.TestCase):
     def test_repository_layout_is_consistent(self) -> None:
         result = doctor.check_plugin_layout(ROOT)
         self.assertTrue(result["ok"], result["errors"])
-        self.assertFalse(result["native_debug_mcp_registered"])
+        self.assertFalse(result["component_mcp_registered"])
 
 
 if __name__ == "__main__":

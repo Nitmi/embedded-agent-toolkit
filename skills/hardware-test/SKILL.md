@@ -5,9 +5,10 @@ description: Design or run repeatable embedded hardware tests that coordinate fl
 
 # Hardware Test
 
-Compose `$embedded-debugger`, `$baud`, and `$ble`; keep each component's native
-workflow format and evidence as the source of truth. Do not create a second
-untyped command runner in this plugin.
+Prefer the installed `$embedded-debugger`, `$baud`, and `$ble` integrations;
+otherwise use their own CLIs with structured output. Keep each component's
+native workflow format and evidence as the source of truth. Do not create a
+second untyped command runner in this plugin.
 
 ## Define the test contract
 

@@ -5,10 +5,11 @@ description: Correlate bounded embedded target state with serial and BLE evidenc
 
 # Firmware Debug
 
-Use `$embedded-debugger` for target control and snapshots, `$baud` for serial
-evidence, and `$ble` for BLE evidence. Preserve their structured outputs and
-capability limits instead of translating a successful process exit into a
-hardware claim.
+Prefer `$embedded-debugger` for target control, `$baud` for serial evidence, and
+`$ble` for BLE evidence when those Skills or MCP tools are installed. Otherwise
+use the corresponding component CLI with structured output. Preserve each
+component's capability and safety limits instead of translating a successful
+process exit into a hardware claim.
 
 ## Frame the question
 

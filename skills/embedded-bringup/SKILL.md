@@ -5,8 +5,10 @@ description: Coordinate first boot and board bring-up across an exact debug prob
 
 # Embedded Bring-up
 
-Compose the `$embedded-debugger`, `$baud`, and, when relevant, `$ble` Skills.
-Those component Skills own hardware access and safety gates; do not bypass them
+Prefer the installed `$embedded-debugger`, `$baud`, and, when relevant, `$ble`
+Skills or MCP tools. If a component Skill is unavailable, use that component's
+own CLI with structured output after checking its help. The component contracts
+still own hardware access and safety gates; do not replace a missing integration
 with ad hoc probe, serial, or Bluetooth scripts.
 
 ## Establish identities

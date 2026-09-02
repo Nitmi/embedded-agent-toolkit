@@ -11,6 +11,5 @@
   "repository": "https://github.com/Nitmi/embedded-agent-toolkit",
   "license": "MIT",
   "keywords": ["embedded", "hardware", "serial", "ble", "debugging", "agent"],
-  "skills": "./skills/",
-  "mcpServers": "./mcp.json"
+  "skills": "./skills/"
 }

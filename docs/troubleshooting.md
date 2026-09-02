@@ -21,8 +21,16 @@ do not continue to hardware discovery until the ambiguity is resolved.
 ## BLEA MCP does not start
 
 Confirm `ble --version` and `ble mcp --help` work in the same environment as the
-Agent host. MCP startup does not prove Bluetooth permission or adapter health;
-use the BLEA Skill's doctor flow for that later, explicit hardware check.
+Agent host, then confirm the standalone BLEA plugin is installed and enabled.
+The aggregate toolkit does not register that server. MCP startup does not prove
+Bluetooth permission or adapter health; use the BLEA Skill's doctor flow for
+that later, explicit hardware check.
+
+## BLEA tools or processes appear twice
+
+More than one installed plugin is registering BLEA. Upgrade the aggregate
+toolkit to a version that contains no active `.mcp.json`, then start a new Agent
+conversation. Keep the standalone BLEA plugin as the sole server owner.
 
 ## Embedded debugger MCP is absent
 

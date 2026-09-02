@@ -29,6 +29,13 @@ python scripts/toolkit_doctor.py --json
 The initial plugin load can succeed while a component is missing. The doctor
 returns exit code 2 and a per-component remedy when the toolchain is incomplete.
 
+## Component MCP servers
+
+The toolkit does not register component MCP servers. Install and enable the
+BLEA plugin separately when BLE MCP tools are needed. Keeping the server in its
+component plugin prevents duplicate tool registrations and duplicate processes
+when users also install the standalone component.
+
 ## Native debug MCP
 
 The plugin deliberately omits a target-specific debug MCP entry. Add one in the
@@ -46,6 +53,6 @@ or confirmation digest.
 ## Uninstall
 
 Remove the local plugin entry and reload the Agent host. This removes the four
-orchestration Skills and aggregate BLEA MCP registration; it does not uninstall
-the component CLIs or delete hardware evidence. Remove those separately only
-when that is the intended scope.
+orchestration Skills; it does not uninstall component plugins, component CLIs,
+or hardware evidence. Remove those separately only when that is the intended
+scope.
