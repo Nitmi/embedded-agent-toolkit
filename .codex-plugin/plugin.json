@@ -1,6 +1,6 @@
 {
   "name": "embedded-agent-toolkit",
-  "version": "0.1.0",
+  "version": "0.1.0+codex.20260902071923",
   "description": "Cross-tool embedded bring-up, debugging, test, and incident workflows for AI agents.",
   "author": {
     "name": "Nitmi",
@@ -9,7 +9,14 @@
   "homepage": "https://github.com/Nitmi/embedded-agent-toolkit",
   "repository": "https://github.com/Nitmi/embedded-agent-toolkit",
   "license": "MIT",
-  "keywords": ["embedded", "hardware", "serial", "ble", "debugging", "agent"],
+  "keywords": [
+    "embedded",
+    "hardware",
+    "serial",
+    "ble",
+    "debugging",
+    "agent"
+  ],
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
   "interface": {
@@ -18,7 +25,12 @@
     "longDescription": "Compose baud, BLEA, and embedded-debugger into evidence-first embedded bring-up, firmware diagnosis, hardware test, and incident capture workflows.",
     "developerName": "Nitmi",
     "category": "Developer Tools",
-    "capabilities": ["Interactive", "Hardware", "Read", "Write"],
+    "capabilities": [
+      "Interactive",
+      "Hardware",
+      "Read",
+      "Write"
+    ],
     "websiteURL": "https://github.com/Nitmi/embedded-agent-toolkit",
     "defaultPrompt": [
       "Bring up this embedded board and preserve evidence from every tool.",

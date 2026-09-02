@@ -79,6 +79,9 @@ class ComponentCheckTests(unittest.TestCase):
 
 
 class PluginLayoutTests(unittest.TestCase):
+    def test_codex_cachebuster_preserves_base_version(self) -> None:
+        self.assertEqual(doctor.base_plugin_version("0.1.0+codex.20260902"), "0.1.0")
+
     def test_repository_layout_is_consistent(self) -> None:
         result = doctor.check_plugin_layout(ROOT)
         self.assertTrue(result["ok"], result["errors"])

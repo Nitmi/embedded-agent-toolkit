@@ -147,6 +147,12 @@ def load_json_object(path: Path, errors: list[str]) -> dict[str, object] | None:
     return payload
 
 
+def base_plugin_version(version: object) -> str | None:
+    if not isinstance(version, str):
+        return None
+    return version.split("+codex.", 1)[0]
+
+
 def check_plugin_layout(plugin_root: Path) -> dict[str, object]:
     errors: list[str] = []
     codex_manifest = load_json_object(plugin_root / ".codex-plugin" / "plugin.json", errors)
@@ -181,13 +187,11 @@ def check_plugin_layout(plugin_root: Path) -> dict[str, object]:
     if portable_mcp and portable_mcp.get("mcpServers") != expected_portable_server:
         errors.append("mcp.json must register only the target-neutral BLEA stdio server")
 
-    versions = {
-        manifest.get("version")
-        for manifest in (codex_manifest, portable_manifest)
-        if manifest is not None
-    }
-    if len(versions) > 1:
-        errors.append("plugin manifest versions do not match")
+    if codex_manifest and portable_manifest:
+        codex_version = base_plugin_version(codex_manifest.get("version"))
+        portable_version = base_plugin_version(portable_manifest.get("version"))
+        if codex_version != portable_version:
+            errors.append("plugin manifest base versions do not match")
 
     return {
         "ok": not errors,
