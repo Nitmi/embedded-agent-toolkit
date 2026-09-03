@@ -15,13 +15,34 @@ process exit into a hardware claim.
 
 Define the symptom, observation window, exact firmware artifact and hash, exact
 target/core, and the smallest state needed to decide between hypotheses. Record
-whether firmware identity is verified on the running target or merely selected
-from a local build.
+whether firmware identity is verified on the running target, was verified only
+in an earlier observation window, or is merely selected from a local build.
+
+## Build an identity ledger
+
+When evidence spans multiple transports, operations, or observation windows,
+read [references/identity-ledger.md](references/identity-ledger.md) and preserve a
+machine-readable ledger beside the human report.
+
+- Classify each claim as observed, documented, inferred, rejected, or unknown,
+  and attach exact source paths, hashes, and validity times.
+- Keep USB-interface association, physical-board identity, target/core identity,
+  firmware artifact identity, and current runtime identity as separate claims.
+- Treat runtime attestation and target state as point-in-time evidence. Do not
+  carry them into a later serial or BLE window without fresh proof.
+- For counters or other expected-monotonic state, bind the initialization,
+  update, width, and cadence semantics before interpreting a rollback. A
+  rollback can reject uninterrupted continuity, but does not alone distinguish
+  reset, power loss, reflash, alternate firmware, or a different device.
 
 ## Gather evidence conservatively
 
 1. Start with bounded, zero-transmit serial observation and read-only BLE
-   evidence when those interfaces remain alive.
+   evidence when those interfaces remain alive. When firmware exposes a
+   build-bound identifier, read
+   [references/serial-firmware-identity.md](references/serial-firmware-identity.md)
+   and bind the exact physical serial identity and expected artifact hash in
+   the same receive-only workflow.
 2. Use the component debug Skill to establish an exact session and current core
    state. Halting, stepping, continuing, resetting, installing breakpoints or
    watchpoints, and recovery are state changes; apply its current confirmation
@@ -31,7 +52,9 @@ from a local build.
 4. If symbols are used, bind the exact ELF hash and distinguish offline
    annotation from proof that the target runs that ELF.
 5. Correlate events by recorded timestamps and operation boundaries. Host clocks
-   and transport buffering may differ, so describe ordering uncertainty.
+   and transport buffering may differ, so describe ordering uncertainty. Do not
+   merge individually valid point-in-time claims into an unproven continuity
+   claim.
 
 ## Close deliberately
 
@@ -39,4 +62,6 @@ Delete only resources created by this workflow, close the exact sessions, and
 verify cleanup. Do not resume an incident target merely to return to a familiar
 state; restoration needs an explicit policy and evidence. Report observations,
 inferences, rejected hypotheses, remaining unknowns, exact artifact paths, and
-the least invasive next experiment.
+the least invasive next experiment. When the toolkit checkout is available, run
+`python scripts/validate_identity_ledger.py <ledger.json> --json` before treating
+the ledger as complete.

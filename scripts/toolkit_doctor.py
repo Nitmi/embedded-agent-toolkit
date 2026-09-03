@@ -15,8 +15,9 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-SCHEMA_VERSION = "embedded-agent-toolkit.doctor.v1"
+SCHEMA_VERSION = "embedded-agent-toolkit.doctor.v2"
 PLUGIN_NAME = "embedded-agent-toolkit"
+WARNING_STATUSES = frozenset({"not_found"})
 
 
 @dataclass(frozen=True)
@@ -56,30 +57,41 @@ COMPONENTS = (
 )
 
 
-def resolve_executable(component: Component) -> tuple[str | None, str]:
+def resolve_executable(component: Component) -> tuple[str | None, str, str]:
     override = os.environ.get(component.environment_variable)
     requested = override or component.executable
     if override:
         candidate = Path(override).expanduser()
         if candidate.is_file():
-            return str(candidate.resolve()), requested
-        return None, requested
-    return shutil.which(requested), requested
+            return str(candidate.resolve()), requested, "environment_override"
+        return None, requested, "environment_override"
+    return shutil.which(requested), requested, "path"
 
 
 def check_component(component: Component, timeout: float) -> dict[str, object]:
-    executable, requested = resolve_executable(component)
+    executable, requested, resolution_source = resolve_executable(component)
     base: dict[str, object] = {
         "name": component.name,
         "requested_executable": requested,
+        "resolution_source": resolution_source,
         "environment_variable": component.environment_variable,
         "install_hint": component.install_hint,
+        "fallback_hint": (
+            f"Use the installed {component.name} integration, or set "
+            f"{component.environment_variable} to one exact executable path."
+        ),
     }
     if executable is None:
+        status = (
+            "invalid_environment_override"
+            if resolution_source == "environment_override"
+            else "not_found"
+        )
         return {
             **base,
             "ok": False,
-            "status": "not_found",
+            "severity": "warning" if status in WARNING_STATUSES else "error",
+            "status": status,
             "executable": None,
             "version": None,
         }
@@ -97,6 +109,7 @@ def check_component(component: Component, timeout: float) -> dict[str, object]:
         return {
             **base,
             "ok": False,
+            "severity": "error",
             "status": "timeout",
             "executable": executable,
             "version": None,
@@ -105,6 +118,7 @@ def check_component(component: Component, timeout: float) -> dict[str, object]:
         return {
             **base,
             "ok": False,
+            "severity": "error",
             "status": "launch_error",
             "executable": executable,
             "version": None,
@@ -123,6 +137,7 @@ def check_component(component: Component, timeout: float) -> dict[str, object]:
     return {
         **base,
         "ok": status == "ready",
+        "severity": "info" if status == "ready" else "error",
         "status": status,
         "executable": executable,
         "version": match.group(1) if match else None,
@@ -155,7 +170,9 @@ def base_plugin_version(version: object) -> str | None:
 
 def check_plugin_layout(plugin_root: Path) -> dict[str, object]:
     errors: list[str] = []
-    codex_manifest = load_json_object(plugin_root / ".codex-plugin" / "plugin.json", errors)
+    codex_manifest = load_json_object(
+        plugin_root / ".codex-plugin" / "plugin.json", errors
+    )
     portable_manifest = load_json_object(plugin_root / "plugin.json", errors)
 
     for label, manifest in (
@@ -195,11 +212,36 @@ def check_plugin_layout(plugin_root: Path) -> dict[str, object]:
 def build_report(
     selected_components: Sequence[Component], timeout: float, plugin_root: Path
 ) -> dict[str, object]:
-    component_results = [check_component(component, timeout) for component in selected_components]
+    component_results = [
+        check_component(component, timeout) for component in selected_components
+    ]
     layout = check_plugin_layout(plugin_root)
+    warnings = [
+        f"{result['name']}: {result['status']}"
+        for result in component_results
+        if result["status"] in WARNING_STATUSES
+    ]
+    errors = [
+        f"{result['name']}: {result['status']}"
+        for result in component_results
+        if not result["ok"] and result["status"] not in WARNING_STATUSES
+    ]
+    errors.extend(layout["errors"])
+    complete = layout["ok"] and all(result["ok"] for result in component_results)
+    ok = layout["ok"] and not errors
+    if not ok:
+        status = "error"
+    elif complete:
+        status = "ready"
+    else:
+        status = "ready_with_warnings"
     return {
         "schema_version": SCHEMA_VERSION,
-        "ok": layout["ok"] and all(result["ok"] for result in component_results),
+        "ok": ok,
+        "complete": complete,
+        "status": status,
+        "warnings": warnings,
+        "errors": errors,
         "scope": "host_only_no_hardware_access",
         "platform": {
             "system": platform.system(),
@@ -215,17 +257,28 @@ def build_report(
 def render_human(report: dict[str, object]) -> str:
     lines = ["Embedded Agent Toolkit doctor", "Scope: host only; no hardware access"]
     for result in report["components"]:  # type: ignore[union-attr]
-        marker = "OK" if result["ok"] else "FAIL"
+        if result["ok"]:
+            marker = "OK"
+        elif result["status"] in WARNING_STATUSES:
+            marker = "WARN"
+        else:
+            marker = "FAIL"
         detail = result.get("version") or result["status"]
         lines.append(f"[{marker}] {result['name']}: {detail}")
         if not result["ok"]:
             lines.append(f"       remedy: {result['install_hint']}")
+            lines.append(f"       fallback: {result['fallback_hint']}")
     plugin = report["plugin"]
     marker = "OK" if plugin["ok"] else "FAIL"  # type: ignore[index]
     lines.append(f"[{marker}] plugin layout")
     for error in plugin["errors"]:  # type: ignore[index,union-attr]
         lines.append(f"       {error}")
-    lines.append("Ready" if report["ok"] else "Not ready")
+    if not report["ok"]:
+        lines.append("Not ready")
+    elif report["complete"]:
+        lines.append("Ready")
+    else:
+        lines.append("Ready with warnings")
     return "\n".join(lines)
 
 
@@ -244,6 +297,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         default=5.0,
         help="per-version-command timeout in seconds (0.1..30; default: 5)",
     )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="return exit code 2 unless every selected CLI is directly available",
+    )
     return parser.parse_args(argv)
 
 
@@ -253,14 +311,17 @@ def main(argv: Sequence[str] | None = None) -> int:
         print("--timeout must be between 0.1 and 30 seconds", file=sys.stderr)
         return 2
     names = set(args.component or [])
-    selected = [component for component in COMPONENTS if not names or component.name in names]
+    selected = [
+        component for component in COMPONENTS if not names or component.name in names
+    ]
     plugin_root = Path(__file__).resolve().parent.parent
     report = build_report(selected, args.timeout, plugin_root)
     if args.json:
         print(json.dumps(report, indent=2, sort_keys=True))
     else:
         print(render_human(report))
-    return 0 if report["ok"] else 2
+    passed = report["complete"] if args.strict else report["ok"]
+    return 0 if passed else 2
 
 
 if __name__ == "__main__":

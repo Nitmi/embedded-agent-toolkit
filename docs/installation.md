@@ -26,8 +26,12 @@ Reload the host, invoke one of the four Skills, and run:
 python scripts/toolkit_doctor.py --json
 ```
 
-The initial plugin load can succeed while a component is missing. The doctor
-returns exit code 2 and a per-component remedy when the toolchain is incomplete.
+The initial plugin load can succeed while a component CLI is missing from
+`PATH`. The default doctor reports `ready_with_warnings` and an exact-path
+fallback while returning exit code 0. Use `--strict` when setup validation or
+CI requires every default CLI entry; strict mode returns exit code 2 for an
+incomplete toolchain. Real layout, override, launch, and version errors fail in
+both modes.
 
 ## Component MCP servers
 

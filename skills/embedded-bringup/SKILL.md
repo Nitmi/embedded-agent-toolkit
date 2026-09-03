@@ -14,7 +14,11 @@ with ad hoc probe, serial, or Bluetooth scripts.
 ## Establish identities
 
 1. Run `python scripts/toolkit_doctor.py --json`. This is host-only and does not
-   prove that any adapter or device is available.
+   prove that any adapter or device is available. Treat `ok: true` with
+   `complete: false` as a default-CLI environment warning: record it, then use
+   only an already installed component integration or a version-checked exact
+   executable path. Treat `ok: false` as a real layout, launch, override, or
+   version error for the affected component.
 2. Read the project, board, firmware, and wiring documentation. Record expected
    target family, supply voltage, boot mode, serial settings, and BLE identity
    claims separately.

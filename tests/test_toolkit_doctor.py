@@ -46,6 +46,21 @@ class ComponentCheckTests(unittest.TestCase):
         self.assertFalse(result["ok"])
         self.assertEqual(result["status"], "not_found")
         self.assertIn("uv tool install", result["install_hint"])
+        self.assertEqual(result["severity"], "warning")
+        self.assertIn(component.environment_variable, result["fallback_hint"])
+
+    def test_invalid_environment_override_is_an_error(self) -> None:
+        component = doctor.COMPONENTS[2]
+        with mock.patch.dict(
+            "os.environ",
+            {component.environment_variable: "C:/missing/embedded-debugger.exe"},
+            clear=True,
+        ):
+            result = doctor.check_component(component, 1.0)
+
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["status"], "invalid_environment_override")
+        self.assertEqual(result["severity"], "error")
 
     def test_timeout_fails_closed(self) -> None:
         component = doctor.COMPONENTS[2]
@@ -65,7 +80,9 @@ class ComponentCheckTests(unittest.TestCase):
 
     def test_unexpected_output_is_not_accepted(self) -> None:
         component = doctor.COMPONENTS[1]
-        completed = subprocess.CompletedProcess(["ble", "--version"], 0, "unknown 1.0\n", "")
+        completed = subprocess.CompletedProcess(
+            ["ble", "--version"], 0, "unknown 1.0\n", ""
+        )
         with (
             mock.patch.dict("os.environ", {}, clear=True),
             mock.patch.object(doctor.shutil, "which", return_value="ble"),
@@ -86,6 +103,53 @@ class PluginLayoutTests(unittest.TestCase):
         result = doctor.check_plugin_layout(ROOT)
         self.assertTrue(result["ok"], result["errors"])
         self.assertFalse(result["component_mcp_registered"])
+
+
+class ReportStatusTests(unittest.TestCase):
+    def test_missing_path_entry_is_an_overall_warning(self) -> None:
+        component = doctor.COMPONENTS[2]
+        missing = {
+            "name": component.name,
+            "ok": False,
+            "status": "not_found",
+        }
+        layout = {
+            "ok": True,
+            "errors": [],
+        }
+        with (
+            mock.patch.object(doctor, "check_component", return_value=missing),
+            mock.patch.object(doctor, "check_plugin_layout", return_value=layout),
+        ):
+            report = doctor.build_report([component], 1.0, ROOT)
+
+        self.assertTrue(report["ok"])
+        self.assertFalse(report["complete"])
+        self.assertEqual(report["status"], "ready_with_warnings")
+        self.assertEqual(report["warnings"], ["embedded-debugger: not_found"])
+        self.assertEqual(report["errors"], [])
+
+    def test_launch_failure_remains_an_overall_error(self) -> None:
+        component = doctor.COMPONENTS[2]
+        failed = {
+            "name": component.name,
+            "ok": False,
+            "status": "launch_error",
+        }
+        layout = {
+            "ok": True,
+            "errors": [],
+        }
+        with (
+            mock.patch.object(doctor, "check_component", return_value=failed),
+            mock.patch.object(doctor, "check_plugin_layout", return_value=layout),
+        ):
+            report = doctor.build_report([component], 1.0, ROOT)
+
+        self.assertFalse(report["ok"])
+        self.assertFalse(report["complete"])
+        self.assertEqual(report["status"], "error")
+        self.assertEqual(report["errors"], ["embedded-debugger: launch_error"])
 
 
 if __name__ == "__main__":

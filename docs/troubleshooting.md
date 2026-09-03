@@ -1,9 +1,13 @@
 # Troubleshooting
 
-## Doctor reports `not_found`
+## Doctor reports `ready_with_warnings`
 
-Install the named component or put its executable directory on `PATH`. To test
-an exact development binary without changing `PATH`, set its override variable:
+The plugin layout is valid, but at least one component CLI is not directly
+available through `PATH`. This is advisory when the workflow can use an
+installed component integration or a separately verified exact executable.
+Install the named component or put its executable directory on `PATH` for a
+complete default environment. To test an exact development binary without
+changing `PATH`, set its override variable:
 
 ```powershell
 $env:EMBEDDED_AGENT_DEBUGGER = 'D:\Code\ai\embedded-debugger\target\debug\embedded-debugger.exe'
@@ -11,6 +15,8 @@ python scripts/toolkit_doctor.py --json
 ```
 
 Overrides must identify one executable, not a command line with arguments.
+Use `python scripts/toolkit_doctor.py --strict` in setup validation or CI when a
+missing default CLI entry must fail the command.
 
 ## Doctor reports an unexpected version
 

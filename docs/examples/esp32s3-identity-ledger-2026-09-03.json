@@ -1,0 +1,334 @@
+{
+  "schema_version": "embedded-agent-toolkit.identity-ledger.v1",
+  "generated_date": "2026-09-03",
+  "mode": "combined_live_and_offline_evidence_correlation",
+  "question": "What identity and continuity claims are justified after the confirmed 2026-09-03 ESP32-S3 flash and exact receive-only runtime firmware identity observation?",
+  "subject": {
+    "label": "ESP32-S3 USB serial/debug interface set",
+    "serial_interface": {
+      "state": "observed",
+      "port": "COM3",
+      "usb_vid_pid": "303A:1001",
+      "usb_serial": "E0:72:A1:D4:1F:DC",
+      "last_observed_at": "2026-09-03T08:38:23.243Z"
+    },
+    "debug_interface": {
+      "state": "observed",
+      "selector": "303a:1001:E0:72:A1:D4:1F:DC",
+      "target": "esp32s3",
+      "last_observed_date": "2026-09-03"
+    },
+    "interface_association": {
+      "state": "observed",
+      "basis": "Serial and EspJtag evidence use the same VID, PID, and USB serial.",
+      "limit": "This associates the observed USB interfaces; silicon identity and cryptographic authenticity remain unverified."
+    }
+  },
+  "sources": [
+    {
+      "id": "runtime_identity_2026_09_02",
+      "tool": "embedded-debugger/openocd",
+      "path": "D:\\Code\\ai\\embedded-debugger\\target\\hardware-acceptance\\2026-09-02-openocd-esp-app-identity\\acceptance-summary.json",
+      "sha256": "a4536a29e26a3785d9f74b6710671ba4a74efc797006cf289e34295a5fbdada1",
+      "point_in_time": true,
+      "date": "2026-09-02"
+    },
+    {
+      "id": "heartbeat_memory_2026_09_02",
+      "tool": "embedded-debugger/openocd",
+      "path": "D:\\Code\\ai\\embedded-debugger\\target\\hardware-acceptance\\2026-09-02-openocd-heartbeat-candidate-memory\\acceptance-summary.json",
+      "sha256": "b3e4516e4704a499c20c891f03d55e18e2692b35a9703e23360fdac5e3d013c1",
+      "point_in_time": true,
+      "date": "2026-09-02"
+    },
+    {
+      "id": "heartbeat_watchpoint_2026_09_02",
+      "tool": "embedded-debugger/openocd",
+      "path": "D:\\Code\\ai\\embedded-debugger\\target\\hardware-acceptance\\2026-09-02-openocd-heartbeat-watchpoint-hit\\acceptance-summary.json",
+      "sha256": "b17dba07a5e4e614be1492cc4486807fd084250b5ad64ac1cd15d4b66ef63c1c",
+      "point_in_time": true,
+      "date": "2026-09-02"
+    },
+    {
+      "id": "heartbeat_watchpoint_uart_after_2026_09_02",
+      "tool": "baud 0.1.0",
+      "path": "D:\\Code\\ai\\embedded-debugger\\target\\hardware-acceptance\\2026-09-02-openocd-heartbeat-watchpoint-hit\\uart-after\\20260902-130516-401_COM3_monitor.jsonl",
+      "sha256": "389f7165bac8a940e466299888e77f6d674385f8e65b778f8723fcc91877009d",
+      "point_in_time": true,
+      "last_complete_heartbeat": 8545,
+      "last_complete_heartbeat_at": "2026-09-02T05:05:24.288Z"
+    },
+    {
+      "id": "serial_observation_2026_09_03",
+      "tool": "baud 0.1.0",
+      "path": "D:\\Code\\ai\\embedded-agent-toolkit\\evidence\\2026-09-03-esp32s3-com3-115200-8s\\20260903-093210-831_COM3_monitor.jsonl",
+      "sha256": "0407f115f37f9f4bd0ea96fc0baa6bb24299cea2aaf5eeffd933c531d4efc5fe",
+      "point_in_time": true,
+      "first_complete_heartbeat": 3765,
+      "first_complete_heartbeat_at": "2026-09-03T01:32:11.715Z",
+      "last_complete_heartbeat": 3773,
+      "last_complete_heartbeat_at": "2026-09-03T01:32:19.712Z"
+    },
+    {
+      "id": "local_elf",
+      "tool": "host_sha256",
+      "path": "D:\\Code\\embeded\\yd-esp32-s3-rust-demo\\target\\xtensa-esp32s3-none-elf\\release\\yd-esp32-s3-rust-demo",
+      "bytes": 2226432,
+      "sha256": "26acd68ba2d9676be1e8b804b54560b647c0f5055a192ca43e2a30931e690242",
+      "point_in_time": false,
+      "hash_checked_date": "2026-09-03"
+    },
+    {
+      "id": "heartbeat_source",
+      "tool": "git/host_sha256",
+      "path": "D:\\Code\\embeded\\yd-esp32-s3-rust-demo\\src\\bin\\main.rs",
+      "sha256": "124c6b3bd76ab0b81781999b3355e32f8c4c31f9b04ad412389304ffc1575ffe",
+      "repository_commit": "c3b7970776a397f5fd03878d906c70141e2ef207",
+      "repository_clean": true,
+      "point_in_time": false
+    },
+    {
+      "id": "flash_2026_09_03",
+      "tool": "embedded-debugger 0.1.0 / probe-rs 0.32.0",
+      "path": "D:\\Code\\ai\\embedded-debugger\\target\\host-validation\\2026-09-03-esp32s3-firmware-identity-flash\\flash-execute.evidence.json",
+      "sha256": "7114737d2df18b259303fd1e42fa4e013a8073e4e66f5c9abee053a2d79b454e",
+      "point_in_time": true,
+      "captured_at": "2026-09-03T08:15:25.369Z",
+      "confirm_digest": "35836c94567e91b2f3e11ccf6c5e6129f8e69a80b199de8e7fb0bc26f87af46b",
+      "firmware_sha256": "26acd68ba2d9676be1e8b804b54560b647c0f5055a192ca43e2a30931e690242",
+      "verified": true,
+      "complete": true
+    },
+    {
+      "id": "runtime_serial_identity_2026_09_03",
+      "tool": "baud 0.1.0",
+      "path": "D:\\Code\\embeded\\yd-esp32-s3-rust-demo\\target\\hardware-validation\\2026-09-03-runtime-firmware-identity\\20260903-163814-397_COM3_verify-yd-esp32-s3-firmware-identity.jsonl",
+      "sha256": "970ecde765953040a927746c54270040426c8172a821f9459131b0f73f525291",
+      "point_in_time": true,
+      "window_start": "2026-09-03T08:38:14.398Z",
+      "window_end": "2026-09-03T08:38:23.243Z",
+      "port": "COM3",
+      "usb_vid_pid": "303A:1001",
+      "usb_serial": "E0:72:A1:D4:1F:DC",
+      "dtr": false,
+      "rts": false,
+      "transmit_events": 0,
+      "received_bytes": 1106,
+      "first_complete_heartbeat": 1370,
+      "last_complete_heartbeat": 1378,
+      "matching_firmware_sha256": "26acd68ba2d9676be1e8b804b54560b647c0f5055a192ca43e2a30931e690242"
+    }
+  ],
+  "firmware": {
+    "local_artifact": {
+      "state": "observed",
+      "project_name": "yd-esp32-s3-rust-demo",
+      "version": "0.1.0",
+      "elf_sha256": "26acd68ba2d9676be1e8b804b54560b647c0f5055a192ca43e2a30931e690242",
+      "repository_commit": "c3b7970776a397f5fd03878d906c70141e2ef207"
+    },
+    "historical_runtime_identity": {
+      "state": "observed",
+      "valid_date": "2026-09-02",
+      "method": "Exact 256-byte ESP app descriptor comparison at 0x3C000020",
+      "runtime_firmware_identity_verified": true,
+      "project_name": "yd-esp32-s3-rust-demo",
+      "version": "0.1.0",
+      "build_date": "2026-08-12",
+      "build_time": "05:38:59",
+      "embedded_elf_sha256": "676a89d78556f07500fcbe50a17c046c27d9d6e1e425ed9732c6f257a09f7b20",
+      "cryptographic_authenticity_verified": false,
+      "secure_boot_verified": false
+    },
+    "current_runtime_identity": {
+      "state": "observed",
+      "validity_window": {
+        "start": "2026-09-03T08:38:14.398Z",
+        "end": "2026-09-03T08:38:23.243Z"
+      },
+      "method": "Fresh USB-bound receive-only periodic telemetry after a confirmed verified flash",
+      "runtime_firmware_identity_verified": true,
+      "embedded_elf_sha256": "26acd68ba2d9676be1e8b804b54560b647c0f5055a192ca43e2a30931e690242",
+      "matching_records": 9,
+      "cryptographic_authenticity_verified": false,
+      "secure_boot_verified": false
+    }
+  },
+  "heartbeat_semantics": {
+    "state": "documented",
+    "initial_value": 0,
+    "integer_width_bits": 32,
+    "update": "wrapping_add(1) before each log line",
+    "nominal_period_ms": 1000,
+    "rgb_order": [
+      "red",
+      "green",
+      "blue"
+    ],
+    "source_lines": [
+      58,
+      63,
+      65,
+      68,
+      85,
+      86,
+      87
+    ]
+  },
+  "correlations": {
+    "latest_serial_sequence": {
+      "state": "observed",
+      "complete_heartbeats": [
+        1370,
+        1371,
+        1372,
+        1373,
+        1374,
+        1375,
+        1376,
+        1377,
+        1378
+      ],
+      "rgb_sequence": [
+        "green",
+        "blue",
+        "red",
+        "green",
+        "blue",
+        "red",
+        "green",
+        "blue",
+        "red"
+      ],
+      "all_records_match_exact_elf_sha256": true,
+      "transmit_events": 0,
+      "build_identity_implication": "exact_non_adversarial_build_correlation_in_window"
+    },
+    "cross_window_counter": {
+      "state": "observed",
+      "previous_value": 3773,
+      "previous_value_at": "2026-09-03T01:32:19.712Z",
+      "current_first_value": 1370,
+      "current_first_value_at": "2026-09-03T08:38:15.225Z",
+      "confirmed_flash_at": "2026-09-03T08:15:25.369Z",
+      "u32_wrap_plausible": false,
+      "conclusion": "Continuity across the two serial windows is rejected; a confirmed flash/reset occurred between them.",
+      "exact_cause": "confirmed guarded flash lifecycle, including reset"
+    }
+  },
+  "claims": [
+    {
+      "id": "same_observed_usb_interface_set",
+      "state": "observed",
+      "claim": "The serial and debug records refer to interfaces with the same VID/PID and USB serial.",
+      "limit": "Not a proof of current target or firmware identity.",
+      "source_ids": [
+        "flash_2026_09_03",
+        "runtime_serial_identity_2026_09_03"
+      ]
+    },
+    {
+      "id": "runtime_identity_on_2026_09_02",
+      "state": "observed",
+      "claim": "The target ESP app descriptor matched the local ELF and embedded its exact SHA-256 on 2026-09-02.",
+      "limit": "Point-in-time, non-adversarial build identity; not signed attestation.",
+      "source_ids": [
+        "runtime_identity_2026_09_02"
+      ]
+    },
+    {
+      "id": "heartbeat_memory_candidate_on_2026_09_02",
+      "state": "observed",
+      "claim": "0x3FCDB5F0 contained 2797 between UART sequences 2744..2748 and 2867..2871.",
+      "limit": "The read was not atomic with UART observations and RAM semantics were declared rather than independently proven.",
+      "source_ids": [
+        "heartbeat_memory_2026_09_02",
+        "heartbeat_watchpoint_uart_after_2026_09_02"
+      ]
+    },
+    {
+      "id": "heartbeat_watchpoint_hit_on_2026_09_02",
+      "state": "observed",
+      "claim": "GDB attributed one access-watchpoint hit at PC 0x420128D0 to the four-byte candidate range.",
+      "limit": "The watchpoint operation did not itself bind runtime firmware identity or independently verify the physical comparator.",
+      "source_ids": [
+        "heartbeat_watchpoint_2026_09_02"
+      ]
+    },
+    {
+      "id": "current_output_compatible_with_selected_source",
+      "state": "inferred",
+      "claim": "The heartbeat/RGB sequence follows the selected source counter and modulo behavior.",
+      "assumptions": [
+        "The runtime text was decoded without changing the relevant fields.",
+        "The selected source describes the expected RGB sequence."
+      ],
+      "limit": "Compatibility is secondary evidence; the exact periodic ELF hash is the build-identity evidence.",
+      "source_ids": [
+        "heartbeat_source",
+        "runtime_serial_identity_2026_09_03"
+      ]
+    },
+    {
+      "id": "uninterrupted_runtime_continuity",
+      "state": "rejected",
+      "claim": "The same counter instance ran without interruption from the earlier 2026-09-03 serial window through the post-flash runtime identity window.",
+      "contradiction": "A confirmed flash lifecycle with reset occurred at 2026-09-03T08:15:25.369Z between the windows, and the counter later began at 1370 after previously reaching 3773.",
+      "source_ids": [
+        "serial_observation_2026_09_03",
+        "flash_2026_09_03",
+        "runtime_serial_identity_2026_09_03"
+      ]
+    },
+    {
+      "id": "current_exact_firmware_identity",
+      "state": "observed",
+      "claim": "During 2026-09-03T08:38:14.398Z..08:38:23.243Z, COM3 emitted nine periodic records carrying ELF SHA-256 26acd68ba2d9676be1e8b804b54560b647c0f5055a192ca43e2a30931e690242, equal to the confirmed flashed and local final ELF hash.",
+      "limit": "Point-in-time, firmware-controlled, non-adversarial build correlation; not signed attestation.",
+      "source_ids": [
+        "local_elf",
+        "flash_2026_09_03",
+        "runtime_serial_identity_2026_09_03"
+      ]
+    },
+    {
+      "id": "current_cpu0_state",
+      "state": "unknown",
+      "claim": "CPU0 has a current debugger-defined running state after the serial window.",
+      "reason": "The post-flash debugger evidence observed CPU0 running earlier, while the later receive-only workflow did not attach or query core state.",
+      "source_ids": [
+        "flash_2026_09_03",
+        "runtime_serial_identity_2026_09_03"
+      ]
+    },
+    {
+      "id": "ble_peripheral_identity",
+      "state": "unknown",
+      "claim": "A BLE peripheral belongs to this firmware/device.",
+      "reason": "No peripheral was selected or connected."
+    },
+    {
+      "id": "confirmed_flash_2026_09_03",
+      "state": "observed",
+      "claim": "One confirmed ESP32-S3 flash programmed and independently verified the exact ELF-derived bootloader, partition table, and application segments.",
+      "limit": "Point-in-time write and post-flash debugger evidence; not cryptographic authenticity.",
+      "source_ids": [
+        "flash_2026_09_03"
+      ]
+    },
+    {
+      "id": "current_serial_liveness",
+      "state": "observed",
+      "claim": "The exact guarded COM3 interface emitted nine continuous heartbeat records during the 2026-09-03 runtime identity window.",
+      "limit": "Does not prove behavior before or after the bounded window.",
+      "source_ids": [
+        "runtime_serial_identity_2026_09_03"
+      ]
+    }
+  ],
+  "next_experiment": {
+    "preferred_host_only_change": "Validate and package the identity-ledger schema and completed acceptance as part of the aggregate plugin.",
+    "current_hardware_option_if_needed": "Use a separate read-only BLE discovery only when the selected firmware is documented to advertise; otherwise no additional hardware action is needed for runtime build correlation.",
+    "authorization": "This ledger is evidence only and does not authorize BLE access, target attachment, reset, flash, halt, resume, or another serial open."
+  }
+}

@@ -18,8 +18,11 @@ BLE, and debug transports. Each component remains independently usable.
 
 - `embedded-bringup`: discover interfaces, verify identities, plan flashing,
   observe startup, and collect failure evidence.
-- `firmware-debug`: correlate a bounded target snapshot with serial and BLE
-  observations.
+- `firmware-debug`: correlate bounded target, serial, and BLE evidence while
+  preserving point-in-time identity and continuity boundaries. It can bind a
+  freshly enumerated USB serial interface to build-bound firmware telemetry
+  before escalating to a debugger attach. See the
+  [validated identity-ledger example](docs/examples/esp32s3-identity-ledger-2026-09-03.md).
 - `hardware-test`: run a staged, assertion-driven hardware test with explicit
   mutation gates and cleanup.
 - `incident-capture`: preserve a failure scene and collect a read-mostly
@@ -33,10 +36,13 @@ not enumerate or open adapters, probes, ports, or targets.
 ```powershell
 python scripts/toolkit_doctor.py
 python scripts/toolkit_doctor.py --json
+python scripts/toolkit_doctor.py --strict
 ```
 
 Use `EMBEDDED_AGENT_BAUD`, `EMBEDDED_AGENT_BLE`, or
-`EMBEDDED_AGENT_DEBUGGER` to point a check at a specific executable.
+`EMBEDDED_AGENT_DEBUGGER` to point a check at a specific executable. The
+default check reports a missing `PATH` entry as `ready_with_warnings`; use
+`--strict` when every component CLI must be directly invocable.
 
 ## MCP policy
 
@@ -72,6 +78,7 @@ See [installation](docs/installation.md) and
 
 ```powershell
 python -m unittest discover -s tests -v
+python scripts/validate_identity_ledger.py docs/examples/esp32s3-identity-ledger-2026-09-03.json --json
 python C:\Users\Nitmi\.codex\skills\.system\plugin-creator\scripts\validate_plugin.py .
 ```
 
