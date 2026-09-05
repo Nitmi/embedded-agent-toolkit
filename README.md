@@ -14,6 +14,14 @@ The value of the toolkit is the cross-tool workflow: one identity ledger, one
 safety policy, correlated evidence, and deterministic cleanup across serial,
 BLE, and debug transports. Each component remains independently usable.
 
+## Release packages
+
+Version `0.2.0` adds reproducible plugin-only ZIPs with per-file manifests and
+SHA-256 checksums. The host-only `scripts/release.py` builds, verifies, and
+installs versioned directories without activating plugins, changing PATH, or
+installing component CLIs. Upgrades retain the previous version for rollback.
+See [release and upgrade instructions](docs/releases.md).
+
 ## Included workflows
 
 - `embedded-bringup`: discover interfaces, verify identities, plan flashing,
@@ -82,7 +90,7 @@ See [installation](docs/installation.md) and
 ```powershell
 python -m unittest discover -s tests -v
 python scripts/validate_identity_ledger.py docs/examples/esp32s3-identity-ledger-2026-09-03.json --json
-python C:\Users\Nitmi\.codex\skills\.system\plugin-creator\scripts\validate_plugin.py .
+python <plugin-creator-skill-root>/scripts/validate_plugin.py .
 ```
 
 The repository is an Agent Plugin, not another hardware runtime. Scripts added

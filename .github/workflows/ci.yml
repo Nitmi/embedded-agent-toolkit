@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-package:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Host-only tests
+        run: python -m unittest discover -s tests -v
+      - name: Build plugin package
+        run: python scripts/release.py build --output-dir dist --json
+      - name: Verify package and version installation
+        shell: pwsh
+        run: |
+          $archives = @(Get-ChildItem -LiteralPath dist -Filter '*.zip')
+          if ($archives.Count -ne 1) { throw 'Expected one release archive' }
+          $archive = $archives[0].FullName
+          python scripts/release.py verify $archive --checksum "$archive.sha256" --json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/release.py install $archive --checksum "$archive.sha256" --install-root build/installed --json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: toolkit-package-${{ matrix.os }}
+          path: dist/*

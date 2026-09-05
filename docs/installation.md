@@ -16,6 +16,10 @@ of installing an unrelated package with a similar command name.
 
 ## Install the plugin
 
+For a versioned ZIP, follow [release installation](releases.md). It verifies
+the package before creating a separate version directory and does not change
+the active plugin. Component CLIs still need their own installation.
+
 Clone `embedded-agent-toolkit`, then add that directory as a local plugin in
 the Agent host. The selected directory must directly contain
 `.codex-plugin/plugin.json`; do not select its parent directory.
@@ -49,7 +53,8 @@ not in this reusable plugin.
 
 ## Project runtime setup
 
-For project runtime acceptance, check `embedded-debugger runtime --help` for
+Use `embedded-debugger 0.2.0` or newer for project runtime setup. Check
+`embedded-debugger runtime --help` for
 `init` and `inspect`; early `0.1.0` builds predate those commands, so the version
 string alone does not establish their availability. Use the exact new build
 path during source development. Follow the
