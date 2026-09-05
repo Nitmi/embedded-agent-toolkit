@@ -197,3 +197,32 @@ controlled, non-adversarial build correlation, not signed attestation, Secure
 Boot verification, silicon identity, or continuity outside the window. The
 updated machine ledger is validated by `scripts/validate_identity_ledger.py`;
 the validator is host-only and never enumerates or opens hardware.
+
+## Offline project runtime setup - 2026-09-06
+
+The source `hardware-test` Skill now routes project contract preparation to
+the component CLI's `runtime init` and `runtime inspect`. It does not add a
+toolkit runner, duplicate schema, or component MCP registration.
+
+From the toolkit checkout, the release debugger at
+`D:\Code\ai\embedded-debugger\target\release\embedded-debugger.exe`
+generated and inspected a contract using relative output/input paths beneath
+`evidence/2026-09-06-project-runtime-setup`. Deliberately offline probe, target,
+port, and USB-serial labels established that setup does not require physical
+discovery or a valid native target. Both commands returned exit code 0 with
+empty stderr and `scope=host_only_no_hardware_access`. The 1,401-byte contract
+SHA-256 matched independently:
+`5004190c7d47310e03e4460e562f32d81a8b3e3923e30e4c9b489628524332b3`.
+The release executable SHA-256 was
+`210d033f6328b6fc3ba5b1540b61b9dcd2fc693a9980f60aa0e535fc0fe311d2`.
+
+The debugger suite passed 268 library tests and 95 CLI tests, including
+generated-contract Replay acceptance and offline setup under all three backend
+selectors with an empty PATH and nonexistent fixture. Toolkit tests passed all
+17 cases, and plugin validation plus every source Skill validation passed.
+The existing DK contract also passed offline inspection with its original hash.
+
+This checkpoint changes source guidance and the local release executable only.
+It does not update the installed plugin cache or PATH, and it does not enumerate,
+open, attach, reset, flash, erase, or otherwise access hardware. Offline
+configuration validity is not hardware acceptance or firmware identity evidence.

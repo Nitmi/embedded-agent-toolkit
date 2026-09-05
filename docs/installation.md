@@ -47,6 +47,17 @@ project's MCP configuration only after `embedded-debugger` has returned the
 exact probe-rs target identifier. Keep that target in project configuration,
 not in this reusable plugin.
 
+## Project runtime setup
+
+For project runtime acceptance, check `embedded-debugger runtime --help` for
+`init` and `inspect`; early `0.1.0` builds predate those commands, so the version
+string alone does not establish their availability. Use the exact new build
+path during source development. Follow the
+[project contract workflow](../skills/hardware-test/references/runtime-contract.md)
+to prepare `.embedded/runtime.json` without enumerating or opening hardware.
+The toolkit keeps no second copy of the runtime schema and starts no additional
+MCP server for this workflow.
+
 ## Upgrade
 
 Update this repository and each component independently, rerun the doctor, and

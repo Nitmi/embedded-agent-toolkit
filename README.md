@@ -24,7 +24,10 @@ BLE, and debug transports. Each component remains independently usable.
   before escalating to a debugger attach. See the
   [validated identity-ledger example](docs/examples/esp32s3-identity-ledger-2026-09-03.md).
 - `hardware-test`: run a staged, assertion-driven hardware test with explicit
-  mutation gates and cleanup.
+  mutation gates and cleanup. Prepare per-project serial/reset contracts with
+  the debugger's offline `runtime init` and `runtime inspect` commands before
+  hardware access; see the
+  [project contract workflow](skills/hardware-test/references/runtime-contract.md).
 - `incident-capture`: preserve a failure scene and collect a read-mostly
   evidence bundle without silently recovering the target.
 

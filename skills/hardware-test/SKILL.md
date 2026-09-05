@@ -12,6 +12,12 @@ second untyped command runner in this plugin.
 
 ## Define the test contract
 
+For project setup without hardware access, use the component's host-only
+`embedded-debugger runtime init` and `runtime inspect` commands. Read
+[runtime-contract.md](references/runtime-contract.md) when creating a project's
+serial/reset acceptance contract. Keep this native format as the source of
+truth; do not add a toolkit execution wrapper or copy another board's identity.
+
 Before hardware access, record:
 
 - exact board, probe, target, serial, and BLE selection rules;
