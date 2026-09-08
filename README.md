@@ -59,6 +59,8 @@ For stable project or test-station selection, `scripts/component_lock.py` create
 an explicit lock of all three executable paths, versions, and SHA-256 values.
 Pass it to doctor with `--component-lock`; it remains host-only and does not
 modify `PATH` or proxy hardware commands. See [installation](docs/installation.md).
+Release installation can create this lock and complete strict doctor in the same
+command; see [versioned releases](docs/releases.md).
 
 ## MCP policy
 

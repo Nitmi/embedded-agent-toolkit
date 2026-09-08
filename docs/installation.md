@@ -16,9 +16,11 @@ of installing an unrelated package with a similar command name.
 
 ## Install the plugin
 
-For a versioned ZIP, follow [release installation](releases.md). It verifies
-the package before creating a separate version directory and does not change
-the active plugin. Component CLIs still need their own installation.
+For a versioned ZIP, follow [release installation](releases.md). The recommended
+single command verifies and installs the package, creates an exact component
+lock from explicit executable paths, and runs strict host-only readiness checks.
+It does not change the active plugin. Component CLIs still need their own
+installation.
 
 Clone `embedded-agent-toolkit`, then add that directory as a local plugin in
 the Agent host. The selected directory must directly contain
@@ -46,11 +48,16 @@ than relying on ambient command precedence:
 python scripts/component_lock.py create --output .embedded/toolchain-lock.json `
   --baud (Get-Command baud -CommandType Application).Source `
   --blea (Get-Command ble -CommandType Application).Source `
-  --debugger D:\Code\tools\embedded-debugger\embedded-debugger-0.2.0-x86_64-pc-windows-msvc\embedded-debugger.exe `
+  --debugger C:\Tools\embedded-debugger\embedded-debugger.exe `
   --json
 python scripts/component_lock.py inspect .embedded/toolchain-lock.json --json
 python scripts/toolkit_doctor.py --component-lock .embedded/toolchain-lock.json --strict --json
 ```
+
+When installing a release, prefer the combined command in
+[versioned releases](releases.md); use the standalone commands above when the
+plugin is already installed or when replacing a lock intentionally after
+reviewing the component changes.
 
 Creation runs only each executable's `--version`; inspection performs no process
 execution. The lock requires absolute regular-file paths and binds each file's

@@ -143,7 +143,11 @@ def create(
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open("xb") as stream:
         stream.write(data)
-    parse_lock(output)
+    try:
+        parse_lock(output)
+    except Exception:
+        output.unlink(missing_ok=True)
+        raise
     return {
         "schema_version": SCHEMA,
         "ok": True,

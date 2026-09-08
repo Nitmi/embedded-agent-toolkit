@@ -15,6 +15,12 @@ import sys
 import zipfile
 from pathlib import Path
 
+if __package__:
+    from . import component_lock, toolkit_doctor
+else:
+    import component_lock
+    import toolkit_doctor
+
 PLUGIN = "embedded-agent-toolkit"
 SCHEMA = "embedded-agent-toolkit.release.v1"
 MANIFEST = "release-manifest.json"
@@ -412,6 +418,53 @@ def install_release(archive: Path, checksum: Path, install_root: Path) -> dict:
     }
 
 
+def install_ready_release(
+    archive: Path,
+    checksum: Path,
+    install_root: Path,
+    lock_output: Path,
+    selections: dict[str, str],
+    timeout: float,
+) -> dict:
+    if not 0.1 <= timeout <= 30:
+        raise ReleaseError("--timeout must be between 0.1 and 30 seconds")
+    if set(selections) != set(component_lock.SPECS):
+        raise ReleaseError("ready setup requires baud, blea, and debugger paths")
+    if lock_output.exists() or lock_output.is_symlink():
+        raise ReleaseError("component lock output already exists")
+
+    installation = install_release(archive, checksum, install_root)
+    created = False
+    try:
+        lock_report = component_lock.create(lock_output, selections, timeout)
+        created = True
+        locked = component_lock.parse_lock(lock_output)
+        doctor = toolkit_doctor.build_report(
+            toolkit_doctor.COMPONENTS,
+            timeout,
+            Path(installation["plugin_path"]),
+            locked,
+        )
+        if not doctor["complete"]:
+            details = ", ".join(doctor["errors"] or doctor["warnings"])
+            raise ReleaseError(f"strict component doctor failed: {details}")
+    except component_lock.LockError as error:
+        if created:
+            lock_output.unlink(missing_ok=True)
+        raise ReleaseError(str(error)) from error
+    except Exception:
+        if created:
+            lock_output.unlink(missing_ok=True)
+        raise
+
+    return {
+        **installation,
+        "ready": True,
+        "component_lock": lock_report,
+        "doctor": doctor,
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -426,6 +479,11 @@ def main(argv: list[str] | None = None) -> int:
         subparser.add_argument("--checksum", type=Path, required=True)
         if name == "install":
             subparser.add_argument("--install-root", type=Path, required=True)
+            subparser.add_argument("--lock-output", type=Path)
+            subparser.add_argument("--baud")
+            subparser.add_argument("--blea")
+            subparser.add_argument("--debugger")
+            subparser.add_argument("--timeout", type=float, default=5.0)
     for subparser in commands.choices.values():
         subparser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
@@ -442,7 +500,26 @@ def main(argv: list[str] | None = None) -> int:
                 "publisher_authenticity_verified": False,
             }
         else:
-            data = install_release(args.archive, args.checksum, args.install_root)
+            setup_values = (args.lock_output, args.baud, args.blea, args.debugger)
+            if any(value is not None for value in setup_values):
+                if any(value is None for value in setup_values):
+                    raise ReleaseError(
+                        "--lock-output, --baud, --blea, and --debugger are required together"
+                    )
+                data = install_ready_release(
+                    args.archive,
+                    args.checksum,
+                    args.install_root,
+                    args.lock_output,
+                    {
+                        "baud": args.baud,
+                        "blea": args.blea,
+                        "embedded-debugger": args.debugger,
+                    },
+                    args.timeout,
+                )
+            else:
+                data = install_release(args.archive, args.checksum, args.install_root)
         report = {
             "schema_version": SCHEMA,
             "ok": True,

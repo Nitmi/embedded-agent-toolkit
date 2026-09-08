@@ -10,7 +10,7 @@ import zipfile
 from pathlib import Path
 from unittest import mock
 
-from scripts import release
+from scripts import component_lock, release, toolkit_doctor
 
 
 def source_files(version: str = "0.2.0") -> dict[str, bytes]:
@@ -300,6 +300,138 @@ class ReleaseTests(unittest.TestCase):
         self.assertFalse(report["path_modified"])
         self.assertFalse(report["components_installed"])
         self.assertEqual(Path(report["plugin_path"]).name, release.PLUGIN)
+
+    def test_ready_install_creates_lock_and_runs_strict_installed_doctor(self) -> None:
+        self.prepare("0.4.0")
+        executables = {}
+        outputs = {
+            "baud": "baud 0.1.0\n",
+            "blea": "ble 0.6.4\n",
+            "embedded-debugger": "embedded-debugger 0.2.0\n",
+        }
+        for name in component_lock.SPECS:
+            path = self.root / f"{name}.exe"
+            path.write_bytes(name.encode())
+            executables[name] = str(path)
+
+        def completed(args, **_kwargs):
+            name = Path(args[0]).stem
+            return release.subprocess.CompletedProcess(args, 0, outputs[name], "")
+
+        lock = self.root / "station" / "toolchain-lock.json"
+        with (
+            mock.patch.dict(release.os.environ, {}, clear=True),
+            mock.patch.object(toolkit_doctor.platform, "system", return_value="Test"),
+            mock.patch.object(toolkit_doctor.platform, "release", return_value="1"),
+            mock.patch.object(toolkit_doctor.platform, "machine", return_value="x64"),
+            mock.patch.object(
+                toolkit_doctor.platform, "python_version", return_value="3.12"
+            ),
+            mock.patch.object(
+                component_lock.subprocess, "run", side_effect=completed
+            ) as process,
+        ):
+            report = release.install_ready_release(
+                self.archive,
+                self.checksum,
+                self.root / "install",
+                lock,
+                executables,
+                1.0,
+            )
+
+        self.assertTrue(report["ready"])
+        self.assertTrue(report["doctor"]["complete"])
+        self.assertEqual(report["doctor"]["status"], "ready")
+        self.assertTrue(lock.is_file())
+        self.assertEqual(process.call_count, 6)
+        self.assertFalse(report["activated"])
+        self.assertFalse(report["path_modified"])
+        self.assertFalse(report["components_installed"])
+
+    def test_ready_install_removes_new_lock_when_strict_doctor_fails(self) -> None:
+        self.prepare("0.4.0")
+        executables = {}
+        outputs = {
+            "baud": "baud 0.1.0\n",
+            "blea": "ble 0.6.4\n",
+            "embedded-debugger": "embedded-debugger 0.2.0\n",
+        }
+        for name in component_lock.SPECS:
+            path = self.root / f"{name}.exe"
+            path.write_bytes(name.encode())
+            executables[name] = str(path)
+        calls = 0
+
+        def completed(args, **_kwargs):
+            nonlocal calls
+            calls += 1
+            name = Path(args[0]).stem
+            if calls == 6:
+                return release.subprocess.CompletedProcess(args, 1, "", "failed")
+            return release.subprocess.CompletedProcess(args, 0, outputs[name], "")
+
+        lock = self.root / "toolchain-lock.json"
+        with (
+            mock.patch.dict(release.os.environ, {}, clear=True),
+            mock.patch.object(toolkit_doctor.platform, "system", return_value="Test"),
+            mock.patch.object(toolkit_doctor.platform, "release", return_value="1"),
+            mock.patch.object(toolkit_doctor.platform, "machine", return_value="x64"),
+            mock.patch.object(
+                toolkit_doctor.platform, "python_version", return_value="3.12"
+            ),
+            mock.patch.object(component_lock.subprocess, "run", side_effect=completed),
+            self.assertRaisesRegex(release.ReleaseError, "strict component doctor"),
+        ):
+            release.install_ready_release(
+                self.archive,
+                self.checksum,
+                self.root / "install",
+                lock,
+                executables,
+                1.0,
+            )
+        self.assertFalse(lock.exists())
+        self.assertTrue((self.root / "install" / "0.4.0" / release.PLUGIN).is_dir())
+
+    def test_ready_install_rejects_existing_lock_before_installation(self) -> None:
+        self.prepare("0.4.0")
+        lock = self.root / "toolchain-lock.json"
+        lock.write_text("preserve", encoding="ascii")
+        with self.assertRaisesRegex(release.ReleaseError, "already exists"):
+            release.install_ready_release(
+                self.archive,
+                self.checksum,
+                self.root / "install",
+                lock,
+                {name: str(self.root / name) for name in component_lock.SPECS},
+                1.0,
+            )
+        self.assertEqual(lock.read_text(encoding="ascii"), "preserve")
+        self.assertFalse((self.root / "install").exists())
+
+    def test_cli_rejects_partial_ready_setup_before_installation(self) -> None:
+        self.prepare("0.4.0")
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            code = release.main(
+                [
+                    "install",
+                    str(self.archive),
+                    "--checksum",
+                    str(self.checksum),
+                    "--install-root",
+                    str(self.root / "install"),
+                    "--lock-output",
+                    str(self.root / "toolchain-lock.json"),
+                    "--json",
+                ]
+            )
+        report = json.loads(output.getvalue())
+        self.assertEqual(code, 2)
+        self.assertFalse(report["ok"])
+        self.assertIn("required together", report["error"])
+        self.assertFalse((self.root / "install").exists())
 
     def test_upgrade_retains_previous_version_and_old_install_can_be_selected(
         self,

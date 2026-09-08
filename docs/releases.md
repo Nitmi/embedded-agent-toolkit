@@ -2,7 +2,7 @@
 
 ## Contents and scope
 
-The `0.3.0` release is a portable **plugin-only** ZIP. It contains the four
+The `0.4.0` release is a portable **plugin-only** ZIP. It contains the four
 orchestration Skills, their references, host-only scripts, user documentation,
 license, and both plugin manifests. Component executables, component MCP servers,
 Git internals, tests, local hardware evidence, and build outputs are not bundled.
@@ -24,7 +24,7 @@ After tests and a cohesive commit, from this repository:
 
 ```powershell
 python scripts/release.py build --output-dir dist --json
-python scripts/release.py verify dist/embedded-agent-toolkit-0.3.0.zip --checksum dist/embedded-agent-toolkit-0.3.0.zip.sha256 --json
+python scripts/release.py verify dist/embedded-agent-toolkit-0.4.0.zip --checksum dist/embedded-agent-toolkit-0.4.0.zip.sha256 --json
 ```
 
 The builder requires a clean worktree and reads pinned Git blobs rather than
@@ -39,12 +39,31 @@ Use the release script from a trusted source checkout. Obtain the ZIP and its
 checksum from a trusted channel, then install into a directory you own:
 
 ```powershell
-python scripts/release.py install dist/embedded-agent-toolkit-0.3.0.zip --checksum dist/embedded-agent-toolkit-0.3.0.zip.sha256 --install-root D:\Code\tools\embedded-agent-toolkit --json
+python scripts/release.py install dist/embedded-agent-toolkit-0.4.0.zip `
+  --checksum dist/embedded-agent-toolkit-0.4.0.zip.sha256 `
+  --install-root C:\Tools\embedded-agent-toolkit `
+  --lock-output C:\Tools\embedded-agent-toolkit\component-locks\workstation.json `
+  --baud C:\Users\you\.local\bin\baud.exe `
+  --blea C:\Users\you\.local\bin\ble.exe `
+  --debugger C:\Tools\embedded-debugger\embedded-debugger.exe `
+  --json
 ```
 
-This creates `D:\Code\tools\embedded-agent-toolkit\0.3.0\embedded-agent-toolkit`.
-On another OS, choose an appropriate explicit install root. Validation completes
-before installation begins: the checksum, manifest inventory, member hashes,
+This creates `C:\Tools\embedded-agent-toolkit\0.4.0\embedded-agent-toolkit`,
+then creates the requested component lock and runs strict doctor against the
+installed plugin. The three component executables are invoked only with
+`--version`; no hardware command is run. All four setup options (`--lock-output`,
+`--baud`, `--blea`, and `--debugger`) are optional as a group: omit all four to
+perform plugin-only installation with the earlier behavior.
+
+An existing lock is rejected before installation and is never overwritten. If
+strict doctor fails after a new lock is created, that lock is removed; the
+verified, inactive version directory is retained for diagnosis. The combined
+command does not activate Codex, install component CLIs, edit PATH or persistent
+environment variables, modify marketplaces, or launch MCP servers.
+
+On another OS, choose an appropriate explicit install root. Archive validation
+completes before installation begins: the checksum, manifest inventory, member hashes,
 sizes, versions, paths, regular-file types, and plugin service boundaries must
 all pass. Traversal, absolute paths, Windows alternate streams/reserved names,
 case collisions, links, and extra archive members are rejected.

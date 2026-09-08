@@ -54,6 +54,22 @@ class ComponentLockTests(unittest.TestCase):
             component_lock.create(output, self.executables, 1.0)
         self.assertEqual(output.read_bytes(), before)
 
+    def test_failed_post_write_validation_removes_new_output(self) -> None:
+        output = self.root / "toolchain-lock.json"
+        with (
+            mock.patch.object(
+                component_lock.subprocess, "run", side_effect=self.completed
+            ),
+            mock.patch.object(
+                component_lock,
+                "parse_lock",
+                side_effect=component_lock.LockError("validation failed"),
+            ),
+            self.assertRaisesRegex(component_lock.LockError, "validation failed"),
+        ):
+            component_lock.create(output, self.executables, 1.0)
+        self.assertFalse(output.exists())
+
     def test_hash_drift_is_rejected(self) -> None:
         output = self.create()
         Path(self.executables["baud"]).write_bytes(b"changed")
