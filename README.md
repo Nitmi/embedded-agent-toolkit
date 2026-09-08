@@ -16,7 +16,7 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Release packages
 
-Version `0.2.0` adds reproducible plugin-only ZIPs with per-file manifests and
+Version `0.3.0` provides reproducible plugin-only ZIPs with per-file manifests and
 SHA-256 checksums. The host-only `scripts/release.py` builds, verifies, and
 installs versioned directories without activating plugins, changing PATH, or
 installing component CLIs. Upgrades retain the previous version for rollback.
@@ -54,6 +54,11 @@ Use `EMBEDDED_AGENT_BAUD`, `EMBEDDED_AGENT_BLE`, or
 `EMBEDDED_AGENT_DEBUGGER` to point a check at a specific executable. The
 default check reports a missing `PATH` entry as `ready_with_warnings`; use
 `--strict` when every component CLI must be directly invocable.
+
+For stable project or test-station selection, `scripts/component_lock.py` creates
+an explicit lock of all three executable paths, versions, and SHA-256 values.
+Pass it to doctor with `--component-lock`; it remains host-only and does not
+modify `PATH` or proxy hardware commands. See [installation](docs/installation.md).
 
 ## MCP policy
 

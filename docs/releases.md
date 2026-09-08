@@ -2,7 +2,7 @@
 
 ## Contents and scope
 
-The `0.2.0` release is a portable **plugin-only** ZIP. It contains the four
+The `0.3.0` release is a portable **plugin-only** ZIP. It contains the four
 orchestration Skills, their references, host-only scripts, user documentation,
 license, and both plugin manifests. Component executables, component MCP servers,
 Git internals, tests, local hardware evidence, and build outputs are not bundled.
@@ -24,7 +24,7 @@ After tests and a cohesive commit, from this repository:
 
 ```powershell
 python scripts/release.py build --output-dir dist --json
-python scripts/release.py verify dist/embedded-agent-toolkit-0.2.0.zip --checksum dist/embedded-agent-toolkit-0.2.0.zip.sha256 --json
+python scripts/release.py verify dist/embedded-agent-toolkit-0.3.0.zip --checksum dist/embedded-agent-toolkit-0.3.0.zip.sha256 --json
 ```
 
 The builder requires a clean worktree and reads pinned Git blobs rather than
@@ -39,10 +39,10 @@ Use the release script from a trusted source checkout. Obtain the ZIP and its
 checksum from a trusted channel, then install into a directory you own:
 
 ```powershell
-python scripts/release.py install dist/embedded-agent-toolkit-0.2.0.zip --checksum dist/embedded-agent-toolkit-0.2.0.zip.sha256 --install-root D:\Code\tools\embedded-agent-toolkit --json
+python scripts/release.py install dist/embedded-agent-toolkit-0.3.0.zip --checksum dist/embedded-agent-toolkit-0.3.0.zip.sha256 --install-root D:\Code\tools\embedded-agent-toolkit --json
 ```
 
-This creates `D:\Code\tools\embedded-agent-toolkit\0.2.0\embedded-agent-toolkit`.
+This creates `D:\Code\tools\embedded-agent-toolkit\0.3.0\embedded-agent-toolkit`.
 On another OS, choose an appropriate explicit install root. Validation completes
 before installation begins: the checksum, manifest inventory, member hashes,
 sizes, versions, paths, regular-file types, and plugin service boundaries must

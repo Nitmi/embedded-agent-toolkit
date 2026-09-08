@@ -11,6 +11,10 @@ own CLI with structured output after checking its help. The component contracts
 still own hardware access and safety gates; do not replace a missing integration
 with ad hoc probe, serial, or Bluetooth scripts.
 
+If the project supplies `.embedded/toolchain-lock.json`, validate it with the
+installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only
+its hash-bound component paths. Do not let environment overrides mask that lock.
+
 ## Establish identities
 
 1. Run `python scripts/toolkit_doctor.py --json`. This is host-only and does not

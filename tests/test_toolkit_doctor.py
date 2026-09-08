@@ -62,6 +62,41 @@ class ComponentCheckTests(unittest.TestCase):
         self.assertEqual(result["status"], "invalid_environment_override")
         self.assertEqual(result["severity"], "error")
 
+    def test_component_lock_is_hash_checked_before_version_execution(self) -> None:
+        component = doctor.COMPONENTS[2]
+        locked = {"path": __file__, "sha256": "0" * 64, "version": "0.2.0"}
+        with mock.patch.object(
+            doctor.subprocess, "run", side_effect=AssertionError("must not execute")
+        ):
+            result = doctor.check_component(component, 1.0, locked)
+        self.assertEqual(result["status"], "component_lock_hash_mismatch")
+        self.assertFalse(result["ok"])
+
+    def test_environment_override_cannot_mask_a_component_lock(self) -> None:
+        component = doctor.COMPONENTS[2]
+        locked = {"path": __file__, "sha256": "0" * 64, "version": "0.2.0"}
+        with mock.patch.dict(
+            "os.environ", {component.environment_variable: __file__}, clear=True
+        ):
+            result = doctor.check_component(component, 1.0, locked)
+        self.assertEqual(result["status"], "environment_conflicts_with_component_lock")
+        self.assertFalse(result["ok"])
+
+    def test_component_lock_version_must_match_observed_version(self) -> None:
+        component = doctor.COMPONENTS[0]
+        locked = {
+            "path": __file__,
+            "sha256": doctor.component_lock.sha256(Path(__file__)),
+            "version": "9.9.9",
+        }
+        completed = subprocess.CompletedProcess(
+            [__file__, "--version"], 0, "baud 0.1.0\n", ""
+        )
+        with mock.patch.object(doctor.subprocess, "run", return_value=completed):
+            result = doctor.check_component(component, 1.0, locked)
+        self.assertEqual(result["status"], "component_lock_version_mismatch")
+        self.assertFalse(result["ok"])
+
     def test_timeout_fails_closed(self) -> None:
         component = doctor.COMPONENTS[2]
         with (

@@ -37,6 +37,31 @@ CI requires every default CLI entry; strict mode returns exit code 2 for an
 incomplete toolchain. Real layout, override, launch, and version errors fail in
 both modes.
 
+## Lock exact component versions
+
+For a stable project or test station, create one explicit component lock rather
+than relying on ambient command precedence:
+
+```powershell
+python scripts/component_lock.py create --output .embedded/toolchain-lock.json `
+  --baud (Get-Command baud -CommandType Application).Source `
+  --blea (Get-Command ble -CommandType Application).Source `
+  --debugger D:\Code\tools\embedded-debugger\embedded-debugger-0.2.0-x86_64-pc-windows-msvc\embedded-debugger.exe `
+  --json
+python scripts/component_lock.py inspect .embedded/toolchain-lock.json --json
+python scripts/toolkit_doctor.py --component-lock .embedded/toolchain-lock.json --strict --json
+```
+
+Creation runs only each executable's `--version`; inspection performs no process
+execution. The lock requires absolute regular-file paths and binds each file's
+version and SHA-256. Doctor verifies hashes before starting `--version` and
+requires observed versions to match. A selected lock is authoritative:
+`EMBEDDED_AGENT_BAUD`, `EMBEDDED_AGENT_BLE`, or `EMBEDDED_AGENT_DEBUGGER` in the
+same process is treated as a conflict, not as an override. The lock does not edit
+`PATH`, activate plugins, authorize hardware access, or proxy component commands.
+Commit a project lock only when its host-specific absolute paths are intentional;
+otherwise keep it as test-station configuration outside source control.
+
 ## Component MCP servers
 
 The toolkit does not register component MCP servers. Install and enable the

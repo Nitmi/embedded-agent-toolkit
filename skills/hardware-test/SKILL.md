@@ -10,6 +10,10 @@ otherwise use their own CLIs with structured output. Keep each component's
 native workflow format and evidence as the source of truth. Do not create a
 second untyped command runner in this plugin.
 
+If the project supplies `.embedded/toolchain-lock.json`, validate it with the
+installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only
+its hash-bound component paths. Do not let environment overrides mask that lock.
+
 ## Define the test contract
 
 For project setup without hardware access, use the component's host-only

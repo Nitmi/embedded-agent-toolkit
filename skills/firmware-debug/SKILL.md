@@ -11,6 +11,10 @@ use the corresponding component CLI with structured output. Preserve each
 component's capability and safety limits instead of translating a successful
 process exit into a hardware claim.
 
+If the project supplies `.embedded/toolchain-lock.json`, validate it with the
+installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only
+its hash-bound component paths. Do not let environment overrides mask that lock.
+
 ## Frame the question
 
 Define the symptom, observation window, exact firmware artifact and hash, exact

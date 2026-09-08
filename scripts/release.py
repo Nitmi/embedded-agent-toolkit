@@ -28,6 +28,7 @@ REQUIRED_FILES = {
     "LICENSE",
     "README.md",
     "scripts/release.py",
+    "scripts/component_lock.py",
     "scripts/toolkit_doctor.py",
     *(
         f"skills/{name}/SKILL.md"

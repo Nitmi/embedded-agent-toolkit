@@ -10,6 +10,10 @@ Treat the current device state as evidence. Prefer the installed
 CLIs with structured output. Keep every component's documented safety and
 identity boundaries.
 
+If the project supplies `.embedded/toolchain-lock.json`, validate it with the
+installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only
+its hash-bound component paths. Do not let environment overrides mask that lock.
+
 ## Freeze scope before state
 
 1. Record the symptom, host time, user action, exact known identities, firmware

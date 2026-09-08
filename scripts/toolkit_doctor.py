@@ -15,6 +15,11 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+if __package__:
+    from . import component_lock
+else:
+    import component_lock
+
 SCHEMA_VERSION = "embedded-agent-toolkit.doctor.v2"
 PLUGIN_NAME = "embedded-agent-toolkit"
 WARNING_STATUSES = frozenset({"not_found"})
@@ -57,8 +62,14 @@ COMPONENTS = (
 )
 
 
-def resolve_executable(component: Component) -> tuple[str | None, str, str]:
+def resolve_executable(
+    component: Component, locked: dict[str, str] | None = None
+) -> tuple[str | None, str, str]:
     override = os.environ.get(component.environment_variable)
+    if locked is not None:
+        if override:
+            return None, override, "lock_environment_conflict"
+        return locked["path"], locked["path"], "component_lock"
     requested = override or component.executable
     if override:
         candidate = Path(override).expanduser()
@@ -68,8 +79,10 @@ def resolve_executable(component: Component) -> tuple[str | None, str, str]:
     return shutil.which(requested), requested, "path"
 
 
-def check_component(component: Component, timeout: float) -> dict[str, object]:
-    executable, requested, resolution_source = resolve_executable(component)
+def check_component(
+    component: Component, timeout: float, locked: dict[str, str] | None = None
+) -> dict[str, object]:
+    executable, requested, resolution_source = resolve_executable(component, locked)
     base: dict[str, object] = {
         "name": component.name,
         "requested_executable": requested,
@@ -85,7 +98,11 @@ def check_component(component: Component, timeout: float) -> dict[str, object]:
         status = (
             "invalid_environment_override"
             if resolution_source == "environment_override"
-            else "not_found"
+            else (
+                "environment_conflicts_with_component_lock"
+                if resolution_source == "lock_environment_conflict"
+                else "not_found"
+            )
         )
         return {
             **base,
@@ -96,6 +113,19 @@ def check_component(component: Component, timeout: float) -> dict[str, object]:
             "version": None,
         }
 
+    if locked is not None:
+        actual_hash = component_lock.sha256(Path(executable))
+        if actual_hash != locked["sha256"]:
+            return {
+                **base,
+                "ok": False,
+                "severity": "error",
+                "status": "component_lock_hash_mismatch",
+                "executable": executable,
+                "version": None,
+                "expected_sha256": locked["sha256"],
+                "actual_sha256": actual_hash,
+            }
     try:
         completed = subprocess.run(
             [executable, "--version"],
@@ -132,6 +162,8 @@ def check_component(component: Component, timeout: float) -> dict[str, object]:
         status = "nonzero_exit"
     elif match is None:
         status = "unexpected_version_output"
+    elif locked is not None and match.group(1) != locked["version"]:
+        status = "component_lock_version_mismatch"
     else:
         status = "ready"
     return {
@@ -144,6 +176,7 @@ def check_component(component: Component, timeout: float) -> dict[str, object]:
         "exit_code": completed.returncode,
         "stdout": stdout,
         "stderr": stderr,
+        **({"sha256": locked["sha256"]} if locked is not None else {}),
     }
 
 
@@ -210,10 +243,18 @@ def check_plugin_layout(plugin_root: Path) -> dict[str, object]:
 
 
 def build_report(
-    selected_components: Sequence[Component], timeout: float, plugin_root: Path
+    selected_components: Sequence[Component],
+    timeout: float,
+    plugin_root: Path,
+    locked_components: dict[str, dict[str, str]] | None = None,
 ) -> dict[str, object]:
     component_results = [
-        check_component(component, timeout) for component in selected_components
+        check_component(
+            component,
+            timeout,
+            locked_components.get(component.name) if locked_components else None,
+        )
+        for component in selected_components
     ]
     layout = check_plugin_layout(plugin_root)
     warnings = [
@@ -243,6 +284,7 @@ def build_report(
         "warnings": warnings,
         "errors": errors,
         "scope": "host_only_no_hardware_access",
+        "component_lock_used": locked_components is not None,
         "platform": {
             "system": platform.system(),
             "release": platform.release(),
@@ -286,6 +328,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--json", action="store_true", help="emit one JSON result")
     parser.add_argument(
+        "--component-lock",
+        type=Path,
+        help="authoritative exact component lock; environment overrides then fail",
+    )
+    parser.add_argument(
         "--component",
         action="append",
         choices=[component.name for component in COMPONENTS],
@@ -315,7 +362,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         component for component in COMPONENTS if not names or component.name in names
     ]
     plugin_root = Path(__file__).resolve().parent.parent
-    report = build_report(selected, args.timeout, plugin_root)
+    try:
+        locked_components = (
+            component_lock.parse_lock(args.component_lock)
+            if args.component_lock is not None
+            else None
+        )
+    except (component_lock.LockError, OSError) as error:
+        print(f"invalid component lock: {error}", file=sys.stderr)
+        return 2
+    report = build_report(selected, args.timeout, plugin_root, locked_components)
     if args.json:
         print(json.dumps(report, indent=2, sort_keys=True))
     else:
