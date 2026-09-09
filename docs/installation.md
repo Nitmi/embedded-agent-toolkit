@@ -16,7 +16,7 @@ of installing an unrelated package with a similar command name.
 
 ## Trusted component acquisition
 
-Toolkit 0.8.0 adds a strict standalone-artifact installer. Inspect its bundled,
+Toolkit 0.8.1 includes a strict standalone-artifact installer. Inspect its bundled,
 release-bound catalog without network or component execution:
 
 ```powershell

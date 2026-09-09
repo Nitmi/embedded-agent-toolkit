@@ -21,17 +21,16 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The current source version is `0.8.0`; the latest published release remains
-`0.7.0` until the candidate passes release acceptance. A tagged release provides a standalone
-`bootstrap.py` alongside the plugin ZIP. Download the bootstrap with GitHub CLI,
+The current release is `0.8.1`. It provides a standalone `bootstrap.py`
+alongside the plugin ZIP. Download the bootstrap with GitHub CLI,
 authenticate it before execution, and keep its exact filename:
 
 ```powershell
-gh release download v0.7.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.8.1 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.7.0 `
+  --source-ref refs/tags/v0.8.1 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -62,7 +61,7 @@ Toolkit release installation and bootstrap can reuse that lock with
 `--component-lock`, while `component_lock.py compare` provides a host-only review
 of an intentional component change before selecting a new lock.
 
-The 0.8.0 source also includes `component_install.py`. Its offline `plan`
+The 0.8.1 release also includes `component_install.py`. Its offline `plan`
 validates the release-bound component catalog and reports exact sources,
 hashes, destinations, and availability without network or process execution.
 Its `install` mode is fail-closed and becomes usable only after all three
