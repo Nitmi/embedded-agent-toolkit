@@ -18,7 +18,7 @@ from pathlib import Path
 
 PLUGIN = "embedded-agent-toolkit"
 REPOSITORY = "Nitmi/embedded-agent-toolkit"
-VERSION = "0.6.0"
+VERSION = "0.6.1"
 TAG = f"v{VERSION}"
 SOURCE_REF = f"refs/tags/{TAG}"
 SIGNER_WORKFLOW = f"{REPOSITORY}/.github/workflows/release-attestation.yml"
@@ -128,14 +128,19 @@ def verify_attestation(path: Path, gh: Path, timeout: float) -> dict:
         "json",
     ]
     process = subprocess.run(
-        command, capture_output=True, text=True, timeout=timeout, check=False
+        command,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        timeout=timeout,
+        check=False,
     )
     if process.returncode:
         detail = process.stderr.strip() or process.stdout.strip()
         raise BootstrapError(f"Attestation verification failed: {detail}")
     try:
         results = json.loads(process.stdout)
-    except json.JSONDecodeError as error:
+    except (json.JSONDecodeError, TypeError) as error:
         raise BootstrapError("GitHub CLI returned invalid attestation JSON") from error
     if not isinstance(results, list) or not results:
         raise BootstrapError("GitHub CLI returned no verified attestation")
@@ -240,14 +245,19 @@ def run_installer(
             ]
         )
     process = subprocess.run(
-        command, capture_output=True, text=True, timeout=timeout + 30, check=False
+        command,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        timeout=timeout + 30,
+        check=False,
     )
     if process.returncode:
         detail = process.stdout.strip() or process.stderr.strip()
         raise BootstrapError(f"Release installer failed: {detail}")
     try:
         report = json.loads(process.stdout)
-    except json.JSONDecodeError as error:
+    except (json.JSONDecodeError, TypeError) as error:
         raise BootstrapError("Release installer returned invalid JSON") from error
     if not isinstance(report, dict) or not report.get("ok"):
         raise BootstrapError("Release installer did not report success")

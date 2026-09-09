@@ -103,6 +103,7 @@ class BootstrapTests(unittest.TestCase):
             report = bootstrap.verify_attestation(artifact, Path("gh.exe"), 1)
         self.assertEqual(report["source_revision"], "a" * 40)
         command = run.call_args.args[0]
+        self.assertEqual(run.call_args.kwargs["encoding"], "utf-8")
         self.assertIn(bootstrap.SOURCE_REF, command)
         self.assertIn(bootstrap.SIGNER_WORKFLOW, command)
         self.assertIn("--deny-self-hosted-runners", command)
