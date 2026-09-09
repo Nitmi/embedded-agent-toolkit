@@ -14,6 +14,45 @@ cargo install --git https://github.com/Nitmi/embedded-debugger embedded-debugger
 For source development, use each repository's documented environment instead
 of installing an unrelated package with a similar command name.
 
+## Trusted component acquisition
+
+Toolkit 0.8.0 adds a strict standalone-artifact installer. Inspect its bundled,
+release-bound catalog without network or component execution:
+
+```powershell
+python scripts/component_install.py plan `
+  --install-root C:\Tools\embedded-agent-components `
+  --json
+```
+
+The current catalog deliberately has no platform artifacts: the existing baud
+and BLEA GitHub releases contain no downloadable assets, and embedded-debugger
+does not yet have a public release source. Therefore `complete=false` is the
+correct result. Do not replace missing entries with guessed URLs or an ambient
+package-manager resolution.
+
+After all three upstream releases publish standalone ZIPs and a later authenticated
+Toolkit release pins their exact URLs and SHA-256 values, installation will use:
+
+```powershell
+python scripts/component_install.py install `
+  --install-root C:\Tools\embedded-agent-components `
+  --lock-output C:\Tools\embedded-agent-toolkit\component-locks\workstation.next.json `
+  --json
+```
+
+Installation accepts only exact `https://github.com/<catalog repository>/releases/download/v<version>/...`
+assets, validates bounded ZIP contents and SHA-256 before writing, installs each
+executable under `<root>/<component>/<version>/`, runs only one `--version` per
+component, and creates a new component lock. It never edits PATH or accesses
+hardware. It refuses an existing lock or a different existing executable. A
+late failure can leave already verified version directories for inspection, but
+no lock is produced; review and compare the new lock before selecting it.
+
+An externally supplied `--catalog` is only structured input. It has publisher
+authority only when its bytes came from a Toolkit release whose GitHub
+attestation was independently verified.
+
 ## Install the plugin
 
 For a versioned ZIP, follow [release installation](releases.md). The recommended

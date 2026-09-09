@@ -16,6 +16,11 @@ installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only
 its hash-bound component paths. Do not let environment overrides mask that lock.
 When a different lock is proposed, run `component_lock.py compare` first and
 surface every changed path, version, and hash before selecting it.
+If components are missing, keep acquisition separate from board interaction:
+run `component_install.py plan` first and install only when the user explicitly
+asked for host setup and the bundled catalog reports `complete=true`. Never
+substitute guessed URLs or an unpinned package-manager result for an unavailable
+catalog artifact.
 
 ## Establish identities
 

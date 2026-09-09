@@ -15,6 +15,11 @@ installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only
 its hash-bound component paths. Do not let environment overrides mask that lock.
 When a different lock is proposed, run `component_lock.py compare` first and
 surface every changed path, version, and hash before selecting it.
+For a new test station, run `component_install.py plan` before any hardware
+discovery. The plan is offline and starts no component. Run its install mode
+only when the user requested host setup and every pinned platform artifact is
+available; it may download and write versioned host executables but must not be
+treated as hardware authorization. Compare its new lock before adopting it.
 
 ## Define the test contract
 

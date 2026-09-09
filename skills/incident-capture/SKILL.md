@@ -15,6 +15,10 @@ installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only
 its hash-bound component paths. Do not let environment overrides mask that lock.
 When a different lock is proposed, run `component_lock.py compare` first and
 surface every changed path, version, and hash before selecting it.
+Do not install or upgrade components while preserving an incident scene. If a
+required tool is absent, record that collection gap; defer the offline
+`component_install.py plan` and any host changes to a separate recovery or setup
+operation.
 
 ## Freeze scope before state
 

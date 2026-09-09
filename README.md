@@ -21,7 +21,8 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The current source version is `0.7.0`. A tagged release provides a standalone
+The current source version is `0.8.0`; the latest published release remains
+`0.7.0` until the candidate passes release acceptance. A tagged release provides a standalone
 `bootstrap.py` alongside the plugin ZIP. Download the bootstrap with GitHub CLI,
 authenticate it before execution, and keep its exact filename:
 
@@ -60,6 +61,14 @@ exact paths, versions, and SHA-256 hashes of `baud`, `blea`, and
 Toolkit release installation and bootstrap can reuse that lock with
 `--component-lock`, while `component_lock.py compare` provides a host-only review
 of an intentional component change before selecting a new lock.
+
+The 0.8.0 source also includes `component_install.py`. Its offline `plan`
+validates the release-bound component catalog and reports exact sources,
+hashes, destinations, and availability without network or process execution.
+Its `install` mode is fail-closed and becomes usable only after all three
+upstream projects publish cataloged standalone artifacts. The current catalog
+intentionally reports them unavailable instead of falling back to unpinned
+package-manager installs.
 
 ## Included workflows
 

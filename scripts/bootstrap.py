@@ -18,7 +18,7 @@ from pathlib import Path
 
 PLUGIN = "embedded-agent-toolkit"
 REPOSITORY = "Nitmi/embedded-agent-toolkit"
-VERSION = "0.7.0"
+VERSION = "0.8.0"
 TAG = f"v{VERSION}"
 SOURCE_REF = f"refs/tags/{TAG}"
 SIGNER_WORKFLOW = f"{REPOSITORY}/.github/workflows/release-attestation.yml"
@@ -28,6 +28,7 @@ MAX_CHECKSUM_BYTES = 4096
 MAX_SCRIPT_BYTES = 1024 * 1024
 INSTALLER_SCRIPTS = (
     "scripts/release.py",
+    "scripts/component_install.py",
     "scripts/component_lock.py",
     "scripts/toolkit_doctor.py",
 )

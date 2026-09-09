@@ -2,9 +2,9 @@
 
 ## Contents and scope
 
-The `0.7.0` release is a portable **plugin-only** ZIP. It contains the four
+The current source builds an `0.8.0` portable **plugin-only** candidate. It contains the four
 orchestration Skills, their references, host-only scripts, user documentation,
-license, and both plugin manifests. Component executables, component MCP servers,
+license, the strict component catalog, and both plugin manifests. Component executables, component MCP servers,
 Git internals, tests, local hardware evidence, and build outputs are not bundled.
 Use Python 3.11 or newer for the release commands; only the standard library is
 required. The debugger's offline runtime setup commands are versioned in
@@ -24,7 +24,7 @@ After tests and a cohesive commit, from this repository:
 
 ```powershell
 python scripts/release.py build --output-dir dist --json
-python scripts/release.py verify dist/embedded-agent-toolkit-0.7.0.zip --checksum dist/embedded-agent-toolkit-0.7.0.zip.sha256 --json
+python scripts/release.py verify dist/embedded-agent-toolkit-0.8.0.zip --checksum dist/embedded-agent-toolkit-0.8.0.zip.sha256 --json
 ```
 
 The builder requires a clean worktree and reads pinned Git blobs rather than

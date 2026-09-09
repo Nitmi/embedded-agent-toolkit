@@ -1,0 +1,20 @@
+{
+  "schema_version": "embedded-agent-toolkit.component-catalog.v1",
+  "components": {
+    "baud": {
+      "repository": "Nitmi/baud-cli",
+      "version": "0.1.0",
+      "artifacts": {}
+    },
+    "blea": {
+      "repository": "Nitmi/blea",
+      "version": "0.6.4",
+      "artifacts": {}
+    },
+    "embedded-debugger": {
+      "repository": "Nitmi/embedded-debugger",
+      "version": "0.2.0",
+      "artifacts": {}
+    }
+  }
+}

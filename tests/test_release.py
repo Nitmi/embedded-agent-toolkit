@@ -10,7 +10,7 @@ import zipfile
 from pathlib import Path
 from unittest import mock
 
-from scripts import component_lock, release, toolkit_doctor
+from scripts import component_install, component_lock, release, toolkit_doctor
 
 
 def source_files(version: str = "0.2.0") -> dict[str, bytes]:
@@ -18,6 +18,27 @@ def source_files(version: str = "0.2.0") -> dict[str, bytes]:
     manifest = {"name": release.PLUGIN, "version": version, "skills": "./skills/"}
     for name in ("plugin.json", ".codex-plugin/plugin.json"):
         files[name] = release.json_bytes(manifest)
+    files["component-catalog.json"] = release.json_bytes(
+        {
+            "schema_version": component_install.CATALOG_SCHEMA,
+            "components": {
+                name: {
+                    "repository": {
+                        "baud": "Nitmi/baud-cli",
+                        "blea": "Nitmi/blea",
+                        "embedded-debugger": "Nitmi/embedded-debugger",
+                    }[name],
+                    "version": {
+                        "baud": "0.1.0",
+                        "blea": "0.6.4",
+                        "embedded-debugger": "0.2.0",
+                    }[name],
+                    "artifacts": {},
+                }
+                for name in component_lock.SPECS
+            },
+        }
+    )
     return files
 
 
@@ -91,6 +112,7 @@ class ReleaseTests(unittest.TestCase):
             self.assertFalse(release.included(name), name)
         for name in (
             ".codex-plugin/plugin.json",
+            "component-catalog.json",
             "scripts/release.py",
             "scripts/bootstrap.py",
             "skills/hardware-test/references/runtime-contract.md",
@@ -276,7 +298,7 @@ class ReleaseTests(unittest.TestCase):
                 release.verify_release(self.archive, self.checksum)
 
     def test_component_mcp_and_mismatched_versions_cannot_be_packaged(self) -> None:
-        for kind in ("mcp", "version", "missing", "service-file"):
+        for kind in ("mcp", "version", "missing", "service-file", "catalog"):
             files = source_files()
             document = json.loads(files["plugin.json"])
             if kind == "mcp":
@@ -288,6 +310,8 @@ class ReleaseTests(unittest.TestCase):
                 del files["LICENSE"]
             if kind == "service-file":
                 files[".mcp.json"] = b"{}"
+            if kind == "catalog":
+                files["component-catalog.json"] = b"{}"
             with self.subTest(kind=kind), self.assertRaises(release.ReleaseError):
                 release.make_archive("1" * 40, files)
 

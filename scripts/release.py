@@ -16,8 +16,9 @@ import zipfile
 from pathlib import Path
 
 if __package__:
-    from . import component_lock, toolkit_doctor
+    from . import component_install, component_lock, toolkit_doctor
 else:
+    import component_install
     import component_lock
     import toolkit_doctor
 
@@ -31,9 +32,11 @@ MAX_FILES = 512
 REQUIRED_FILES = {
     "plugin.json",
     ".codex-plugin/plugin.json",
+    "component-catalog.json",
     "LICENSE",
     "README.md",
     "scripts/bootstrap.py",
+    "scripts/component_install.py",
     "scripts/release.py",
     "scripts/component_lock.py",
     "scripts/toolkit_doctor.py",
@@ -135,6 +138,10 @@ def release_version(files: dict[str, bytes]) -> str:
         versions.append(base)
     if versions[0] != versions[1]:
         raise ReleaseError("Plugin manifest versions differ")
+    try:
+        component_install.parse_catalog(files["component-catalog.json"])
+    except component_install.InstallError as error:
+        raise ReleaseError(f"Invalid component catalog: {error}") from error
     if any(
         path.casefold() in {".mcp.json", "mcp.json", ".app.json", "hooks.json"}
         for path in files
@@ -145,7 +152,14 @@ def release_version(files: dict[str, bytes]) -> str:
 
 def included(path: str) -> bool:
     return (
-        path in {"plugin.json", ".codex-plugin/plugin.json", "LICENSE", "README.md"}
+        path
+        in {
+            "plugin.json",
+            ".codex-plugin/plugin.json",
+            "component-catalog.json",
+            "LICENSE",
+            "README.md",
+        }
         or path.startswith("skills/")
         or (path.startswith("docs/") and path != "docs/local-acceptance.md")
         or (path.startswith("scripts/") and path.endswith(".py"))
