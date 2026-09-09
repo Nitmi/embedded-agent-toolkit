@@ -1,6 +1,6 @@
 {
   "name": "embedded-agent-toolkit",
-  "version": "0.9.0+codex.20260909125602",
+  "version": "0.9.1+codex.20260909133705",
   "description": "Cross-tool embedded bring-up, debugging, test, and incident workflows for AI agents.",
   "author": {
     "name": "Nitmi",

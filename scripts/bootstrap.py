@@ -18,7 +18,7 @@ from pathlib import Path
 
 PLUGIN = "embedded-agent-toolkit"
 REPOSITORY = "Nitmi/embedded-agent-toolkit"
-VERSION = "0.9.0"
+VERSION = "0.9.1"
 TAG = f"v{VERSION}"
 SOURCE_REF = f"refs/tags/{TAG}"
 SIGNER_WORKFLOW = f"{REPOSITORY}/.github/workflows/release-attestation.yml"
@@ -247,12 +247,14 @@ def run_installer(
             "or --debugger"
         )
     if component_lock is not None:
+        process_timeout = timeout * 3 + 30
         command.extend(
             ["--component-lock", str(component_lock), "--timeout", str(timeout)]
         )
     elif component_install_root is not None:
         if lock_output is None:
             raise BootstrapError("--component-install-root requires --lock-output")
+        process_timeout = timeout * 9 + 30
         command.extend(
             [
                 "--component-install-root",
@@ -272,6 +274,7 @@ def run_installer(
             raise BootstrapError(
                 "--lock-output, --baud, --blea, and --debugger are required together"
             )
+        process_timeout = timeout * 6 + 30
         command.extend(
             [
                 "--lock-output",
@@ -286,12 +289,14 @@ def run_installer(
                 str(timeout),
             ]
         )
+    else:
+        process_timeout = 30
     process = subprocess.run(
         command,
         capture_output=True,
         text=True,
         encoding="utf-8",
-        timeout=timeout + 30,
+        timeout=process_timeout,
         check=False,
     )
     if process.returncode:

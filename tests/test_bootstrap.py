@@ -231,6 +231,7 @@ class BootstrapTests(unittest.TestCase):
         self.assertIn("--lock-output", command)
         self.assertIn(str(lock), command)
         self.assertNotIn("--component-lock", command)
+        self.assertEqual(run.call_args.kwargs["timeout"], 39)
 
     def test_catalog_component_install_requires_lock_output(self) -> None:
         with self.assertRaisesRegex(bootstrap.BootstrapError, "requires"):
