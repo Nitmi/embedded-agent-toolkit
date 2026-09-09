@@ -1,0 +1,67 @@
+name: Release provenance
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing vMAJOR.MINOR.PATCH tag to attest
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-attest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    env:
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.12'
+      - name: Bind tag to plugin version
+        run: python scripts/release.py check-tag --tag "$RELEASE_TAG" --json
+      - name: Test
+        run: python -m unittest discover -s tests -v
+      - name: Build twice
+        run: |
+          python scripts/release.py build --output-dir dist-a --json
+          python scripts/release.py build --output-dir dist-b --json
+      - name: Verify reproducibility and package integrity
+        shell: pwsh
+        run: |
+          $first = @(Get-ChildItem -LiteralPath dist-a -Filter '*.zip')
+          $second = @(Get-ChildItem -LiteralPath dist-b -Filter '*.zip')
+          if ($first.Count -ne 1 -or $second.Count -ne 1) {
+            throw 'Expected one archive in each build directory'
+          }
+          $firstHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $first[0]).Hash
+          $secondHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $second[0]).Hash
+          if ($firstHash -ne $secondHash) { throw 'Release builds differ' }
+          python scripts/release.py verify $first[0] `
+            --checksum "$($first[0].FullName).sha256" --json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Attest release archive
+        uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
+        with:
+          subject-path: dist-a/*.zip
+      - name: Upload release candidate
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: embedded-agent-toolkit-${{ env.RELEASE_TAG }}
+          path: dist-a/*
+          if-no-files-found: error

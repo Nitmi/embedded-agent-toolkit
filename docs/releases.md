@@ -2,7 +2,7 @@
 
 ## Contents and scope
 
-The `0.4.0` release is a portable **plugin-only** ZIP. It contains the four
+The `0.5.0` release is a portable **plugin-only** ZIP. It contains the four
 orchestration Skills, their references, host-only scripts, user documentation,
 license, and both plugin manifests. Component executables, component MCP servers,
 Git internals, tests, local hardware evidence, and build outputs are not bundled.
@@ -24,7 +24,7 @@ After tests and a cohesive commit, from this repository:
 
 ```powershell
 python scripts/release.py build --output-dir dist --json
-python scripts/release.py verify dist/embedded-agent-toolkit-0.4.0.zip --checksum dist/embedded-agent-toolkit-0.4.0.zip.sha256 --json
+python scripts/release.py verify dist/embedded-agent-toolkit-0.5.0.zip --checksum dist/embedded-agent-toolkit-0.5.0.zip.sha256 --json
 ```
 
 The builder requires a clean worktree and reads pinned Git blobs rather than
@@ -39,8 +39,8 @@ Use the release script from a trusted source checkout. Obtain the ZIP and its
 checksum from a trusted channel, then install into a directory you own:
 
 ```powershell
-python scripts/release.py install dist/embedded-agent-toolkit-0.4.0.zip `
-  --checksum dist/embedded-agent-toolkit-0.4.0.zip.sha256 `
+python scripts/release.py install dist/embedded-agent-toolkit-0.5.0.zip `
+  --checksum dist/embedded-agent-toolkit-0.5.0.zip.sha256 `
   --install-root C:\Tools\embedded-agent-toolkit `
   --lock-output C:\Tools\embedded-agent-toolkit\component-locks\workstation.json `
   --baud C:\Users\you\.local\bin\baud.exe `
@@ -49,7 +49,7 @@ python scripts/release.py install dist/embedded-agent-toolkit-0.4.0.zip `
   --json
 ```
 
-This creates `C:\Tools\embedded-agent-toolkit\0.4.0\embedded-agent-toolkit`,
+This creates `C:\Tools\embedded-agent-toolkit\0.5.0\embedded-agent-toolkit`,
 then creates the requested component lock and runs strict doctor against the
 installed plugin. The three component executables are invoked only with
 `--version`; no hardware command is run. All four setup options (`--lock-output`,
@@ -97,6 +97,8 @@ component executables. Doctor is host-only; it reports actual CLI versions and
 layout readiness, not firmware readiness or hardware compatibility.
 
 SHA-256 detects changed content relative to the supplied checksum. A checksum
-delivered with a maliciously replaced archive is not publisher authentication;
-these local artifacts are not signed releases. Public distribution and signed
-release provenance remain separate work.
+delivered with a maliciously replaced archive is not publisher authentication.
+For tagged GitHub builds, verify the repository-bound artifact attestation as
+described in [release provenance](provenance.md). Until that remote workflow has
+successfully run, a local candidate has integrity evidence but no GitHub
+attestation. Artifact provenance is not Windows code signing.

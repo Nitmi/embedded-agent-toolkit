@@ -252,6 +252,22 @@ def build_release(root: Path, output_dir: Path) -> dict:
     }
 
 
+def check_release_tag(root: Path, tag: str) -> dict:
+    revision, files = source_snapshot(root)
+    version = release_version(files)
+    expected = f"v{version}"
+    if tag != expected:
+        raise ReleaseError(f"Release tag must be exactly {expected}")
+    tagged_revision = (
+        git_bytes(root, "rev-parse", "--verify", f"refs/tags/{tag}^{{commit}}")
+        .decode("ascii")
+        .strip()
+    )
+    if tagged_revision != revision:
+        raise ReleaseError("Release tag does not resolve to the checked-out commit")
+    return {"tag": tag, "version": version, "source_revision": revision}
+
+
 def read_bounded(path: Path, limit: int) -> bytes:
     if not path.is_file() or path.stat().st_size > limit:
         raise ReleaseError(f"Not a regular bounded file: {path}")
@@ -473,6 +489,9 @@ def main(argv: list[str] | None = None) -> int:
         "--source", type=Path, default=Path(__file__).resolve().parents[1]
     )
     build.add_argument("--output-dir", type=Path, default=Path("dist"))
+    tag = commands.add_parser("check-tag", help="bind an exact tag to plugin version")
+    tag.add_argument("--source", type=Path, default=Path(__file__).resolve().parents[1])
+    tag.add_argument("--tag", required=True)
     for name in ("verify", "install"):
         subparser = commands.add_parser(name)
         subparser.add_argument("archive", type=Path)
@@ -490,6 +509,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "build":
             data = build_release(args.source.resolve(), args.output_dir)
+        elif args.command == "check-tag":
+            data = check_release_tag(args.source.resolve(), args.tag)
         elif args.command == "verify":
             manifest, files = verify_release(args.archive, args.checksum)
             data = {

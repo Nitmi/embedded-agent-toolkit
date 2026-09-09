@@ -134,6 +134,26 @@ class ReleaseTests(unittest.TestCase):
                 release.build_release(self.root, self.root / "out")
         self.assertEqual(Path(report["archive"]).read_bytes(), original)
 
+    def test_release_tag_must_exactly_match_plugin_version(self) -> None:
+        snapshot = ("a" * 40, source_files("0.5.0"))
+        with (
+            mock.patch.object(release, "source_snapshot", return_value=snapshot),
+            mock.patch.object(release, "git_bytes", return_value=b"a" * 40 + b"\n"),
+        ):
+            report = release.check_release_tag(self.root, "v0.5.0")
+            self.assertEqual(report["version"], "0.5.0")
+            with self.assertRaisesRegex(release.ReleaseError, "exactly v0.5.0"):
+                release.check_release_tag(self.root, "v0.5.1")
+
+    def test_release_tag_must_resolve_to_checked_out_commit(self) -> None:
+        snapshot = ("a" * 40, source_files("0.5.0"))
+        with (
+            mock.patch.object(release, "source_snapshot", return_value=snapshot),
+            mock.patch.object(release, "git_bytes", return_value=b"b" * 40 + b"\n"),
+            self.assertRaisesRegex(release.ReleaseError, "checked-out commit"),
+        ):
+            release.check_release_tag(self.root, "v0.5.0")
+
     def test_windows_reparse_points_are_rejected_without_path_is_junction(self) -> None:
         path = mock.Mock()
         path.lstat.return_value = mock.Mock(
