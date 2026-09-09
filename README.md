@@ -21,16 +21,16 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The current source version is `0.6.1`. A tagged release provides a standalone
+The current source version is `0.7.0`. A tagged release provides a standalone
 `bootstrap.py` alongside the plugin ZIP. Download the bootstrap with GitHub CLI,
 authenticate it before execution, and keep its exact filename:
 
 ```powershell
-gh release download v0.6.1 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.7.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.6.1 `
+  --source-ref refs/tags/v0.7.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -57,6 +57,9 @@ python scripts/toolkit_doctor.py --strict --json
 For a stable workstation or CI setup, create a component lock that binds the
 exact paths, versions, and SHA-256 hashes of `baud`, `blea`, and
 `embedded-debugger`; then pass it to doctor. See [installation](docs/installation.md).
+Toolkit release installation and bootstrap can reuse that lock with
+`--component-lock`, while `component_lock.py compare` provides a host-only review
+of an intentional component change before selecting a new lock.
 
 ## Included workflows
 
@@ -95,8 +98,8 @@ For stable project or test-station selection, `scripts/component_lock.py` create
 an explicit lock of all three executable paths, versions, and SHA-256 values.
 Pass it to doctor with `--component-lock`; it remains host-only and does not
 modify `PATH` or proxy hardware commands. See [installation](docs/installation.md).
-Release installation can create this lock and complete strict doctor in the same
-command; see [versioned releases](docs/releases.md).
+Release installation can create or reuse this lock and complete strict doctor in
+the same command; see [versioned releases](docs/releases.md).
 Tagged GitHub builds can add repository-bound provenance; see
 [release provenance](docs/provenance.md).
 

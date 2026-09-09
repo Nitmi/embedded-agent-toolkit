@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create or inspect an exact Embedded Agent Toolkit component lock."""
+"""Create, inspect, or compare exact Toolkit component locks."""
 
 from __future__ import annotations
 
@@ -109,6 +109,36 @@ def inspect(path: Path) -> dict[str, object]:
     }
 
 
+def compare(base_path: Path, candidate_path: Path) -> dict[str, object]:
+    base = parse_lock(base_path)
+    candidate = parse_lock(candidate_path)
+    changes = {}
+    for name in SPECS:
+        fields = [
+            field
+            for field in ("path", "version", "sha256")
+            if base[name][field] != candidate[name][field]
+        ]
+        if fields:
+            changes[name] = {
+                "changed_fields": fields,
+                "before": base[name],
+                "after": candidate[name],
+            }
+    return {
+        "schema_version": SCHEMA,
+        "ok": True,
+        "operation": "compare",
+        "base_lock": str(base_path.resolve()),
+        "candidate_lock": str(candidate_path.resolve()),
+        "identical": not changes,
+        "change_count": len(changes),
+        "changes": changes,
+        "executables_started": False,
+        "hardware_access": False,
+    }
+
+
 def identify(name: str, path_value: str, timeout: float) -> dict[str, str]:
     path = regular_executable(path_value)
     completed = subprocess.run(
@@ -174,6 +204,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     inspector = commands.add_parser("inspect")
     inspector.add_argument("lock", type=Path)
     inspector.add_argument("--json", action="store_true")
+    comparator = commands.add_parser("compare")
+    comparator.add_argument("base", type=Path)
+    comparator.add_argument("candidate", type=Path)
+    comparator.add_argument("--json", action="store_true")
     return parser.parse_args(argv)
 
 
@@ -192,8 +226,10 @@ def main(argv: Sequence[str] | None = None) -> int:
                 },
                 args.timeout,
             )
-        else:
+        elif args.operation == "inspect":
             result = inspect(args.lock)
+        else:
+            result = compare(args.base, args.candidate)
     except (LockError, OSError, subprocess.SubprocessError) as error:
         result = {
             "schema_version": SCHEMA,
@@ -205,7 +241,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.json:
         print(json.dumps(result, indent=2, sort_keys=True))
     elif result["ok"]:
-        print(result["lock"])
+        if args.operation == "compare":
+            print(json.dumps(result, indent=2, sort_keys=True))
+        else:
+            print(result["lock"])
     else:
         print(result["error"], file=sys.stderr)
     return 0 if result["ok"] else 2

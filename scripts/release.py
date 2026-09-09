@@ -482,6 +482,37 @@ def install_ready_release(
     }
 
 
+def install_with_component_lock(
+    archive: Path,
+    checksum: Path,
+    install_root: Path,
+    lock: Path,
+    timeout: float,
+) -> dict:
+    if not 0.1 <= timeout <= 30:
+        raise ReleaseError("--timeout must be between 0.1 and 30 seconds")
+    try:
+        lock_report = component_lock.inspect(lock)
+    except component_lock.LockError as error:
+        raise ReleaseError(str(error)) from error
+    installation = install_release(archive, checksum, install_root)
+    doctor = toolkit_doctor.build_report(
+        toolkit_doctor.COMPONENTS,
+        timeout,
+        Path(installation["plugin_path"]),
+        lock_report["components"],
+    )
+    if not doctor["complete"]:
+        details = ", ".join(doctor["errors"] or doctor["warnings"])
+        raise ReleaseError(f"strict component doctor failed: {details}")
+    return {
+        **installation,
+        "ready": True,
+        "component_lock": lock_report,
+        "doctor": doctor,
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -499,6 +530,7 @@ def main(argv: list[str] | None = None) -> int:
         subparser.add_argument("--checksum", type=Path, required=True)
         if name == "install":
             subparser.add_argument("--install-root", type=Path, required=True)
+            subparser.add_argument("--component-lock", type=Path)
             subparser.add_argument("--lock-output", type=Path)
             subparser.add_argument("--baud")
             subparser.add_argument("--blea")
@@ -522,9 +554,24 @@ def main(argv: list[str] | None = None) -> int:
                 "publisher_authenticity_verified": False,
             }
         else:
-            setup_values = (args.lock_output, args.baud, args.blea, args.debugger)
-            if any(value is not None for value in setup_values):
-                if any(value is None for value in setup_values):
+            create_values = (args.lock_output, args.baud, args.blea, args.debugger)
+            if args.component_lock is not None and any(
+                value is not None for value in create_values
+            ):
+                raise ReleaseError(
+                    "--component-lock cannot be combined with --lock-output, "
+                    "--baud, --blea, or --debugger"
+                )
+            if args.component_lock is not None:
+                data = install_with_component_lock(
+                    args.archive,
+                    args.checksum,
+                    args.install_root,
+                    args.component_lock,
+                    args.timeout,
+                )
+            elif any(value is not None for value in create_values):
+                if any(value is None for value in create_values):
                     raise ReleaseError(
                         "--lock-output, --baud, --blea, and --debugger are required together"
                     )

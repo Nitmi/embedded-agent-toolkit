@@ -2,7 +2,7 @@
 
 ## Contents and scope
 
-The `0.6.1` release is a portable **plugin-only** ZIP. It contains the four
+The `0.7.0` release is a portable **plugin-only** ZIP. It contains the four
 orchestration Skills, their references, host-only scripts, user documentation,
 license, and both plugin manifests. Component executables, component MCP servers,
 Git internals, tests, local hardware evidence, and build outputs are not bundled.
@@ -24,7 +24,7 @@ After tests and a cohesive commit, from this repository:
 
 ```powershell
 python scripts/release.py build --output-dir dist --json
-python scripts/release.py verify dist/embedded-agent-toolkit-0.6.1.zip --checksum dist/embedded-agent-toolkit-0.6.1.zip.sha256 --json
+python scripts/release.py verify dist/embedded-agent-toolkit-0.7.0.zip --checksum dist/embedded-agent-toolkit-0.7.0.zip.sha256 --json
 ```
 
 The builder requires a clean worktree and reads pinned Git blobs rather than
@@ -39,11 +39,11 @@ Each tagged release publishes `bootstrap.py` as a separately attested asset.
 Download and authenticate the script before executing it:
 
 ```powershell
-gh release download v0.6.1 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.7.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.6.1 `
+  --source-ref refs/tags/v0.7.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -61,7 +61,10 @@ the command exits.
 The optional `--lock-output`, `--baud`, `--blea`, and `--debugger` arguments must
 be supplied together. When supplied, the final installer invokes those three
 executables only with `--version`, creates the component lock, and runs strict
-doctor. No device discovery or hardware access occurs.
+doctor. Alternatively, pass one existing `--component-lock`; it is validated,
+left byte-for-byte unchanged, and used for strict doctor. The existing-lock and
+new-lock modes are mutually exclusive. No device discovery or hardware access
+occurs.
 
 ## Install a downloaded version manually
 
@@ -69,8 +72,8 @@ Use the release script from a trusted source checkout. Obtain the ZIP and its
 checksum from a trusted channel, then install into a directory you own:
 
 ```powershell
-python scripts/release.py install dist/embedded-agent-toolkit-0.6.1.zip `
-  --checksum dist/embedded-agent-toolkit-0.6.1.zip.sha256 `
+python scripts/release.py install dist/embedded-agent-toolkit-0.7.0.zip `
+  --checksum dist/embedded-agent-toolkit-0.7.0.zip.sha256 `
   --install-root C:\Tools\embedded-agent-toolkit `
   --lock-output C:\Tools\embedded-agent-toolkit\component-locks\workstation.json `
   --baud C:\Users\you\.local\bin\baud.exe `
@@ -79,7 +82,7 @@ python scripts/release.py install dist/embedded-agent-toolkit-0.6.1.zip `
   --json
 ```
 
-This creates `C:\Tools\embedded-agent-toolkit\0.6.1\embedded-agent-toolkit`,
+This creates `C:\Tools\embedded-agent-toolkit\0.7.0\embedded-agent-toolkit`,
 then creates the requested component lock and runs strict doctor against the
 installed plugin. The three component executables are invoked only with
 `--version`; no hardware command is run. All four setup options (`--lock-output`,
@@ -91,6 +94,18 @@ strict doctor fails after a new lock is created, that lock is removed; the
 verified, inactive version directory is retained for diagnosis. The combined
 command does not activate Codex, install component CLIs, edit PATH or persistent
 environment variables, modify marketplaces, or launch MCP servers.
+
+To install a new Toolkit release while retaining an already reviewed component
+selection, use the same command with only:
+
+```powershell
+  --component-lock C:\Tools\embedded-agent-toolkit\component-locks\workstation.json
+```
+
+The installer validates all locked hashes before creating the plugin version
+directory, then runs strict doctor from the installed plugin. It never rewrites
+the supplied lock. Use `component_lock.py compare <current> <candidate> --json`
+before deliberately selecting a different lock.
 
 On another OS, choose an appropriate explicit install root. Archive validation
 completes before installation begins: the checksum, manifest inventory, member hashes,

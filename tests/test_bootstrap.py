@@ -165,10 +165,55 @@ class BootstrapTests(unittest.TestCase):
                 self.root / "release.sha256",
                 self.root / "install",
                 {
+                    "component_lock": None,
                     "lock_output": self.root / "lock",
                     "baud": None,
                     "blea": None,
                     "debugger": None,
+                },
+                1,
+            )
+
+    def test_installer_accepts_one_existing_component_lock(self) -> None:
+        lock = self.root / "existing-lock.json"
+        completed = subprocess_result(
+            json.dumps({"ok": True, "hardware_access": False, "data": {}})
+        )
+        with mock.patch.object(
+            bootstrap.subprocess, "run", return_value=completed
+        ) as run:
+            bootstrap.run_installer(
+                self.root / "release.py",
+                self.root / "release.zip",
+                self.root / "release.sha256",
+                self.root / "install",
+                {
+                    "component_lock": lock,
+                    "lock_output": None,
+                    "baud": None,
+                    "blea": None,
+                    "debugger": None,
+                },
+                1,
+            )
+        command = run.call_args.args[0]
+        self.assertIn("--component-lock", command)
+        self.assertIn(str(lock), command)
+        self.assertNotIn("--lock-output", command)
+
+    def test_installer_rejects_existing_and_new_lock_modes_together(self) -> None:
+        with self.assertRaisesRegex(bootstrap.BootstrapError, "cannot be combined"):
+            bootstrap.run_installer(
+                self.root / "release.py",
+                self.root / "release.zip",
+                self.root / "release.sha256",
+                self.root / "install",
+                {
+                    "component_lock": self.root / "existing-lock.json",
+                    "lock_output": self.root / "new-lock.json",
+                    "baud": "baud",
+                    "blea": "ble",
+                    "debugger": "debugger",
                 },
                 1,
             )
@@ -208,7 +253,13 @@ class BootstrapTests(unittest.TestCase):
             report = bootstrap.bootstrap(
                 self.root / "install",
                 Path("gh.exe"),
-                {"lock_output": None, "baud": None, "blea": None, "debugger": None},
+                {
+                    "component_lock": None,
+                    "lock_output": None,
+                    "baud": None,
+                    "blea": None,
+                    "debugger": None,
+                },
                 1,
                 script,
             )
@@ -250,7 +301,13 @@ class BootstrapTests(unittest.TestCase):
             bootstrap.bootstrap(
                 self.root / "install",
                 Path("gh.exe"),
-                {"lock_output": None, "baud": None, "blea": None, "debugger": None},
+                {
+                    "component_lock": None,
+                    "lock_output": None,
+                    "baud": None,
+                    "blea": None,
+                    "debugger": None,
+                },
                 1,
                 script,
             )

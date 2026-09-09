@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import subprocess
 import tempfile
@@ -75,6 +77,48 @@ class ComponentLockTests(unittest.TestCase):
         Path(self.executables["baud"]).write_bytes(b"changed")
         with self.assertRaisesRegex(component_lock.LockError, "hash differs"):
             component_lock.inspect(output)
+
+    def test_compare_reports_exact_changed_fields_without_execution(self) -> None:
+        base = self.create()
+        candidate = self.root / "candidate-lock.json"
+        payload = json.loads(base.read_bytes())
+        replacement = self.root / "replacement-baud.exe"
+        replacement.write_bytes(b"replacement baud")
+        payload["components"]["baud"] = {
+            "path": str(replacement.resolve()),
+            "sha256": component_lock.sha256(replacement),
+            "version": "0.2.0",
+        }
+        candidate.write_text(json.dumps(payload), encoding="utf-8")
+
+        with mock.patch.object(
+            component_lock.subprocess, "run", side_effect=AssertionError("must not run")
+        ):
+            report = component_lock.compare(base, candidate)
+
+        self.assertFalse(report["identical"])
+        self.assertEqual(report["change_count"], 1)
+        self.assertEqual(
+            report["changes"]["baud"]["changed_fields"],
+            ["path", "version", "sha256"],
+        )
+        self.assertFalse(report["executables_started"])
+        self.assertFalse(report["hardware_access"])
+
+    def test_compare_identical_locks_has_no_changes(self) -> None:
+        lock = self.create()
+        report = component_lock.compare(lock, lock)
+        self.assertTrue(report["identical"])
+        self.assertEqual(report["changes"], {})
+
+    def test_compare_cli_is_structured_with_or_without_json_flag(self) -> None:
+        lock = self.create()
+        for extra in ([], ["--json"]):
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                code = component_lock.main(["compare", str(lock), str(lock), *extra])
+            self.assertEqual(code, 0)
+            self.assertTrue(json.loads(output.getvalue())["identical"])
 
     def test_relative_path_and_duplicate_json_field_are_rejected(self) -> None:
         output = self.create()

@@ -13,6 +13,8 @@ identity boundaries.
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only
 its hash-bound component paths. Do not let environment overrides mask that lock.
+When a different lock is proposed, run `component_lock.py compare` first and
+surface every changed path, version, and hash before selecting it.
 
 ## Freeze scope before state
 

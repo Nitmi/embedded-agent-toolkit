@@ -54,13 +54,28 @@ python scripts/component_lock.py inspect .embedded/toolchain-lock.json --json
 python scripts/toolkit_doctor.py --component-lock .embedded/toolchain-lock.json --strict --json
 ```
 
+Before switching a project or test station to a candidate lock, compare it with
+the currently selected lock:
+
+```powershell
+python scripts/component_lock.py compare `
+  .embedded/toolchain-lock.json `
+  .embedded/toolchain-lock.next.json `
+  --json
+```
+
+`compare` validates both locks and their executable hashes, starts no process,
+and reports each changed path, version, and SHA-256. Keep the old lock and its
+referenced component installations available when rollback is required.
+
 When installing a release, prefer the combined command in
 [versioned releases](releases.md); use the standalone commands above when the
 plugin is already installed or when replacing a lock intentionally after
 reviewing the component changes.
 
 Creation runs only each executable's `--version`; inspection performs no process
-execution. The lock requires absolute regular-file paths and binds each file's
+execution. Comparison also performs no process execution. The lock requires
+absolute regular-file paths and binds each file's
 version and SHA-256. Doctor verifies hashes before starting `--version` and
 requires observed versions to match. A selected lock is authoritative:
 `EMBEDDED_AGENT_BAUD`, `EMBEDDED_AGENT_BLE`, or `EMBEDDED_AGENT_DEBUGGER` in the

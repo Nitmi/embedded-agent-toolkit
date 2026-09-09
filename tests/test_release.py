@@ -415,6 +415,76 @@ class ReleaseTests(unittest.TestCase):
         self.assertFalse(lock.exists())
         self.assertTrue((self.root / "install" / "0.4.0" / release.PLUGIN).is_dir())
 
+    def test_install_reuses_existing_component_lock_without_modifying_it(self) -> None:
+        self.prepare("0.7.0")
+        executables = {}
+        outputs = {
+            "baud": "baud 0.1.0\n",
+            "blea": "ble 0.6.4\n",
+            "embedded-debugger": "embedded-debugger 0.2.0\n",
+        }
+        for name in component_lock.SPECS:
+            path = self.root / f"{name}.exe"
+            path.write_bytes(name.encode())
+            executables[name] = str(path)
+
+        def completed(args, **_kwargs):
+            name = Path(args[0]).stem
+            return release.subprocess.CompletedProcess(args, 0, outputs[name], "")
+
+        lock = self.root / "existing-lock.json"
+        with mock.patch.object(component_lock.subprocess, "run", side_effect=completed):
+            component_lock.create(lock, executables, 1.0)
+        original = lock.read_bytes()
+        with (
+            mock.patch.dict(release.os.environ, {}, clear=True),
+            mock.patch.object(toolkit_doctor.platform, "system", return_value="Test"),
+            mock.patch.object(toolkit_doctor.platform, "release", return_value="1"),
+            mock.patch.object(toolkit_doctor.platform, "machine", return_value="x64"),
+            mock.patch.object(
+                toolkit_doctor.platform, "python_version", return_value="3.12"
+            ),
+            mock.patch.object(component_lock.subprocess, "run", side_effect=completed),
+        ):
+            report = release.install_with_component_lock(
+                self.archive,
+                self.checksum,
+                self.root / "install",
+                lock,
+                1.0,
+            )
+
+        self.assertTrue(report["ready"])
+        self.assertTrue(report["doctor"]["complete"])
+        self.assertFalse(report["component_lock"]["executables_started"])
+        self.assertEqual(lock.read_bytes(), original)
+
+    def test_cli_rejects_existing_and_new_component_lock_modes_together(self) -> None:
+        self.prepare("0.7.0")
+        lock = self.root / "existing-lock.json"
+        lock.write_text("preserve", encoding="ascii")
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            code = release.main(
+                [
+                    "install",
+                    str(self.archive),
+                    "--checksum",
+                    str(self.checksum),
+                    "--install-root",
+                    str(self.root / "install"),
+                    "--component-lock",
+                    str(lock),
+                    "--lock-output",
+                    str(self.root / "new-lock.json"),
+                    "--json",
+                ]
+            )
+        report = json.loads(output.getvalue())
+        self.assertEqual(code, 2)
+        self.assertIn("cannot be combined", report["error"])
+        self.assertFalse((self.root / "install").exists())
+
     def test_ready_install_rejects_existing_lock_before_installation(self) -> None:
         self.prepare("0.4.0")
         lock = self.root / "toolchain-lock.json"

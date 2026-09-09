@@ -18,7 +18,7 @@ from pathlib import Path
 
 PLUGIN = "embedded-agent-toolkit"
 REPOSITORY = "Nitmi/embedded-agent-toolkit"
-VERSION = "0.6.1"
+VERSION = "0.7.0"
 TAG = f"v{VERSION}"
 SOURCE_REF = f"refs/tags/{TAG}"
 SIGNER_WORKFLOW = f"{REPOSITORY}/.github/workflows/release-attestation.yml"
@@ -225,8 +225,23 @@ def run_installer(
         str(install_root),
         "--json",
     ]
-    if any(value is not None for value in setup.values()):
-        if any(value is None for value in setup.values()):
+    component_lock = setup["component_lock"]
+    create_values = {
+        name: setup[name] for name in ("lock_output", "baud", "blea", "debugger")
+    }
+    if component_lock is not None and any(
+        value is not None for value in create_values.values()
+    ):
+        raise BootstrapError(
+            "--component-lock cannot be combined with --lock-output, --baud, "
+            "--blea, or --debugger"
+        )
+    if component_lock is not None:
+        command.extend(
+            ["--component-lock", str(component_lock), "--timeout", str(timeout)]
+        )
+    elif any(value is not None for value in create_values.values()):
+        if any(value is None for value in create_values.values()):
             raise BootstrapError(
                 "--lock-output, --baud, --blea, and --debugger are required together"
             )
@@ -319,6 +334,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--install-root", type=Path, required=True)
     parser.add_argument("--gh", type=Path)
+    parser.add_argument("--component-lock", type=Path)
     parser.add_argument("--lock-output", type=Path)
     parser.add_argument("--baud")
     parser.add_argument("--blea")
@@ -333,6 +349,7 @@ def main(argv: list[str] | None = None) -> int:
             args.install_root,
             gh_executable(args.gh),
             {
+                "component_lock": args.component_lock,
                 "lock_output": args.lock_output,
                 "baud": args.baud,
                 "blea": args.blea,
