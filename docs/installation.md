@@ -16,7 +16,7 @@ of installing an unrelated package with a similar command name.
 
 ## Trusted component acquisition
 
-Toolkit 0.8.2 includes a strict standalone-artifact installer. Inspect its bundled,
+Toolkit 0.9.0 includes a strict standalone-artifact installer. Inspect its bundled,
 release-bound catalog without network or component execution:
 
 ```powershell
@@ -53,6 +53,24 @@ verified plugin directory.
 An externally supplied `--catalog` is only structured input. It has publisher
 authority only when its bytes came from a Toolkit release whose GitHub
 attestation was independently verified.
+
+The authenticated release bootstrap can combine plugin and component setup when
+the user explicitly selects fresh component and lock destinations:
+
+```powershell
+python bootstrap.py `
+  --install-root C:\Tools\embedded-agent-toolkit `
+  --component-install-root C:\Tools\embedded-agent-components `
+  --lock-output C:\Tools\embedded-agent-toolkit\component-locks\workstation.json `
+  --json
+```
+
+This mode uses the catalog inside the authenticated plugin installation. It is
+mutually exclusive with `--component-lock` and with explicit `--baud`, `--blea`,
+and `--debugger` selections. Component versions remain installed when a later
+step fails, but a newly generated lock is removed if strict doctor fails. The
+component root and lock must remain outside the immutable installed plugin
+directory.
 
 ## Install the plugin
 

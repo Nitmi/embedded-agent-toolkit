@@ -18,7 +18,7 @@ from pathlib import Path
 
 PLUGIN = "embedded-agent-toolkit"
 REPOSITORY = "Nitmi/embedded-agent-toolkit"
-VERSION = "0.8.2"
+VERSION = "0.9.0"
 TAG = f"v{VERSION}"
 SOURCE_REF = f"refs/tags/{TAG}"
 SIGNER_WORKFLOW = f"{REPOSITORY}/.github/workflows/release-attestation.yml"
@@ -227,22 +227,48 @@ def run_installer(
         "--json",
     ]
     component_lock = setup["component_lock"]
-    create_values = {
-        name: setup[name] for name in ("lock_output", "baud", "blea", "debugger")
-    }
-    if component_lock is not None and any(
-        value is not None for value in create_values.values()
+    component_install_root = setup.get("component_install_root")
+    lock_output = setup["lock_output"]
+    explicit_values = {name: setup[name] for name in ("baud", "blea", "debugger")}
+    if component_lock is not None and (
+        component_install_root is not None
+        or lock_output is not None
+        or any(value is not None for value in explicit_values.values())
     ):
         raise BootstrapError(
-            "--component-lock cannot be combined with --lock-output, --baud, "
-            "--blea, or --debugger"
+            "--component-lock cannot be combined with component installation "
+            "or new-lock options"
+        )
+    if component_install_root is not None and any(
+        value is not None for value in explicit_values.values()
+    ):
+        raise BootstrapError(
+            "--component-install-root cannot be combined with --baud, --blea, "
+            "or --debugger"
         )
     if component_lock is not None:
         command.extend(
             ["--component-lock", str(component_lock), "--timeout", str(timeout)]
         )
-    elif any(value is not None for value in create_values.values()):
-        if any(value is None for value in create_values.values()):
+    elif component_install_root is not None:
+        if lock_output is None:
+            raise BootstrapError("--component-install-root requires --lock-output")
+        command.extend(
+            [
+                "--component-install-root",
+                str(component_install_root),
+                "--lock-output",
+                str(lock_output),
+                "--timeout",
+                str(timeout),
+            ]
+        )
+    elif lock_output is not None or any(
+        value is not None for value in explicit_values.values()
+    ):
+        if lock_output is None or any(
+            value is None for value in explicit_values.values()
+        ):
             raise BootstrapError(
                 "--lock-output, --baud, --blea, and --debugger are required together"
             )
@@ -336,6 +362,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--install-root", type=Path, required=True)
     parser.add_argument("--gh", type=Path)
     parser.add_argument("--component-lock", type=Path)
+    parser.add_argument("--component-install-root", type=Path)
     parser.add_argument("--lock-output", type=Path)
     parser.add_argument("--baud")
     parser.add_argument("--blea")
@@ -351,6 +378,7 @@ def main(argv: list[str] | None = None) -> int:
             gh_executable(args.gh),
             {
                 "component_lock": args.component_lock,
+                "component_install_root": args.component_install_root,
                 "lock_output": args.lock_output,
                 "baud": args.baud,
                 "blea": args.blea,

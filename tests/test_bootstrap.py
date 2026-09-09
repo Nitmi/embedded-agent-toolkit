@@ -201,6 +201,55 @@ class BootstrapTests(unittest.TestCase):
         self.assertIn(str(lock), command)
         self.assertNotIn("--lock-output", command)
 
+    def test_installer_passes_catalog_component_install_mode(self) -> None:
+        lock = self.root / "new-lock.json"
+        components = self.root / "components"
+        completed = subprocess_result(
+            json.dumps({"ok": True, "hardware_access": False, "data": {}})
+        )
+        with mock.patch.object(
+            bootstrap.subprocess, "run", return_value=completed
+        ) as run:
+            bootstrap.run_installer(
+                self.root / "release.py",
+                self.root / "release.zip",
+                self.root / "release.sha256",
+                self.root / "install",
+                {
+                    "component_lock": None,
+                    "component_install_root": components,
+                    "lock_output": lock,
+                    "baud": None,
+                    "blea": None,
+                    "debugger": None,
+                },
+                1,
+            )
+        command = run.call_args.args[0]
+        self.assertIn("--component-install-root", command)
+        self.assertIn(str(components), command)
+        self.assertIn("--lock-output", command)
+        self.assertIn(str(lock), command)
+        self.assertNotIn("--component-lock", command)
+
+    def test_catalog_component_install_requires_lock_output(self) -> None:
+        with self.assertRaisesRegex(bootstrap.BootstrapError, "requires"):
+            bootstrap.run_installer(
+                self.root / "release.py",
+                self.root / "release.zip",
+                self.root / "release.sha256",
+                self.root / "install",
+                {
+                    "component_lock": None,
+                    "component_install_root": self.root / "components",
+                    "lock_output": None,
+                    "baud": None,
+                    "blea": None,
+                    "debugger": None,
+                },
+                1,
+            )
+
     def test_installer_rejects_existing_and_new_lock_modes_together(self) -> None:
         with self.assertRaisesRegex(bootstrap.BootstrapError, "cannot be combined"):
             bootstrap.run_installer(

@@ -529,6 +529,74 @@ def install_with_component_lock(
     }
 
 
+def install_with_catalog_components(
+    archive: Path,
+    checksum: Path,
+    install_root: Path,
+    component_install_root: Path,
+    lock_output: Path,
+    timeout: float,
+) -> dict:
+    if not 0.1 <= timeout <= 30:
+        raise ReleaseError("--timeout must be between 0.1 and 30 seconds")
+    if lock_output.exists() or lock_output.is_symlink():
+        raise ReleaseError("component lock output already exists")
+
+    try:
+        platform_name = component_install.current_platform()
+    except component_install.InstallError as error:
+        raise ReleaseError(str(error)) from error
+    installation = install_release(archive, checksum, install_root)
+    plugin_path = Path(installation["plugin_path"]).resolve()
+    if component_install_root.resolve().is_relative_to(plugin_path):
+        raise ReleaseError(
+            "component install root must be outside the plugin directory"
+        )
+    if lock_output.resolve().is_relative_to(plugin_path):
+        raise ReleaseError("component lock output must be outside the plugin directory")
+    created = False
+    try:
+        component_report = component_install.install(
+            plugin_path / "component-catalog.json",
+            component_install_root,
+            lock_output,
+            platform_name,
+            timeout,
+        )
+        created = True
+        locked = component_lock.parse_lock(lock_output)
+        doctor = toolkit_doctor.build_report(
+            toolkit_doctor.COMPONENTS,
+            timeout,
+            Path(installation["plugin_path"]),
+            locked,
+        )
+        if not doctor["complete"]:
+            details = ", ".join(doctor["errors"] or doctor["warnings"])
+            raise ReleaseError(f"strict component doctor failed: {details}")
+    except component_install.InstallError as error:
+        if created:
+            lock_output.unlink(missing_ok=True)
+        raise ReleaseError(str(error)) from error
+    except component_lock.LockError as error:
+        if created:
+            lock_output.unlink(missing_ok=True)
+        raise ReleaseError(str(error)) from error
+    except Exception:
+        if created:
+            lock_output.unlink(missing_ok=True)
+        raise
+
+    return {
+        **installation,
+        "components_installed": True,
+        "ready": True,
+        "component_install": component_report,
+        "component_lock": component_report["component_lock"],
+        "doctor": doctor,
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -547,6 +615,7 @@ def main(argv: list[str] | None = None) -> int:
         if name == "install":
             subparser.add_argument("--install-root", type=Path, required=True)
             subparser.add_argument("--component-lock", type=Path)
+            subparser.add_argument("--component-install-root", type=Path)
             subparser.add_argument("--lock-output", type=Path)
             subparser.add_argument("--baud")
             subparser.add_argument("--blea")
@@ -570,13 +639,22 @@ def main(argv: list[str] | None = None) -> int:
                 "publisher_authenticity_verified": False,
             }
         else:
-            create_values = (args.lock_output, args.baud, args.blea, args.debugger)
-            if args.component_lock is not None and any(
-                value is not None for value in create_values
+            explicit_values = (args.baud, args.blea, args.debugger)
+            if args.component_lock is not None and (
+                args.component_install_root is not None
+                or args.lock_output is not None
+                or any(value is not None for value in explicit_values)
             ):
                 raise ReleaseError(
-                    "--component-lock cannot be combined with --lock-output, "
-                    "--baud, --blea, or --debugger"
+                    "--component-lock cannot be combined with component installation "
+                    "or new-lock options"
+                )
+            if args.component_install_root is not None and any(
+                value is not None for value in explicit_values
+            ):
+                raise ReleaseError(
+                    "--component-install-root cannot be combined with --baud, "
+                    "--blea, or --debugger"
                 )
             if args.component_lock is not None:
                 data = install_with_component_lock(
@@ -586,8 +664,25 @@ def main(argv: list[str] | None = None) -> int:
                     args.component_lock,
                     args.timeout,
                 )
-            elif any(value is not None for value in create_values):
-                if any(value is None for value in create_values):
+            elif args.component_install_root is not None:
+                if args.lock_output is None:
+                    raise ReleaseError(
+                        "--component-install-root requires --lock-output"
+                    )
+                data = install_with_catalog_components(
+                    args.archive,
+                    args.checksum,
+                    args.install_root,
+                    args.component_install_root,
+                    args.lock_output,
+                    args.timeout,
+                )
+            elif args.lock_output is not None or any(
+                value is not None for value in explicit_values
+            ):
+                if args.lock_output is None or any(
+                    value is None for value in explicit_values
+                ):
                     raise ReleaseError(
                         "--lock-output, --baud, --blea, and --debugger are required together"
                     )

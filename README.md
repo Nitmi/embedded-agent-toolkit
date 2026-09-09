@@ -21,16 +21,16 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The current release is `0.8.2`. It provides a standalone `bootstrap.py`
+The current release is `0.9.0`. It provides a standalone `bootstrap.py`
 alongside the plugin ZIP. Download the bootstrap with GitHub CLI,
 authenticate it before execution, and keep its exact filename:
 
 ```powershell
-gh release download v0.8.2 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.9.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.8.2 `
+  --source-ref refs/tags/v0.9.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -61,7 +61,7 @@ Toolkit release installation and bootstrap can reuse that lock with
 `--component-lock`, while `component_lock.py compare` provides a host-only review
 of an intentional component change before selecting a new lock.
 
-The 0.8.2 release also includes `component_install.py`. Its offline `plan`
+The 0.9.0 release also includes `component_install.py`. Its offline `plan`
 validates the release-bound component catalog and reports exact sources,
 hashes, destinations, and availability without network or process execution.
 Its `install` mode is fail-closed and becomes usable only after all three
@@ -69,6 +69,22 @@ upstream projects publish cataloged standalone artifacts. The current catalog
 pins attested Windows x86_64 releases of `baud 0.1.2`, `BLEA 0.6.5`, and
 `embedded-debugger 0.2.1`, so its default Windows plan is complete without
 falling back to ambient package-manager resolution.
+
+For a new workstation, the authenticated bootstrap can perform the complete
+host setup in one explicit command:
+
+```powershell
+python bootstrap.py `
+  --install-root C:\Tools\embedded-agent-toolkit `
+  --component-install-root C:\Tools\embedded-agent-components `
+  --lock-output C:\Tools\embedded-agent-toolkit\component-locks\workstation.json `
+  --json
+```
+
+This opt-in mode installs only the catalog-pinned component executables, creates
+the exact component lock, and runs strict doctor. The default bootstrap remains
+plugin-only. Neither mode edits `PATH`, activates plugins, launches MCP servers,
+or accesses hardware.
 
 ## Included workflows
 

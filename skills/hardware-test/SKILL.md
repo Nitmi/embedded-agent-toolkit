@@ -20,6 +20,10 @@ discovery. The plan is offline and starts no component. Run its install mode
 only when the user requested host setup and every pinned platform artifact is
 available; it may download and write versioned host executables but must not be
 treated as hardware authorization. Compare its new lock before adopting it.
+For a fresh station, the authenticated Toolkit bootstrap may perform the same
+catalog-backed component installation and strict doctor in one explicit command.
+Require separate component and new-lock destinations, and do not interpret
+successful host setup as permission to enumerate or operate a board.
 
 ## Define the test contract
 

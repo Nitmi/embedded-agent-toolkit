@@ -483,6 +483,172 @@ class ReleaseTests(unittest.TestCase):
         self.assertFalse(report["component_lock"]["executables_started"])
         self.assertEqual(lock.read_bytes(), original)
 
+    def test_catalog_install_downloads_components_creates_lock_and_runs_doctor(
+        self,
+    ) -> None:
+        self.prepare("0.9.0")
+        lock = self.root / "locks" / "toolchain-lock.json"
+        component_root = self.root / "components"
+        locked = {
+            name: {
+                "path": str(component_root / name / f"{name}.exe"),
+                "version": "1.0.0",
+                "sha256": "a" * 64,
+            }
+            for name in component_lock.SPECS
+        }
+
+        def install_components(catalog, root, output, platform_name, timeout):
+            self.assertEqual(root, component_root)
+            self.assertEqual(output, lock)
+            self.assertEqual(platform_name, "windows-x86_64")
+            self.assertEqual(timeout, 1.0)
+            self.assertEqual(catalog.name, "component-catalog.json")
+            self.assertTrue(catalog.is_file())
+            output.parent.mkdir(parents=True)
+            output.write_text("generated", encoding="ascii")
+            return {
+                "ok": True,
+                "hardware_access": False,
+                "component_lock": {
+                    "path": str(output),
+                    "sha256": "b" * 64,
+                    "components": locked,
+                },
+            }
+
+        doctor = {
+            "status": "ready",
+            "complete": True,
+            "warnings": [],
+            "errors": [],
+        }
+        with (
+            mock.patch.object(
+                component_install, "current_platform", return_value="windows-x86_64"
+            ),
+            mock.patch.object(
+                component_install, "install", side_effect=install_components
+            ) as install,
+            mock.patch.object(component_lock, "parse_lock", return_value=locked),
+            mock.patch.object(toolkit_doctor, "build_report", return_value=doctor),
+        ):
+            report = release.install_with_catalog_components(
+                self.archive,
+                self.checksum,
+                self.root / "toolkit",
+                component_root,
+                lock,
+                1.0,
+            )
+
+        self.assertEqual(install.call_count, 1)
+        self.assertTrue(report["components_installed"])
+        self.assertTrue(report["ready"])
+        self.assertEqual(report["doctor"]["status"], "ready")
+        self.assertEqual(report["component_lock"]["path"], str(lock))
+        self.assertFalse(report["activated"])
+        self.assertFalse(report["path_modified"])
+
+    def test_catalog_install_removes_new_lock_when_doctor_fails(self) -> None:
+        self.prepare("0.9.0")
+        lock = self.root / "toolchain-lock.json"
+
+        def install_components(_catalog, _root, output, _platform_name, _timeout):
+            output.write_text("generated", encoding="ascii")
+            return {"component_lock": {"path": str(output)}}
+
+        with (
+            mock.patch.object(
+                component_install, "current_platform", return_value="windows-x86_64"
+            ),
+            mock.patch.object(
+                component_install, "install", side_effect=install_components
+            ),
+            mock.patch.object(component_lock, "parse_lock", return_value={}),
+            mock.patch.object(
+                toolkit_doctor,
+                "build_report",
+                return_value={
+                    "complete": False,
+                    "errors": ["failed"],
+                    "warnings": [],
+                },
+            ),
+            self.assertRaisesRegex(release.ReleaseError, "strict component doctor"),
+        ):
+            release.install_with_catalog_components(
+                self.archive,
+                self.checksum,
+                self.root / "toolkit",
+                self.root / "components",
+                lock,
+                1.0,
+            )
+        self.assertFalse(lock.exists())
+        self.assertTrue((self.root / "toolkit" / "0.9.0" / release.PLUGIN).is_dir())
+
+    def test_cli_catalog_install_requires_lock_before_installation(self) -> None:
+        self.prepare("0.9.0")
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            code = release.main(
+                [
+                    "install",
+                    str(self.archive),
+                    "--checksum",
+                    str(self.checksum),
+                    "--install-root",
+                    str(self.root / "toolkit"),
+                    "--component-install-root",
+                    str(self.root / "components"),
+                    "--json",
+                ]
+            )
+        report = json.loads(output.getvalue())
+        self.assertEqual(code, 2)
+        self.assertIn("requires --lock-output", report["error"])
+        self.assertFalse((self.root / "toolkit").exists())
+
+    def test_catalog_install_rejects_outputs_inside_immutable_plugin(self) -> None:
+        self.prepare("0.9.0")
+        toolkit_root = self.root / "toolkit"
+        plugin = toolkit_root / "0.9.0" / release.PLUGIN
+        with (
+            mock.patch.object(
+                component_install, "current_platform", return_value="windows-x86_64"
+            ),
+            mock.patch.object(component_install, "install") as install,
+            self.assertRaisesRegex(release.ReleaseError, "outside the plugin"),
+        ):
+            release.install_with_catalog_components(
+                self.archive,
+                self.checksum,
+                toolkit_root,
+                plugin / "components",
+                self.root / "toolchain-lock.json",
+                1.0,
+            )
+        install.assert_not_called()
+        self.assertTrue(plugin.is_dir())
+
+        with (
+            mock.patch.object(
+                component_install, "current_platform", return_value="windows-x86_64"
+            ),
+            mock.patch.object(component_install, "install") as install,
+            self.assertRaisesRegex(release.ReleaseError, "outside the plugin"),
+        ):
+            release.install_with_catalog_components(
+                self.archive,
+                self.checksum,
+                toolkit_root,
+                self.root / "components",
+                plugin / "toolchain-lock.json",
+                1.0,
+            )
+        install.assert_not_called()
+
     def test_cli_rejects_existing_and_new_component_lock_modes_together(self) -> None:
         self.prepare("0.7.0")
         lock = self.root / "existing-lock.json"

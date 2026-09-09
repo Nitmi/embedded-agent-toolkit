@@ -20,7 +20,10 @@ If components are missing, keep acquisition separate from board interaction:
 run `component_install.py plan` first and install only when the user explicitly
 asked for host setup and the bundled catalog reports `complete=true`. Never
 substitute guessed URLs or an unpinned package-manager result for an unavailable
-catalog artifact.
+catalog artifact. An authenticated Toolkit bootstrap may combine plugin and
+catalog component installation only when the user explicitly requested host
+setup and supplied separate component and new-lock destinations; this is still
+host setup, not authorization to discover or operate hardware.
 
 ## Establish identities
 

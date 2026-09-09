@@ -2,7 +2,7 @@
 
 ## Contents and scope
 
-The current source builds the `0.8.2` portable **plugin-only** release. It contains the four
+The current source builds the `0.9.0` portable **plugin-only** release. It contains the four
 orchestration Skills, their references, host-only scripts, user documentation,
 license, the strict component catalog, and both plugin manifests. Component executables, component MCP servers,
 Git internals, tests, local hardware evidence, and build outputs are not bundled.
@@ -24,7 +24,7 @@ After tests and a cohesive commit, from this repository:
 
 ```powershell
 python scripts/release.py build --output-dir dist --json
-python scripts/release.py verify dist/embedded-agent-toolkit-0.8.2.zip --checksum dist/embedded-agent-toolkit-0.8.2.zip.sha256 --json
+python scripts/release.py verify dist/embedded-agent-toolkit-0.9.0.zip --checksum dist/embedded-agent-toolkit-0.9.0.zip.sha256 --json
 ```
 
 The builder requires a clean worktree and reads pinned Git blobs rather than
@@ -39,11 +39,11 @@ Each tagged release publishes `bootstrap.py` as a separately attested asset.
 Download and authenticate the script before executing it:
 
 ```powershell
-gh release download v0.8.2 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.9.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.8.2 `
+  --source-ref refs/tags/v0.9.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -66,14 +66,32 @@ left byte-for-byte unchanged, and used for strict doctor. The existing-lock and
 new-lock modes are mutually exclusive. No device discovery or hardware access
 occurs.
 
+For a new workstation, use the catalog-backed mode instead of supplying three
+paths manually:
+
+```powershell
+python bootstrap.py `
+  --install-root C:\Tools\embedded-agent-toolkit `
+  --component-install-root C:\Tools\embedded-agent-components `
+  --lock-output C:\Tools\embedded-agent-toolkit\component-locks\workstation.json `
+  --json
+```
+
+This explicit mode downloads only the component assets pinned by the catalog in
+the authenticated Toolkit release, installs them into versioned directories,
+creates the new lock, and runs strict doctor. It cannot be combined with an
+existing lock or explicit component paths. The default remains plugin-only.
+The component root and generated lock must remain outside the immutable plugin
+directory.
+
 ## Install a downloaded version manually
 
 Use the release script from a trusted source checkout. Obtain the ZIP and its
 checksum from a trusted channel, then install into a directory you own:
 
 ```powershell
-python scripts/release.py install dist/embedded-agent-toolkit-0.8.2.zip `
-  --checksum dist/embedded-agent-toolkit-0.8.2.zip.sha256 `
+python scripts/release.py install dist/embedded-agent-toolkit-0.9.0.zip `
+  --checksum dist/embedded-agent-toolkit-0.9.0.zip.sha256 `
   --install-root C:\Tools\embedded-agent-toolkit `
   --lock-output C:\Tools\embedded-agent-toolkit\component-locks\workstation.json `
   --baud C:\Users\you\.local\bin\baud.exe `
@@ -82,7 +100,7 @@ python scripts/release.py install dist/embedded-agent-toolkit-0.8.2.zip `
   --json
 ```
 
-This creates `C:\Tools\embedded-agent-toolkit\0.8.2\embedded-agent-toolkit`,
+This creates `C:\Tools\embedded-agent-toolkit\0.9.0\embedded-agent-toolkit`,
 then creates the requested component lock and runs strict doctor against the
 installed plugin. The three component executables are invoked only with
 `--version`; no hardware command is run. All four setup options (`--lock-output`,
