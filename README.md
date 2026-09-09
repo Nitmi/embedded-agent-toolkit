@@ -67,8 +67,9 @@ validates the release-bound component catalog and reports exact sources,
 hashes, destinations, and availability without network or process execution.
 Its `install` mode is fail-closed and becomes usable only after all three
 upstream projects publish cataloged standalone artifacts. The current catalog
-intentionally reports them unavailable instead of falling back to unpinned
-package-manager installs.
+pins attested Windows x86_64 releases of `baud 0.1.2`, `BLEA 0.6.5`, and
+`embedded-debugger 0.2.1`, so its default Windows plan is complete without
+falling back to ambient package-manager resolution.
 
 ## Included workflows
 

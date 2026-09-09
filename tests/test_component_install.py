@@ -192,7 +192,7 @@ class ComponentInstallTests(unittest.TestCase):
         with self.assertRaisesRegex(component_install.InstallError, "duplicate paths"):
             component_install.executable_from_zip(buffer.getvalue(), "Tool.exe")
 
-    def test_cli_plan_current_catalog_reports_incomplete_without_network(self) -> None:
+    def test_cli_plan_current_catalog_reports_all_components_without_network(self) -> None:
         official = Path(component_install.__file__).resolve().parents[1] / "component-catalog.json"
         output = io.StringIO()
         with (
@@ -215,14 +215,14 @@ class ComponentInstallTests(unittest.TestCase):
             )
         report = json.loads(output.getvalue())
         self.assertEqual(code, 0)
-        self.assertFalse(report["complete"])
+        self.assertTrue(report["complete"])
         statuses = {item["name"]: item["status"] for item in report["components"]}
         self.assertEqual(
             statuses,
             {
                 "baud": "available",
                 "blea": "available",
-                "embedded-debugger": "unavailable",
+                "embedded-debugger": "available",
             },
         )
 

@@ -25,13 +25,12 @@ python scripts/component_install.py plan `
   --json
 ```
 
-The current catalog includes the attested `baud 0.1.2` and `BLEA 0.6.5` Windows x86_64
-releases. Embedded-debugger deliberately has no platform artifact yet because it does not
-have a public release source. Therefore `complete=false` is the correct result. Do not replace
-the missing entry with a guessed URL or an ambient package-manager resolution.
+The current catalog includes the attested Windows x86_64 releases of `baud 0.1.2`,
+`BLEA 0.6.5`, and `embedded-debugger 0.2.1`. The offline plan therefore reports
+`complete=true` on that platform and binds every URL, SHA-256, executable member,
+version, and destination before any download or process execution.
 
-After all three upstream releases publish standalone ZIPs and a later authenticated
-Toolkit release pins their exact URLs and SHA-256 values, installation will use:
+Install the complete catalog with:
 
 ```powershell
 python scripts/component_install.py install `

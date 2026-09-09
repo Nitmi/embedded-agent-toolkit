@@ -7,8 +7,8 @@ orchestration Skills, their references, host-only scripts, user documentation,
 license, the strict component catalog, and both plugin manifests. Component executables, component MCP servers,
 Git internals, tests, local hardware evidence, and build outputs are not bundled.
 Use Python 3.11 or newer for the release commands; only the standard library is
-required. The debugger's offline runtime setup commands are versioned in
-`embedded-debugger 0.2.0`; install that component separately.
+required. The bundled catalog pins attested standalone Windows x86_64 releases
+of all three component CLIs, including `embedded-debugger 0.2.1`.
 
 The archive has a single `embedded-agent-toolkit` root. Its
 `release-manifest.json` binds the source commit and every payload file's SHA-256
