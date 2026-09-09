@@ -157,6 +157,25 @@ class BootstrapTests(unittest.TestCase):
             {Path(name).name for name in bootstrap.INSTALLER_SCRIPTS},
         )
 
+    def test_extracted_installer_has_all_import_dependencies(self) -> None:
+        archive = self.root / "release.zip"
+        output = self.root / "installer"
+        output.mkdir()
+        repository = Path(__file__).resolve().parents[1]
+        with zipfile.ZipFile(archive, "w") as package:
+            for relative in bootstrap.INSTALLER_SCRIPTS:
+                package.write(repository / relative, f"{bootstrap.PLUGIN}/{relative}")
+
+        installer = bootstrap.extract_installer(archive, output)
+        process = bootstrap.subprocess.run(
+            [bootstrap.sys.executable, str(installer), "--help"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            check=False,
+        )
+        self.assertEqual(process.returncode, 0, process.stderr)
+
     def test_installer_setup_is_all_or_nothing(self) -> None:
         with self.assertRaisesRegex(bootstrap.BootstrapError, "required together"):
             bootstrap.run_installer(
