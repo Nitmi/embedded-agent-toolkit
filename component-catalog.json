@@ -3,8 +3,15 @@
   "components": {
     "baud": {
       "repository": "Nitmi/baud-cli",
-      "version": "0.1.0",
-      "artifacts": {}
+      "version": "0.1.2",
+      "artifacts": {
+        "windows-x86_64": {
+          "url": "https://github.com/Nitmi/baud-cli/releases/download/v0.1.2/baud-0.1.2-windows-x86_64.zip",
+          "sha256": "aa9348c81aab0a39fb29366eedd311046302c3acd58d93044b617d797dad363c",
+          "format": "zip",
+          "executable": "baud-0.1.2-windows-x86_64/baud.exe"
+        }
+      }
     },
     "blea": {
       "repository": "Nitmi/blea",

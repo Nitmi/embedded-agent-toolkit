@@ -216,7 +216,15 @@ class ComponentInstallTests(unittest.TestCase):
         report = json.loads(output.getvalue())
         self.assertEqual(code, 0)
         self.assertFalse(report["complete"])
-        self.assertTrue(all(item["status"] == "unavailable" for item in report["components"]))
+        statuses = {item["name"]: item["status"] for item in report["components"]}
+        self.assertEqual(
+            statuses,
+            {
+                "baud": "available",
+                "blea": "unavailable",
+                "embedded-debugger": "unavailable",
+            },
+        )
 
 
 if __name__ == "__main__":
