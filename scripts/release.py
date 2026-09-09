@@ -33,6 +33,7 @@ REQUIRED_FILES = {
     ".codex-plugin/plugin.json",
     "LICENSE",
     "README.md",
+    "scripts/bootstrap.py",
     "scripts/release.py",
     "scripts/component_lock.py",
     "scripts/toolkit_doctor.py",

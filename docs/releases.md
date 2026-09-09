@@ -2,7 +2,7 @@
 
 ## Contents and scope
 
-The `0.5.1` release is a portable **plugin-only** ZIP. It contains the four
+The `0.6.0` release is a portable **plugin-only** ZIP. It contains the four
 orchestration Skills, their references, host-only scripts, user documentation,
 license, and both plugin manifests. Component executables, component MCP servers,
 Git internals, tests, local hardware evidence, and build outputs are not bundled.
@@ -24,7 +24,7 @@ After tests and a cohesive commit, from this repository:
 
 ```powershell
 python scripts/release.py build --output-dir dist --json
-python scripts/release.py verify dist/embedded-agent-toolkit-0.5.1.zip --checksum dist/embedded-agent-toolkit-0.5.1.zip.sha256 --json
+python scripts/release.py verify dist/embedded-agent-toolkit-0.6.0.zip --checksum dist/embedded-agent-toolkit-0.6.0.zip.sha256 --json
 ```
 
 The builder requires a clean worktree and reads pinned Git blobs rather than
@@ -33,14 +33,44 @@ It refuses existing release outputs; use another output directory to reproduce
 a build. Neither command accesses hardware. Building does not create a Git tag,
 push commits, or publish a remote release.
 
-## Install a version
+## Bootstrap without cloning
+
+Each tagged release publishes `bootstrap.py` as a separately attested asset.
+Download and authenticate the script before executing it:
+
+```powershell
+gh release download v0.6.0 --repo Nitmi/embedded-agent-toolkit `
+  --pattern bootstrap.py
+gh attestation verify bootstrap.py `
+  --repo Nitmi/embedded-agent-toolkit `
+  --source-ref refs/tags/v0.6.0 `
+  --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
+  --deny-self-hosted-runners
+python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
+```
+
+Keep the exact `bootstrap.py` filename because it is part of the attestation
+subject. The bootstrap requires Python 3.11+, an authenticated GitHub CLI, and
+network access to GitHub. It verifies its own bytes again, downloads the exact
+release ZIP and checksum into a temporary directory with strict size and redirect
+limits, verifies the archive's attestation, requires both attestations to name
+the same tag commit, and extracts only the fixed installer scripts before running
+the existing package installer. Downloads and extracted scripts are deleted when
+the command exits.
+
+The optional `--lock-output`, `--baud`, `--blea`, and `--debugger` arguments must
+be supplied together. When supplied, the final installer invokes those three
+executables only with `--version`, creates the component lock, and runs strict
+doctor. No device discovery or hardware access occurs.
+
+## Install a downloaded version manually
 
 Use the release script from a trusted source checkout. Obtain the ZIP and its
 checksum from a trusted channel, then install into a directory you own:
 
 ```powershell
-python scripts/release.py install dist/embedded-agent-toolkit-0.5.1.zip `
-  --checksum dist/embedded-agent-toolkit-0.5.1.zip.sha256 `
+python scripts/release.py install dist/embedded-agent-toolkit-0.6.0.zip `
+  --checksum dist/embedded-agent-toolkit-0.6.0.zip.sha256 `
   --install-root C:\Tools\embedded-agent-toolkit `
   --lock-output C:\Tools\embedded-agent-toolkit\component-locks\workstation.json `
   --baud C:\Users\you\.local\bin\baud.exe `
@@ -49,7 +79,7 @@ python scripts/release.py install dist/embedded-agent-toolkit-0.5.1.zip `
   --json
 ```
 
-This creates `C:\Tools\embedded-agent-toolkit\0.5.1\embedded-agent-toolkit`,
+This creates `C:\Tools\embedded-agent-toolkit\0.6.0\embedded-agent-toolkit`,
 then creates the requested component lock and runs strict doctor against the
 installed plugin. The three component executables are invoked only with
 `--version`; no hardware command is run. All four setup options (`--lock-output`,

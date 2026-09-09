@@ -21,39 +21,29 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The current release is `0.5.1`. Download its plugin ZIP and checksum from the
-[GitHub Release](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.5.1),
-then verify the archive before installing it. The GitHub CLI check binds the
-exact file to this repository and the immutable release tag:
+The current source version is `0.6.0`. A tagged release provides a standalone
+`bootstrap.py` alongside the plugin ZIP. Download the bootstrap with GitHub CLI,
+authenticate it before execution, and keep its exact filename:
 
 ```powershell
-gh release download v0.5.1 --repo Nitmi/embedded-agent-toolkit
-gh attestation verify embedded-agent-toolkit-0.5.1.zip `
+gh release download v0.6.0 --repo Nitmi/embedded-agent-toolkit `
+  --pattern bootstrap.py
+gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.5.1
-Get-FileHash -Algorithm SHA256 embedded-agent-toolkit-0.5.1.zip
+  --source-ref refs/tags/v0.6.0 `
+  --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
+  --deny-self-hosted-runners
+python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
 ```
 
-Expected SHA-256:
-
-```text
-2096e1a7e5548f2af2a0f2c3243b03821fbaf743d4edd865c7b90cec1ce9f3c1
-```
-
-From a trusted `v0.5.1` source checkout, install the verified package into a
-versioned directory:
-
-```powershell
-python scripts/release.py install embedded-agent-toolkit-0.5.1.zip `
-  --checksum embedded-agent-toolkit-0.5.1.zip.sha256 `
-  --install-root C:\Tools\embedded-agent-toolkit `
-  --json
-```
-
-The installer does not activate the plugin, install component CLIs, change
-`PATH`, launch MCP servers, or access hardware. Upgrades retain the previous
-version for rollback. See [release and upgrade instructions](docs/releases.md)
-and [release provenance](docs/provenance.md) for the complete trust boundary.
+The bootstrap requires Python 3.11+, an authenticated GitHub CLI, and network
+access to GitHub. It verifies itself again, downloads the exact versioned ZIP
+and checksum into a temporary directory, enforces the tag and signer workflow,
+and delegates installation to the authenticated package's existing installer.
+It does not activate the plugin, install component CLIs, change `PATH`, launch
+MCP servers, or access hardware. Upgrades retain the previous version for
+rollback. See [release and upgrade instructions](docs/releases.md) and
+[release provenance](docs/provenance.md) for the manual path and trust boundary.
 
 ## Readiness check
 

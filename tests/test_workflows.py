@@ -41,6 +41,8 @@ class WorkflowTests(unittest.TestCase):
         self.assertIn("--output-dir build/release-a", workflow)
         self.assertIn("--output-dir build/release-b", workflow)
         self.assertNotIn("--output-dir dist-a", workflow)
+        self.assertIn("Copy-Item -LiteralPath scripts/bootstrap.py", workflow)
+        self.assertIn("build/release-a/bootstrap.py", workflow)
 
 
 if __name__ == "__main__":

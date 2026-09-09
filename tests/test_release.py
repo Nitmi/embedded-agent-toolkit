@@ -92,6 +92,7 @@ class ReleaseTests(unittest.TestCase):
         for name in (
             ".codex-plugin/plugin.json",
             "scripts/release.py",
+            "scripts/bootstrap.py",
             "skills/hardware-test/references/runtime-contract.md",
             "docs/releases.md",
         ):

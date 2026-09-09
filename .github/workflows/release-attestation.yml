@@ -55,10 +55,18 @@ jobs:
           python scripts/release.py verify $first[0] `
             --checksum "$($first[0].FullName).sha256" --json
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Attest release archive
+      - name: Stage standalone bootstrap
+        shell: pwsh
+        run: |
+          Copy-Item -LiteralPath scripts/bootstrap.py -Destination build/release-a/bootstrap.py
+          $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath build/release-a/bootstrap.py).Hash.ToLowerInvariant()
+          Set-Content -LiteralPath build/release-a/bootstrap.py.sha256 -Value "$hash  bootstrap.py" -Encoding ascii
+      - name: Attest release archive and bootstrap
         uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
         with:
-          subject-path: build/release-a/*.zip
+          subject-path: |
+            build/release-a/*.zip
+            build/release-a/bootstrap.py
       - name: Upload release candidate
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
