@@ -21,13 +21,19 @@ After the workflow has successfully produced an attestation in the expected
 repository, verify both the repository identity and the downloaded ZIP:
 
 ```powershell
-gh attestation verify embedded-agent-toolkit-0.5.0.zip `
-  --repo Nitmi/embedded-agent-toolkit
+gh attestation verify embedded-agent-toolkit-0.5.1.zip `
+  --repo Nitmi/embedded-agent-toolkit `
+  --source-ref refs/tags/v0.5.1
 ```
 
 Only proceed when verification succeeds and the reported subject digest matches
 the file being installed. The adjacent `.sha256` remains useful for transport
 integrity, but it is not a substitute for repository-bound provenance.
+
+Use the exact release version in both the archive name and `--source-ref`. The
+`0.5.1` patch release is the first release expected to have tag-ref provenance;
+the successful `0.5.0` manual run records `refs/heads/main` and must not be
+presented as a tag-triggered attestation.
 
 ## Trust boundary
 
