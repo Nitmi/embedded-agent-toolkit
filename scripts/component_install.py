@@ -19,6 +19,8 @@ import zipfile
 from collections.abc import Sequence
 from pathlib import Path, PurePosixPath
 
+sys.dont_write_bytecode = True
+
 if __package__:
     from . import component_lock
 else:

@@ -16,7 +16,7 @@ of installing an unrelated package with a similar command name.
 
 ## Trusted component acquisition
 
-Toolkit 0.8.1 includes a strict standalone-artifact installer. Inspect its bundled,
+Toolkit 0.8.2 includes a strict standalone-artifact installer. Inspect its bundled,
 release-bound catalog without network or component execution:
 
 ```powershell
@@ -46,6 +46,9 @@ component, and creates a new component lock. It never edits PATH or accesses
 hardware. It refuses an existing lock or a different existing executable. A
 late failure can leave already verified version directories for inspection, but
 no lock is produced; review and compare the new lock before selecting it.
+Installed entry points suppress Python bytecode writes before importing sibling
+modules, so running these host-side tools does not add `__pycache__` to the
+verified plugin directory.
 
 An externally supplied `--catalog` is only structured input. It has publisher
 authority only when its bytes came from a Toolkit release whose GitHub

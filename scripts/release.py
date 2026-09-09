@@ -15,6 +15,8 @@ import sys
 import zipfile
 from pathlib import Path
 
+sys.dont_write_bytecode = True
+
 if __package__:
     from . import component_install, component_lock, toolkit_doctor
 else:

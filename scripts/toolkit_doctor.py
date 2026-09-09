@@ -15,6 +15,8 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+sys.dont_write_bytecode = True
+
 if __package__:
     from . import component_lock
 else:

@@ -18,7 +18,7 @@ from pathlib import Path
 
 PLUGIN = "embedded-agent-toolkit"
 REPOSITORY = "Nitmi/embedded-agent-toolkit"
-VERSION = "0.8.1"
+VERSION = "0.8.2"
 TAG = f"v{VERSION}"
 SOURCE_REF = f"refs/tags/{TAG}"
 SIGNER_WORKFLOW = f"{REPOSITORY}/.github/workflows/release-attestation.yml"
