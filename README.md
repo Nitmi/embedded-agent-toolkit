@@ -21,16 +21,16 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The current release is `0.9.2`. It provides a standalone `bootstrap.py`
+The current release is `0.10.0`, which provides a standalone `bootstrap.py`
 alongside the plugin ZIP. Download the bootstrap with GitHub CLI,
 authenticate it before execution, and keep its exact filename:
 
 ```powershell
-gh release download v0.9.2 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.10.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.9.2 `
+  --source-ref refs/tags/v0.10.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -61,7 +61,20 @@ Toolkit release installation and bootstrap can reuse that lock with
 `--component-lock`, while `component_lock.py compare` provides a host-only review
 of an intentional component change before selecting a new lock.
 
-The 0.9.2 release also includes `component_install.py`. Its offline `plan`
+The 0.10.0 source can explicitly select a hash-bound workstation lock once:
+
+```powershell
+python scripts/station_config.py select C:\Tools\embedded-agent-toolkit\component-locks\workstation.json --json
+python scripts/toolkit_doctor.py --strict --json
+```
+
+Doctor selection order is an explicit `--component-lock`, the current project's
+`.embedded/toolchain-lock.json`, the selected workstation lock, then ambient
+environment/PATH resolution. Its JSON result reports the selected source, path,
+and lock SHA-256. Use `--no-auto-lock` only when intentionally diagnosing the
+ambient environment.
+
+The Toolkit also includes `component_install.py`. Its offline `plan`
 validates the release-bound component catalog and reports exact sources,
 hashes, destinations, and availability without network or process execution.
 Its `install` mode is fail-closed and becomes usable only after all three

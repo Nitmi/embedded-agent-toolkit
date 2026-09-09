@@ -18,11 +18,12 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 
 if __package__:
-    from . import component_lock
+    from . import component_lock, station_config
 else:
     import component_lock
+    import station_config
 
-SCHEMA_VERSION = "embedded-agent-toolkit.doctor.v2"
+SCHEMA_VERSION = "embedded-agent-toolkit.doctor.v3"
 PLUGIN_NAME = "embedded-agent-toolkit"
 WARNING_STATUSES = frozenset({"not_found"})
 
@@ -249,6 +250,9 @@ def build_report(
     timeout: float,
     plugin_root: Path,
     locked_components: dict[str, dict[str, str]] | None = None,
+    component_lock_source: str | None = None,
+    component_lock_path: Path | None = None,
+    component_lock_sha256: str | None = None,
 ) -> dict[str, object]:
     component_results = [
         check_component(
@@ -287,6 +291,15 @@ def build_report(
         "errors": errors,
         "scope": "host_only_no_hardware_access",
         "component_lock_used": locked_components is not None,
+        "component_lock_source": (
+            component_lock_source or "provided_by_caller"
+            if locked_components is not None
+            else "ambient_environment"
+        ),
+        "component_lock_path": (
+            str(component_lock_path.resolve()) if component_lock_path else None
+        ),
+        "component_lock_sha256": component_lock_sha256,
         "platform": {
             "system": platform.system(),
             "release": platform.release(),
@@ -300,6 +313,7 @@ def build_report(
 
 def render_human(report: dict[str, object]) -> str:
     lines = ["Embedded Agent Toolkit doctor", "Scope: host only; no hardware access"]
+    lines.append(f"Component selection: {report['component_lock_source']}")
     for result in report["components"]:  # type: ignore[union-attr]
         if result["ok"]:
             marker = "OK"
@@ -335,6 +349,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         help="authoritative exact component lock; environment overrides then fail",
     )
     parser.add_argument(
+        "--no-auto-lock",
+        action="store_true",
+        help="disable project and workstation lock discovery and use ambient resolution",
+    )
+    parser.add_argument(
         "--component",
         action="append",
         choices=[component.name for component in COMPONENTS],
@@ -364,16 +383,51 @@ def main(argv: Sequence[str] | None = None) -> int:
         component for component in COMPONENTS if not names or component.name in names
     ]
     plugin_root = Path(__file__).resolve().parent.parent
+    lock_path: Path | None = None
+    lock_source: str | None = None
+    lock_hash: str | None = None
     try:
+        if args.component_lock is not None:
+            lock_path = args.component_lock
+            lock_source = "command_line"
+        elif not args.no_auto_lock:
+            project_lock = Path.cwd() / ".embedded" / "toolchain-lock.json"
+            if project_lock.exists() or project_lock.is_symlink():
+                lock_path = project_lock
+                lock_source = "project"
+            else:
+                selected_config = station_config.config_path(None)
+                if selected_config.exists() or selected_config.is_symlink():
+                    selection = station_config.parse(selected_config)
+                    lock_path = Path(str(selection["component_lock"]))
+                    lock_hash = str(selection["component_lock_sha256"])
+                    lock_source = "workstation"
         locked_components = (
-            component_lock.parse_lock(args.component_lock)
-            if args.component_lock is not None
-            else None
+            component_lock.parse_lock(lock_path) if lock_path is not None else None
         )
-    except (component_lock.LockError, OSError) as error:
+        if lock_path is not None:
+            actual_hash = component_lock.sha256(lock_path)
+            if lock_hash is not None and actual_hash != lock_hash:
+                raise station_config.StationConfigError(
+                    "selected workstation component lock hash differs"
+                )
+            lock_hash = actual_hash
+    except (
+        component_lock.LockError,
+        station_config.StationConfigError,
+        OSError,
+    ) as error:
         print(f"invalid component lock: {error}", file=sys.stderr)
         return 2
-    report = build_report(selected, args.timeout, plugin_root, locked_components)
+    report = build_report(
+        selected,
+        args.timeout,
+        plugin_root,
+        locked_components,
+        lock_source,
+        lock_path,
+        lock_hash,
+    )
     if args.json:
         print(json.dumps(report, indent=2, sort_keys=True))
     else:

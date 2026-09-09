@@ -16,7 +16,7 @@ of installing an unrelated package with a similar command name.
 
 ## Trusted component acquisition
 
-Toolkit 0.9.2 includes a strict standalone-artifact installer. Inspect its bundled,
+Toolkit includes a strict standalone-artifact installer. Inspect its bundled,
 release-bound catalog without network or component execution:
 
 ```powershell
@@ -144,6 +144,32 @@ same process is treated as a conflict, not as an override. The lock does not edi
 `PATH`, activate plugins, authorize hardware access, or proxy component commands.
 Commit a project lock only when its host-specific absolute paths are intentional;
 otherwise keep it as test-station configuration outside source control.
+
+## Select a workstation lock
+
+When one machine should use the same exact components outside project checkouts,
+select the reviewed lock once:
+
+```powershell
+python scripts/station_config.py select `
+  C:\Tools\embedded-agent-toolkit\component-locks\workstation.json `
+  --json
+python scripts/station_config.py inspect --json
+python scripts/toolkit_doctor.py --strict --json
+```
+
+The station config stores only the lock's absolute path and SHA-256. Selection
+and inspection validate the lock and component hashes without starting any
+component or accessing hardware. A different lock is rejected unless it was
+first compared and selection is repeated with `--replace`.
+
+Doctor uses an explicit command-line lock first, then
+`.embedded/toolchain-lock.json` in the current directory, then the selected
+workstation lock, and only then ambient environment/PATH resolution. The report
+includes `component_lock_source`, `component_lock_path`, and
+`component_lock_sha256`. Set `EMBEDDED_AGENT_TOOLKIT_STATION_CONFIG` to an
+absolute path only when a test station requires a non-default config location.
+Use `--no-auto-lock` for deliberate ambient-environment diagnosis.
 
 ## Component MCP servers
 

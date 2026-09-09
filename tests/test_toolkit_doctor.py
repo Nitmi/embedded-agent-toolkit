@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import json
 import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -160,6 +162,7 @@ class ReportStatusTests(unittest.TestCase):
 
         self.assertTrue(report["ok"])
         self.assertFalse(report["complete"])
+        self.assertEqual(report["component_lock_source"], "ambient_environment")
         self.assertEqual(report["status"], "ready_with_warnings")
         self.assertEqual(report["warnings"], ["embedded-debugger: not_found"])
         self.assertEqual(report["errors"], [])
@@ -185,6 +188,126 @@ class ReportStatusTests(unittest.TestCase):
         self.assertFalse(report["complete"])
         self.assertEqual(report["status"], "error")
         self.assertEqual(report["errors"], ["embedded-debugger: launch_error"])
+
+    def test_locked_report_without_cli_metadata_names_caller_source(self) -> None:
+        component = doctor.COMPONENTS[0]
+        layout = {"ok": True, "errors": []}
+        with (
+            mock.patch.object(
+                doctor,
+                "check_component",
+                return_value={"name": component.name, "ok": True, "status": "ready"},
+            ),
+            mock.patch.object(doctor, "check_plugin_layout", return_value=layout),
+        ):
+            report = doctor.build_report(
+                [component],
+                1.0,
+                ROOT,
+                {
+                    component.name: {
+                        "path": __file__,
+                        "sha256": "0" * 64,
+                        "version": "1",
+                    }
+                },
+            )
+        self.assertEqual(report["component_lock_source"], "provided_by_caller")
+
+
+class LockSelectionTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.root = Path(self.temporary.name)
+        self.lock = self.root / "toolchain-lock.json"
+        components = {}
+        for name in doctor.component_lock.SPECS:
+            executable = self.root / f"{name}.exe"
+            executable.write_bytes(name.encode("ascii"))
+            components[name] = {
+                "path": str(executable.resolve()),
+                "sha256": doctor.component_lock.sha256(executable),
+                "version": "1.0.0",
+            }
+        self.lock.write_text(
+            json.dumps(
+                {
+                    "schema_version": doctor.component_lock.SCHEMA,
+                    "components": components,
+                }
+            ),
+            encoding="utf-8",
+        )
+
+    def tearDown(self) -> None:
+        self.temporary.cleanup()
+
+    def ready(self, args, **_kwargs):
+        name = Path(args[0]).stem
+        prefix = "ble" if name == "blea" else name
+        return subprocess.CompletedProcess(args, 0, f"{prefix} 1.0.0\n", "")
+
+    def test_project_lock_is_auto_selected_before_workstation_config(self) -> None:
+        project = self.root / "project"
+        project_lock = project / ".embedded" / "toolchain-lock.json"
+        project_lock.parent.mkdir(parents=True)
+        project_lock.write_bytes(self.lock.read_bytes())
+        with (
+            mock.patch.object(doctor.Path, "cwd", return_value=project),
+            mock.patch.object(
+                doctor.station_config, "config_path", return_value=self.root / "missing"
+            ),
+            mock.patch.dict(doctor.os.environ, {}, clear=True),
+            mock.patch.object(doctor.subprocess, "run", side_effect=self.ready),
+            mock.patch.object(
+                doctor, "check_plugin_layout", return_value={"ok": True, "errors": []}
+            ),
+            mock.patch("builtins.print") as output,
+        ):
+            code = doctor.main(["--strict", "--json"])
+        self.assertEqual(code, 0)
+        report = json.loads(output.call_args.args[0])
+        self.assertEqual(report["component_lock_source"], "project")
+        self.assertEqual(report["component_lock_path"], str(project_lock.resolve()))
+
+    def test_workstation_lock_is_auto_selected_when_project_lock_is_absent(
+        self,
+    ) -> None:
+        config = self.root / "station.json"
+        doctor.station_config.select(config, self.lock, False)
+        with (
+            mock.patch.object(doctor.Path, "cwd", return_value=self.root / "project"),
+            mock.patch.object(
+                doctor.station_config, "config_path", return_value=config
+            ),
+            mock.patch.dict(doctor.os.environ, {}, clear=True),
+            mock.patch.object(doctor.subprocess, "run", side_effect=self.ready),
+            mock.patch.object(
+                doctor, "check_plugin_layout", return_value={"ok": True, "errors": []}
+            ),
+            mock.patch("builtins.print") as output,
+        ):
+            code = doctor.main(["--strict", "--json"])
+        self.assertEqual(code, 0)
+        report = json.loads(output.call_args.args[0])
+        self.assertEqual(report["component_lock_source"], "workstation")
+        self.assertTrue(report["component_lock_used"])
+
+    def test_no_auto_lock_preserves_ambient_resolution(self) -> None:
+        with (
+            mock.patch.object(doctor.Path, "cwd", return_value=self.root),
+            mock.patch.object(
+                doctor.station_config,
+                "config_path",
+                side_effect=AssertionError("must not inspect station config"),
+            ),
+            mock.patch.object(doctor, "build_report") as build,
+            mock.patch("builtins.print"),
+        ):
+            build.return_value = {"complete": True, "ok": True}
+            code = doctor.main(["--no-auto-lock", "--json"])
+        self.assertEqual(code, 0)
+        self.assertIsNone(build.call_args.args[3])
 
 
 if __name__ == "__main__":

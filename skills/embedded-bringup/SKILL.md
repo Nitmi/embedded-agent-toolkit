@@ -14,6 +14,9 @@ with ad hoc probe, serial, or Bluetooth scripts.
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only
 its hash-bound component paths. Do not let environment overrides mask that lock.
+Otherwise use a selected workstation lock when available and verify the doctor
+reports its lock source. Do not treat ambient PATH readiness as a stable board
+station identity.
 When a different lock is proposed, run `component_lock.py compare` first and
 surface every changed path, version, and hash before selecting it.
 If components are missing, keep acquisition separate from board interaction:

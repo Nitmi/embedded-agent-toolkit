@@ -115,6 +115,7 @@ class ReleaseTests(unittest.TestCase):
             "component-catalog.json",
             "scripts/release.py",
             "scripts/bootstrap.py",
+            "scripts/station_config.py",
             "skills/hardware-test/references/runtime-contract.md",
             "docs/releases.md",
         ):
@@ -480,6 +481,8 @@ class ReleaseTests(unittest.TestCase):
 
         self.assertTrue(report["ready"])
         self.assertTrue(report["doctor"]["complete"])
+        self.assertEqual(report["doctor"]["component_lock_source"], "release_argument")
+        self.assertEqual(report["doctor"]["component_lock_path"], str(lock.resolve()))
         self.assertFalse(report["component_lock"]["executables_started"])
         self.assertEqual(lock.read_bytes(), original)
 

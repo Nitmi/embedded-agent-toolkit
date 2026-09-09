@@ -41,6 +41,7 @@ REQUIRED_FILES = {
     "scripts/component_install.py",
     "scripts/release.py",
     "scripts/component_lock.py",
+    "scripts/station_config.py",
     "scripts/toolkit_doctor.py",
     *(
         f"skills/{name}/SKILL.md"
@@ -477,6 +478,9 @@ def install_ready_release(
             timeout,
             Path(installation["plugin_path"]),
             locked,
+            "release_generated",
+            lock_output,
+            component_lock.sha256(lock_output),
         )
         if not doctor["complete"]:
             details = ", ".join(doctor["errors"] or doctor["warnings"])
@@ -517,6 +521,9 @@ def install_with_component_lock(
         timeout,
         Path(installation["plugin_path"]),
         lock_report["components"],
+        "release_argument",
+        lock,
+        component_lock.sha256(lock),
     )
     if not doctor["complete"]:
         details = ", ".join(doctor["errors"] or doctor["warnings"])
@@ -570,6 +577,9 @@ def install_with_catalog_components(
             timeout,
             Path(installation["plugin_path"]),
             locked,
+            "release_generated",
+            lock_output,
+            component_lock.sha256(lock_output),
         )
         if not doctor["complete"]:
             details = ", ".join(doctor["errors"] or doctor["warnings"])

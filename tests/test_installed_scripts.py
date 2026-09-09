@@ -21,10 +21,13 @@ class InstalledScriptTests(unittest.TestCase):
                 "component_install.py",
                 "component_lock.py",
                 "release.py",
+                "station_config.py",
                 "toolkit_doctor.py",
             ):
                 shutil.copy2(ROOT / "scripts" / name, scripts / name)
-            shutil.copy2(ROOT / "component-catalog.json", install / "component-catalog.json")
+            shutil.copy2(
+                ROOT / "component-catalog.json", install / "component-catalog.json"
+            )
 
             environment = os.environ.copy()
             environment.pop("PYTHONDONTWRITEBYTECODE", None)
@@ -40,6 +43,7 @@ class InstalledScriptTests(unittest.TestCase):
                     "--json",
                 ],
                 [sys.executable, str(scripts / "release.py"), "--help"],
+                [sys.executable, str(scripts / "station_config.py"), "--help"],
                 [sys.executable, str(scripts / "toolkit_doctor.py"), "--help"],
             )
             for command in commands:

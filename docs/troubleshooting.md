@@ -24,6 +24,11 @@ Run the reported executable path manually with `--version`. An executable with
 the expected filename but incompatible output is treated as a different tool;
 do not continue to hardware discovery until the ambiguity is resolved.
 
+If doctor found an older PATH executable, select the reviewed workstation lock
+with `station_config.py select` or pass `--component-lock` explicitly. Confirm
+that `component_lock_source` is `workstation`, `project`, or `command_line`;
+`ambient_environment` is intentionally unlocked.
+
 ## BLEA MCP does not start
 
 Confirm `ble --version` and `ble mcp --help` work in the same environment as the

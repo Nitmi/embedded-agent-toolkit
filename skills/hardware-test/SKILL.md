@@ -13,6 +13,10 @@ second untyped command runner in this plugin.
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only
 its hash-bound component paths. Do not let environment overrides mask that lock.
+Otherwise honor a workstation lock selected by `station_config.py`; confirm the
+doctor report names `project`, `workstation`, or `command_line` as its lock source
+before treating component readiness as stable. Ambient PATH readiness is only a
+host diagnostic, not a stable test-station identity.
 When a different lock is proposed, run `component_lock.py compare` first and
 surface every changed path, version, and hash before selecting it.
 For a new test station, run `component_install.py plan` before any hardware
