@@ -1,5 +1,10 @@
 # Embedded Agent Toolkit
 
+[![CI](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/ci.yml)
+[![Release provenance](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/release-attestation.yml/badge.svg)](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/release-attestation.yml)
+[![Release](https://img.shields.io/github/v/release/Nitmi/embedded-agent-toolkit)](https://github.com/Nitmi/embedded-agent-toolkit/releases/latest)
+[![License](https://img.shields.io/github/license/Nitmi/embedded-agent-toolkit)](LICENSE)
+
 Embedded Agent Toolkit is the orchestration layer for Nitmi's embedded Agent
 tools. It combines their existing contracts instead of hiding the underlying
 tools behind another hardware abstraction:
@@ -14,13 +19,54 @@ The value of the toolkit is the cross-tool workflow: one identity ledger, one
 safety policy, correlated evidence, and deterministic cleanup across serial,
 BLE, and debug transports. Each component remains independently usable.
 
-## Release packages
+## Install the current release
 
-Version `0.3.0` provides reproducible plugin-only ZIPs with per-file manifests and
-SHA-256 checksums. The host-only `scripts/release.py` builds, verifies, and
-installs versioned directories without activating plugins, changing PATH, or
-installing component CLIs. Upgrades retain the previous version for rollback.
-See [release and upgrade instructions](docs/releases.md).
+The current release is `0.5.1`. Download its plugin ZIP and checksum from the
+[GitHub Release](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.5.1),
+then verify the archive before installing it. The GitHub CLI check binds the
+exact file to this repository and the immutable release tag:
+
+```powershell
+gh release download v0.5.1 --repo Nitmi/embedded-agent-toolkit
+gh attestation verify embedded-agent-toolkit-0.5.1.zip `
+  --repo Nitmi/embedded-agent-toolkit `
+  --source-ref refs/tags/v0.5.1
+Get-FileHash -Algorithm SHA256 embedded-agent-toolkit-0.5.1.zip
+```
+
+Expected SHA-256:
+
+```text
+2096e1a7e5548f2af2a0f2c3243b03821fbaf743d4edd865c7b90cec1ce9f3c1
+```
+
+From a trusted `v0.5.1` source checkout, install the verified package into a
+versioned directory:
+
+```powershell
+python scripts/release.py install embedded-agent-toolkit-0.5.1.zip `
+  --checksum embedded-agent-toolkit-0.5.1.zip.sha256 `
+  --install-root C:\Tools\embedded-agent-toolkit `
+  --json
+```
+
+The installer does not activate the plugin, install component CLIs, change
+`PATH`, launch MCP servers, or access hardware. Upgrades retain the previous
+version for rollback. See [release and upgrade instructions](docs/releases.md)
+and [release provenance](docs/provenance.md) for the complete trust boundary.
+
+## Readiness check
+
+After activating the plugin through your Agent host and installing the three
+component CLIs, run the host-only doctor:
+
+```powershell
+python scripts/toolkit_doctor.py --strict --json
+```
+
+For a stable workstation or CI setup, create a component lock that binds the
+exact paths, versions, and SHA-256 hashes of `baud`, `blea`, and
+`embedded-debugger`; then pass it to doctor. See [installation](docs/installation.md).
 
 ## Included workflows
 
@@ -39,7 +85,7 @@ See [release and upgrade instructions](docs/releases.md).
 - `incident-capture`: preserve a failure scene and collect a read-mostly
   evidence bundle without silently recovering the target.
 
-## Host doctor
+## Host doctor details
 
 The doctor checks only executable versions and the local plugin layout. It does
 not enumerate or open adapters, probes, ports, or targets.
