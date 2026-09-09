@@ -537,8 +537,8 @@ def install_with_catalog_components(
     lock_output: Path,
     timeout: float,
 ) -> dict:
-    if not 0.1 <= timeout <= 30:
-        raise ReleaseError("--timeout must be between 0.1 and 30 seconds")
+    if not 0.1 <= timeout <= 600:
+        raise ReleaseError("--timeout must be between 0.1 and 600 seconds")
     if lock_output.exists() or lock_output.is_symlink():
         raise ReleaseError("component lock output already exists")
 

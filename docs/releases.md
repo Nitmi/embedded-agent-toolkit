@@ -2,7 +2,7 @@
 
 ## Contents and scope
 
-The current source builds the `0.9.1` portable **plugin-only** release. It contains the four
+The current source builds the `0.9.2` portable **plugin-only** release. It contains the four
 orchestration Skills, their references, host-only scripts, user documentation,
 license, the strict component catalog, and both plugin manifests. Component executables, component MCP servers,
 Git internals, tests, local hardware evidence, and build outputs are not bundled.
@@ -24,7 +24,7 @@ After tests and a cohesive commit, from this repository:
 
 ```powershell
 python scripts/release.py build --output-dir dist --json
-python scripts/release.py verify dist/embedded-agent-toolkit-0.9.1.zip --checksum dist/embedded-agent-toolkit-0.9.1.zip.sha256 --json
+python scripts/release.py verify dist/embedded-agent-toolkit-0.9.2.zip --checksum dist/embedded-agent-toolkit-0.9.2.zip.sha256 --json
 ```
 
 The builder requires a clean worktree and reads pinned Git blobs rather than
@@ -39,11 +39,11 @@ Each tagged release publishes `bootstrap.py` as a separately attested asset.
 Download and authenticate the script before executing it:
 
 ```powershell
-gh release download v0.9.1 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.9.2 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.9.1 `
+  --source-ref refs/tags/v0.9.2 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -87,7 +87,9 @@ directory.
 `--timeout` is the bound for each download or component process, not for the
 whole multi-component transaction. Bootstrap derives a finite outer deadline
 from the selected mode so three downloads and the required version checks can
-each consume their declared bound without an early parent timeout.
+each consume their declared bound without an early parent timeout. Catalog-backed
+installation accepts up to 600 seconds per operation; existing-lock and explicit
+local-executable modes retain their 30-second maximum.
 
 ## Install a downloaded version manually
 
@@ -95,8 +97,8 @@ Use the release script from a trusted source checkout. Obtain the ZIP and its
 checksum from a trusted channel, then install into a directory you own:
 
 ```powershell
-python scripts/release.py install dist/embedded-agent-toolkit-0.9.1.zip `
-  --checksum dist/embedded-agent-toolkit-0.9.1.zip.sha256 `
+python scripts/release.py install dist/embedded-agent-toolkit-0.9.2.zip `
+  --checksum dist/embedded-agent-toolkit-0.9.2.zip.sha256 `
   --install-root C:\Tools\embedded-agent-toolkit `
   --lock-output C:\Tools\embedded-agent-toolkit\component-locks\workstation.json `
   --baud C:\Users\you\.local\bin\baud.exe `
@@ -105,7 +107,7 @@ python scripts/release.py install dist/embedded-agent-toolkit-0.9.1.zip `
   --json
 ```
 
-This creates `C:\Tools\embedded-agent-toolkit\0.9.1\embedded-agent-toolkit`,
+This creates `C:\Tools\embedded-agent-toolkit\0.9.2\embedded-agent-toolkit`,
 then creates the requested component lock and runs strict doctor against the
 installed plugin. The three component executables are invoked only with
 `--version`; no hardware command is run. All four setup options (`--lock-output`,

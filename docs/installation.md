@@ -16,7 +16,7 @@ of installing an unrelated package with a similar command name.
 
 ## Trusted component acquisition
 
-Toolkit 0.9.1 includes a strict standalone-artifact installer. Inspect its bundled,
+Toolkit 0.9.2 includes a strict standalone-artifact installer. Inspect its bundled,
 release-bound catalog without network or component execution:
 
 ```powershell
@@ -71,6 +71,9 @@ and `--debugger` selections. Component versions remain installed when a later
 step fails, but a newly generated lock is removed if strict doctor fails. The
 component root and lock must remain outside the immutable installed plugin
 directory.
+Catalog-backed installation accepts `--timeout` values up to 600 seconds for
+slow networks. The value is enforced as a total deadline for each component
+download, not merely as a socket inactivity timeout.
 
 ## Install the plugin
 

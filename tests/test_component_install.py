@@ -5,6 +5,8 @@ import io
 import json
 import subprocess
 import tempfile
+import threading
+import time
 import unittest
 import zipfile
 from pathlib import Path
@@ -39,7 +41,9 @@ class ComponentInstallTests(unittest.TestCase):
         for name, version in versions.items():
             buffer = io.BytesIO()
             with zipfile.ZipFile(buffer, "w") as archive:
-                archive.writestr(f"bundle/{executables[name]}", f"fixture {name}".encode())
+                archive.writestr(
+                    f"bundle/{executables[name]}", f"fixture {name}".encode()
+                )
             data = buffer.getvalue()
             self.archives[name] = data
             components[name] = {
@@ -76,7 +80,9 @@ class ComponentInstallTests(unittest.TestCase):
 
     def test_plan_is_offline_and_reports_exact_destinations(self) -> None:
         with mock.patch.object(
-            component_install, "download", side_effect=AssertionError("must stay offline")
+            component_install,
+            "download",
+            side_effect=AssertionError("must stay offline"),
         ):
             report = component_install.plan(
                 self.catalog, self.root / "install", "windows-x86_64"
@@ -97,7 +103,9 @@ class ComponentInstallTests(unittest.TestCase):
         }
         lock = self.root / "lock.json"
         with (
-            mock.patch.object(component_install, "download", side_effect=lambda url, _: by_url[url]),
+            mock.patch.object(
+                component_install, "download", side_effect=lambda url, _: by_url[url]
+            ),
             mock.patch.object(
                 component_install.component_lock.subprocess,
                 "run",
@@ -116,15 +124,21 @@ class ComponentInstallTests(unittest.TestCase):
         self.assertEqual(report["executed_command"], "--version only")
         self.assertFalse(report["hardware_access"])
         self.assertTrue(lock.is_file())
-        self.assertEqual(set(report["component_lock"]["components"]), set(self.archives))
+        self.assertEqual(
+            set(report["component_lock"]["components"]), set(self.archives)
+        )
 
-    def test_unavailable_catalog_fails_before_network_or_filesystem_writes(self) -> None:
+    def test_unavailable_catalog_fails_before_network_or_filesystem_writes(
+        self,
+    ) -> None:
         for record in self.payload["components"].values():
             record["artifacts"] = {}
         self.write_catalog()
         with (
             mock.patch.object(
-                component_install, "download", side_effect=AssertionError("must stay offline")
+                component_install,
+                "download",
+                side_effect=AssertionError("must stay offline"),
             ),
             self.assertRaisesRegex(component_install.InstallError, "catalog has no"),
         ):
@@ -138,9 +152,9 @@ class ComponentInstallTests(unittest.TestCase):
         self.assertFalse((self.root / "install").exists())
 
     def test_wrong_hash_and_existing_lock_fail_closed(self) -> None:
-        self.payload["components"]["baud"]["artifacts"]["windows-x86_64"][
-            "sha256"
-        ] = "0" * 64
+        self.payload["components"]["baud"]["artifacts"]["windows-x86_64"]["sha256"] = (
+            "0" * 64
+        )
         self.write_catalog()
         with (
             mock.patch.object(
@@ -167,7 +181,49 @@ class ComponentInstallTests(unittest.TestCase):
             )
         self.assertEqual(lock.read_text(encoding="utf-8"), "preserve")
 
-    def test_catalog_rejects_untrusted_url_duplicate_json_and_unsafe_member(self) -> None:
+    def test_download_enforces_total_deadline_during_slow_response(self) -> None:
+        released = threading.Event()
+
+        class BlockingResponse:
+            def __init__(self):
+                self.headers = {}
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                self.close()
+
+            def geturl(self):
+                return "https://release-assets.githubusercontent.com/component.zip"
+
+            def read(self, _size):
+                released.wait(2)
+                return b""
+
+            def close(self):
+                released.set()
+
+        opener = mock.Mock()
+        opener.open.return_value = BlockingResponse()
+        started = time.monotonic()
+        with (
+            mock.patch.object(
+                component_install.urllib.request,
+                "build_opener",
+                return_value=opener,
+            ),
+            self.assertRaisesRegex(component_install.InstallError, "total timeout"),
+        ):
+            component_install.download(
+                "https://github.com/Nitmi/baud-cli/releases/download/v0.1.0/baud.zip",
+                0.05,
+            )
+        self.assertLess(time.monotonic() - started, 0.5)
+
+    def test_catalog_rejects_untrusted_url_duplicate_json_and_unsafe_member(
+        self,
+    ) -> None:
         artifact = self.payload["components"]["baud"]["artifacts"]["windows-x86_64"]
         artifact["url"] = "http://example.com/component.zip"
         self.write_catalog()
@@ -192,13 +248,20 @@ class ComponentInstallTests(unittest.TestCase):
         with self.assertRaisesRegex(component_install.InstallError, "duplicate paths"):
             component_install.executable_from_zip(buffer.getvalue(), "Tool.exe")
 
-    def test_cli_plan_current_catalog_reports_all_components_without_network(self) -> None:
-        official = Path(component_install.__file__).resolve().parents[1] / "component-catalog.json"
+    def test_cli_plan_current_catalog_reports_all_components_without_network(
+        self,
+    ) -> None:
+        official = (
+            Path(component_install.__file__).resolve().parents[1]
+            / "component-catalog.json"
+        )
         output = io.StringIO()
         with (
             contextlib.redirect_stdout(output),
             mock.patch.object(
-                component_install, "download", side_effect=AssertionError("must stay offline")
+                component_install,
+                "download",
+                side_effect=AssertionError("must stay offline"),
             ),
         ):
             code = component_install.main(

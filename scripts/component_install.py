@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import http.client
 import io
 import json
 import platform
@@ -12,6 +13,8 @@ import re
 import stat
 import subprocess
 import sys
+import threading
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -138,7 +141,9 @@ def validate_url(value: object, repository: str, version: str) -> str:
         or parsed.query
         or parsed.fragment
     ):
-        raise InstallError("artifact URL must be the component's exact GitHub tag asset")
+        raise InstallError(
+            "artifact URL must be the component's exact GitHub tag asset"
+        )
     return value
 
 
@@ -260,21 +265,62 @@ def safe_download_url(value: str) -> str:
 
 class SafeRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
-        return super().redirect_request(req, fp, code, msg, headers, safe_download_url(newurl))
+        return super().redirect_request(
+            req, fp, code, msg, headers, safe_download_url(newurl)
+        )
+
+
+def read_download(response, limit: int, timeout: float) -> bytes:
+    result: dict[str, object] = {}
+
+    def read_response() -> None:
+        try:
+            chunks = []
+            total = 0
+            while True:
+                chunk = response.read(min(1024 * 1024, limit + 1 - total))
+                if not chunk:
+                    break
+                chunks.append(chunk)
+                total += len(chunk)
+                if total > limit:
+                    raise InstallError("component artifact is oversized")
+            result["data"] = b"".join(chunks)
+        except (
+            InstallError,
+            OSError,
+            http.client.HTTPException,
+            urllib.error.URLError,
+        ) as error:
+            result["error"] = error
+
+    worker = threading.Thread(target=read_response, daemon=True)
+    worker.start()
+    worker.join(max(0.0, timeout))
+    if worker.is_alive():
+        response.close()
+        raise InstallError("component download exceeded its total timeout")
+    if "error" in result:
+        raise result["error"]
+    return result["data"]
 
 
 def download(url: str, timeout: float) -> bytes:
+    deadline = time.monotonic() + timeout
     safe_download_url(url)
     opener = urllib.request.build_opener(SafeRedirect())
-    request = urllib.request.Request(url, headers={"User-Agent": "embedded-agent-toolkit"})
+    request = urllib.request.Request(
+        url, headers={"User-Agent": "embedded-agent-toolkit"}
+    )
     with opener.open(request, timeout=timeout) as response:
         safe_download_url(response.geturl())
         length = response.headers.get("Content-Length")
         if length is not None and int(length) > MAX_DOWNLOAD_BYTES:
             raise InstallError("component artifact is oversized")
-        data = response.read(MAX_DOWNLOAD_BYTES + 1)
-    if len(data) > MAX_DOWNLOAD_BYTES:
-        raise InstallError("component artifact is oversized")
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise InstallError("component download exceeded its total timeout")
+        data = read_download(response, MAX_DOWNLOAD_BYTES, remaining)
     return data
 
 
@@ -355,12 +401,14 @@ def install(
     platform_name: str,
     timeout: float,
 ) -> dict:
-    if not 0.1 <= timeout <= 60:
-        raise InstallError("--timeout must be between 0.1 and 60 seconds")
+    if not 0.1 <= timeout <= 600:
+        raise InstallError("--timeout must be between 0.1 and 600 seconds")
     proposed = plan(catalog_path, install_root, platform_name)
     if not proposed["complete"]:
         unavailable = [
-            item["name"] for item in proposed["components"] if item["status"] == "unavailable"
+            item["name"]
+            for item in proposed["components"]
+            if item["status"] == "unavailable"
         ]
         raise InstallError(
             f"catalog has no {platform_name} artifact for: {', '.join(unavailable)}"

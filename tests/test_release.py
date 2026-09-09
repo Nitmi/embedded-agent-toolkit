@@ -502,7 +502,7 @@ class ReleaseTests(unittest.TestCase):
             self.assertEqual(root, component_root)
             self.assertEqual(output, lock)
             self.assertEqual(platform_name, "windows-x86_64")
-            self.assertEqual(timeout, 1.0)
+            self.assertEqual(timeout, 600.0)
             self.assertEqual(catalog.name, "component-catalog.json")
             self.assertTrue(catalog.is_file())
             output.parent.mkdir(parents=True)
@@ -539,7 +539,7 @@ class ReleaseTests(unittest.TestCase):
                 self.root / "toolkit",
                 component_root,
                 lock,
-                1.0,
+                600.0,
             )
 
         self.assertEqual(install.call_count, 1)

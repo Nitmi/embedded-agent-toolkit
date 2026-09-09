@@ -18,7 +18,7 @@ from pathlib import Path
 
 PLUGIN = "embedded-agent-toolkit"
 REPOSITORY = "Nitmi/embedded-agent-toolkit"
-VERSION = "0.9.1"
+VERSION = "0.9.2"
 TAG = f"v{VERSION}"
 SOURCE_REF = f"refs/tags/{TAG}"
 SIGNER_WORKFLOW = f"{REPOSITORY}/.github/workflows/release-attestation.yml"
@@ -376,8 +376,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
     try:
-        if not 1.0 <= args.timeout <= 120.0:
-            raise BootstrapError("--timeout must be between 1 and 120 seconds")
+        if not 1.0 <= args.timeout <= 600.0:
+            raise BootstrapError("--timeout must be between 1 and 600 seconds")
         data = bootstrap(
             args.install_root,
             gh_executable(args.gh),
