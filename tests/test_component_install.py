@@ -221,7 +221,7 @@ class ComponentInstallTests(unittest.TestCase):
             statuses,
             {
                 "baud": "available",
-                "blea": "unavailable",
+                "blea": "available",
                 "embedded-debugger": "unavailable",
             },
         )

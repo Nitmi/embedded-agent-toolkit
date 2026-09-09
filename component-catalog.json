@@ -15,8 +15,15 @@
     },
     "blea": {
       "repository": "Nitmi/blea",
-      "version": "0.6.4",
-      "artifacts": {}
+      "version": "0.6.5",
+      "artifacts": {
+        "windows-x86_64": {
+          "url": "https://github.com/Nitmi/blea/releases/download/v0.6.5/blea-0.6.5-windows-x86_64.zip",
+          "sha256": "3bb4eecc161a924cdaf390da02e1ac1cef3ff54000c1ce98b05b484ab911f101",
+          "format": "zip",
+          "executable": "blea-0.6.5-windows-x86_64/ble.exe"
+        }
+      }
     },
     "embedded-debugger": {
       "repository": "Nitmi/embedded-debugger",

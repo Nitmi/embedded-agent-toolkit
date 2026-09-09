@@ -25,11 +25,10 @@ python scripts/component_install.py plan `
   --json
 ```
 
-The current catalog includes the attested `baud 0.1.2` Windows x86_64 release.
-BLEA and embedded-debugger deliberately have no platform artifacts yet: the existing
-BLEA GitHub releases contain no downloadable assets, and embedded-debugger does not yet
-have a public release source. Therefore `complete=false` is the correct result. Do not
-replace missing entries with guessed URLs or an ambient package-manager resolution.
+The current catalog includes the attested `baud 0.1.2` and `BLEA 0.6.5` Windows x86_64
+releases. Embedded-debugger deliberately has no platform artifact yet because it does not
+have a public release source. Therefore `complete=false` is the correct result. Do not replace
+the missing entry with a guessed URL or an ambient package-manager resolution.
 
 After all three upstream releases publish standalone ZIPs and a later authenticated
 Toolkit release pins their exact URLs and SHA-256 values, installation will use:
