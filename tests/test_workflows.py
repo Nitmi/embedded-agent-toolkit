@@ -38,6 +38,9 @@ class WorkflowTests(unittest.TestCase):
             "actions/attest@a1948c3f048ba23858d222213b7c278aabede763", workflow
         )
         self.assertIn("Release builds differ", workflow)
+        self.assertIn("--output-dir build/release-a", workflow)
+        self.assertIn("--output-dir build/release-b", workflow)
+        self.assertNotIn("--output-dir dist-a", workflow)
 
 
 if __name__ == "__main__":
