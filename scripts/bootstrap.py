@@ -213,7 +213,7 @@ def run_installer(
     archive: Path,
     checksum: Path,
     install_root: Path,
-    setup: dict[str, str | Path | None],
+    setup: dict[str, object],
     timeout: float,
 ) -> dict:
     command = [
@@ -230,11 +230,15 @@ def run_installer(
     component_lock = setup["component_lock"]
     component_install_root = setup.get("component_install_root")
     lock_output = setup["lock_output"]
+    include_optional = setup.get("include_optional", [])
+    if not isinstance(include_optional, list):
+        raise BootstrapError("invalid optional component selection")
     explicit_values = {name: setup[name] for name in ("baud", "blea", "debugger")}
     if component_lock is not None and (
         component_install_root is not None
         or lock_output is not None
         or any(value is not None for value in explicit_values.values())
+        or include_optional
     ):
         raise BootstrapError(
             "--component-lock cannot be combined with component installation "
@@ -266,6 +270,9 @@ def run_installer(
                 str(timeout),
             ]
         )
+        for name in include_optional:
+            command.extend(["--include-optional", str(name)])
+        process_timeout += timeout * 3 * len(include_optional)
     elif lock_output is not None or any(
         value is not None for value in explicit_values.values()
     ):
@@ -291,6 +298,8 @@ def run_installer(
             ]
         )
     else:
+        if include_optional:
+            raise BootstrapError("--include-optional requires --component-install-root")
         process_timeout = 30
     process = subprocess.run(
         command,
@@ -373,6 +382,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--baud")
     parser.add_argument("--blea")
     parser.add_argument("--debugger")
+    parser.add_argument(
+        "--include-optional",
+        action="append",
+        default=[],
+        choices=["board-registry"],
+    )
     parser.add_argument("--timeout", type=float, default=30.0)
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
@@ -389,6 +404,7 @@ def main(argv: list[str] | None = None) -> int:
                 "baud": args.baud,
                 "blea": args.blea,
                 "debugger": args.debugger,
+                "include_optional": args.include_optional,
             },
             args.timeout,
         )

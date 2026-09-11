@@ -35,6 +35,10 @@ components. Check the optional resolver explicitly:
 python scripts\toolkit_doctor.py --component board-registry --strict --json
 ```
 
+The authenticated Toolkit catalog pins the `board-registry 0.1.0` Windows
+standalone release. Include it during catalog-backed installation with
+`--include-optional board-registry`; omission keeps the three-core default.
+
 When a component lock is active, `board-registry` must be present in that lock
 for an explicit check; doctor will not fall back to PATH. Create a reviewed v2
 lock with `component_lock.py create --board-registry <exact-path>` when stable

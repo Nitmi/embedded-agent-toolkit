@@ -7,8 +7,9 @@ orchestration Skills, their references, host-only scripts, user documentation,
 license, the strict component catalog, and both plugin manifests. Component executables, component MCP servers,
 Git internals, tests, local hardware evidence, and build outputs are not bundled.
 Use Python 3.11 or newer for the release commands; only the standard library is
-required. The bundled catalog pins attested standalone Windows x86_64 releases
-of all three component CLIs, including `embedded-debugger 0.2.1`.
+required. The bundled v2 catalog pins attested standalone Windows x86_64 releases
+of all three core component CLIs, including `embedded-debugger 0.2.1`, and the
+optional offline `board-registry 0.1.0` resolver.
 
 The archive has a single `embedded-agent-toolkit` root. Its
 `release-manifest.json` binds the source commit and every payload file's SHA-256
@@ -74,10 +75,12 @@ python bootstrap.py `
   --install-root C:\Tools\embedded-agent-toolkit `
   --component-install-root C:\Tools\embedded-agent-components `
   --lock-output C:\Tools\embedded-agent-toolkit\component-locks\workstation.json `
+  --include-optional board-registry `
   --json
 ```
 
-This explicit mode downloads only the component assets pinned by the catalog in
+This explicit mode downloads the three core assets plus only optional assets
+named by `--include-optional`. Every asset is pinned by the catalog in
 the authenticated Toolkit release, installs them into versioned directories,
 creates the new lock, and runs strict doctor. It cannot be combined with an
 existing lock or explicit component paths. The default remains plugin-only.
@@ -86,7 +89,7 @@ directory.
 
 `--timeout` is the bound for each download or component process, not for the
 whole multi-component transaction. Bootstrap derives a finite outer deadline
-from the selected mode so three downloads and the required version checks can
+from the selected mode so all selected downloads and required version checks can
 each consume their declared bound without an early parent timeout. Catalog-backed
 installation accepts up to 600 seconds per operation; existing-lock and explicit
 local-executable modes retain their 30-second maximum.

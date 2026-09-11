@@ -1,5 +1,5 @@
 {
-  "schema_version": "embedded-agent-toolkit.component-catalog.v1",
+  "schema_version": "embedded-agent-toolkit.component-catalog.v2",
   "components": {
     "baud": {
       "repository": "Nitmi/baud-cli",
@@ -34,6 +34,20 @@
           "sha256": "f5c20e9768cbc6e638e9a4cdda3450add23be1da6f86f3e7f8820580f77409d9",
           "format": "zip",
           "executable": "embedded-debugger-0.2.1-x86_64-pc-windows-msvc/embedded-debugger.exe"
+        }
+      }
+    }
+  },
+  "optional_components": {
+    "board-registry": {
+      "repository": "Nitmi/board-registry",
+      "version": "0.1.0",
+      "artifacts": {
+        "windows-x86_64": {
+          "url": "https://github.com/Nitmi/board-registry/releases/download/v0.1.0/embedded-board-registry-0.1.0-windows-x86_64.zip",
+          "sha256": "88510093b8bc9d6f142ca5bd0fcb0cd120ad5119d8e20508cfdc1c1061ce3dd9",
+          "format": "zip",
+          "executable": "embedded-board-registry-0.1.0-windows-x86_64/board-registry.exe"
         }
       }
     }

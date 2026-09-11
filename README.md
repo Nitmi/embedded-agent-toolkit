@@ -75,20 +75,20 @@ environment/PATH resolution. Its JSON result reports the selected source, path,
 and lock SHA-256. Use `--no-auto-lock` only when intentionally diagnosing the
 ambient environment.
 
-`board-registry` is an optional fourth host-only component. It is not yet in the
-trusted component catalog and is not installed by bootstrap. Check it explicitly
-with `--component board-registry`; a v2 component lock may include its exact path,
-version, and SHA-256 while existing v1 three-component locks remain valid. See
+`board-registry` is an optional fourth host-only component. The trusted catalog
+pins its standalone release, but default installation still selects only the
+three core components. Opt in with `--include-optional board-registry` and check
+it explicitly with `--component board-registry`; a v2 component lock may include
+its exact path, version, and SHA-256 while existing v1 three-component locks remain valid. See
 [offline board identity resolution](docs/board-registry.md).
 
 The Toolkit also includes `component_install.py`. Its offline `plan`
 validates the release-bound component catalog and reports exact sources,
 hashes, destinations, and availability without network or process execution.
-Its `install` mode is fail-closed and becomes usable only after all three
-upstream projects publish cataloged standalone artifacts. The current catalog
+Its `install` mode is fail-closed. The current catalog
 pins attested Windows x86_64 releases of `baud 0.1.2`, `BLEA 0.6.5`, and
-`embedded-debugger 0.2.1`, so its default Windows plan is complete without
-falling back to ambient package-manager resolution.
+`embedded-debugger 0.2.1`, plus opt-in `board-registry 0.1.0`, so its default
+Windows plan is complete without falling back to ambient package-manager resolution.
 
 For a new workstation, the authenticated bootstrap can perform the complete
 host setup in one explicit command:
@@ -100,6 +100,9 @@ python bootstrap.py `
   --lock-output C:\Tools\embedded-agent-toolkit\component-locks\workstation.json `
   --json
 ```
+
+Add `--include-optional board-registry` to install and lock the offline resolver
+in the same transaction.
 
 This opt-in mode installs only the catalog-pinned component executables, creates
 the exact component lock, and runs strict doctor. The default bootstrap remains

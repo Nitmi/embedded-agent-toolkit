@@ -25,10 +25,12 @@ python scripts/component_install.py plan `
   --json
 ```
 
-The current catalog includes the attested Windows x86_64 releases of `baud 0.1.2`,
-`BLEA 0.6.5`, and `embedded-debugger 0.2.1`. The offline plan therefore reports
+The current v2 catalog includes the attested Windows x86_64 releases of `baud 0.1.2`,
+`BLEA 0.6.5`, and `embedded-debugger 0.2.1`, plus optional `board-registry 0.1.0`.
+The default offline plan therefore reports
 `complete=true` on that platform and binds every URL, SHA-256, executable member,
-version, and destination before any download or process execution.
+version, and destination before any download or process execution, while selecting
+only the three core components.
 
 Install the complete catalog with:
 
@@ -38,6 +40,10 @@ python scripts/component_install.py install `
   --lock-output C:\Tools\embedded-agent-toolkit\component-locks\workstation.next.json `
   --json
 ```
+
+To include the offline resolver, add `--include-optional board-registry`. This
+creates a v2 lock containing all four components; omitting it preserves the
+three-component default.
 
 Installation accepts only exact `https://github.com/<catalog repository>/releases/download/v<version>/...`
 assets, validates bounded ZIP contents and SHA-256 before writing, installs each
@@ -62,12 +68,14 @@ python bootstrap.py `
   --install-root C:\Tools\embedded-agent-toolkit `
   --component-install-root C:\Tools\embedded-agent-components `
   --lock-output C:\Tools\embedded-agent-toolkit\component-locks\workstation.json `
+  --include-optional board-registry `
   --json
 ```
 
 This mode uses the catalog inside the authenticated plugin installation. It is
 mutually exclusive with `--component-lock` and with explicit `--baud`, `--blea`,
-and `--debugger` selections. Component versions remain installed when a later
+and `--debugger` selections. `--include-optional` is valid only with catalog-backed
+component installation. Component versions remain installed when a later
 step fails, but a newly generated lock is removed if strict doctor fails. The
 component root and lock must remain outside the immutable installed plugin
 directory.

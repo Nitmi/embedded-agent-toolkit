@@ -13,6 +13,7 @@ import stat
 import subprocess
 import sys
 import zipfile
+from collections.abc import Sequence
 from pathlib import Path
 
 sys.dont_write_bytecode = True
@@ -543,6 +544,7 @@ def install_with_catalog_components(
     component_install_root: Path,
     lock_output: Path,
     timeout: float,
+    include_optional: Sequence[str] = (),
 ) -> dict:
     if not 0.1 <= timeout <= 600:
         raise ReleaseError("--timeout must be between 0.1 and 600 seconds")
@@ -569,11 +571,17 @@ def install_with_catalog_components(
             lock_output,
             platform_name,
             timeout,
+            include_optional,
         )
         created = True
         locked = component_lock.parse_lock(lock_output)
+        optional = {
+            component.name: component
+            for component in toolkit_doctor.OPTIONAL_COMPONENTS
+        }
         doctor = toolkit_doctor.build_report(
-            toolkit_doctor.COMPONENTS,
+            toolkit_doctor.COMPONENTS
+            + tuple(optional[name] for name in include_optional),
             timeout,
             Path(installation["plugin_path"]),
             locked,
@@ -630,6 +638,12 @@ def main(argv: list[str] | None = None) -> int:
             subparser.add_argument("--baud")
             subparser.add_argument("--blea")
             subparser.add_argument("--debugger")
+            subparser.add_argument(
+                "--include-optional",
+                action="append",
+                default=[],
+                choices=sorted(component_lock.OPTIONAL_SPECS),
+            )
             subparser.add_argument("--timeout", type=float, default=5.0)
     for subparser in commands.choices.values():
         subparser.add_argument("--json", action="store_true")
@@ -650,6 +664,10 @@ def main(argv: list[str] | None = None) -> int:
             }
         else:
             explicit_values = (args.baud, args.blea, args.debugger)
+            if args.include_optional and args.component_install_root is None:
+                raise ReleaseError(
+                    "--include-optional requires --component-install-root"
+                )
             if args.component_lock is not None and (
                 args.component_install_root is not None
                 or args.lock_output is not None
@@ -686,6 +704,7 @@ def main(argv: list[str] | None = None) -> int:
                     args.component_install_root,
                     args.lock_output,
                     args.timeout,
+                    args.include_optional,
                 )
             elif args.lock_output is not None or any(
                 value is not None for value in explicit_values

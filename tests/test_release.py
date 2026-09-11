@@ -37,6 +37,7 @@ def source_files(version: str = "0.2.0") -> dict[str, bytes]:
                 }
                 for name in component_lock.SPECS
             },
+            "optional_components": {},
         }
     )
     return files
@@ -501,13 +502,16 @@ class ReleaseTests(unittest.TestCase):
             for name in component_lock.SPECS
         }
 
-        def install_components(catalog, root, output, platform_name, timeout):
+        def install_components(
+            catalog, root, output, platform_name, timeout, include_optional
+        ):
             self.assertEqual(root, component_root)
             self.assertEqual(output, lock)
             self.assertEqual(platform_name, "windows-x86_64")
             self.assertEqual(timeout, 600.0)
             self.assertEqual(catalog.name, "component-catalog.json")
             self.assertTrue(catalog.is_file())
+            self.assertEqual(include_optional, ["board-registry"])
             output.parent.mkdir(parents=True)
             output.write_text("generated", encoding="ascii")
             return {
@@ -543,6 +547,7 @@ class ReleaseTests(unittest.TestCase):
                 component_root,
                 lock,
                 600.0,
+                ["board-registry"],
             )
 
         self.assertEqual(install.call_count, 1)
@@ -557,7 +562,14 @@ class ReleaseTests(unittest.TestCase):
         self.prepare("0.9.0")
         lock = self.root / "toolchain-lock.json"
 
-        def install_components(_catalog, _root, output, _platform_name, _timeout):
+        def install_components(
+            _catalog,
+            _root,
+            output,
+            _platform_name,
+            _timeout,
+            _include_optional,
+        ):
             output.write_text("generated", encoding="ascii")
             return {"component_lock": {"path": str(output)}}
 
@@ -612,6 +624,53 @@ class ReleaseTests(unittest.TestCase):
         self.assertEqual(code, 2)
         self.assertIn("requires --lock-output", report["error"])
         self.assertFalse((self.root / "toolkit").exists())
+
+    def test_cli_passes_optional_selection_only_to_catalog_install(self) -> None:
+        self.prepare("0.11.0")
+        report = {
+            "status": "installed",
+            "hardware_access": False,
+        }
+        with mock.patch.object(
+            release, "install_with_catalog_components", return_value=report
+        ) as install:
+            code = release.main(
+                [
+                    "install",
+                    str(self.archive),
+                    "--checksum",
+                    str(self.checksum),
+                    "--install-root",
+                    str(self.root / "toolkit"),
+                    "--component-install-root",
+                    str(self.root / "components"),
+                    "--lock-output",
+                    str(self.root / "lock.json"),
+                    "--include-optional",
+                    "board-registry",
+                    "--json",
+                ]
+            )
+        self.assertEqual(code, 0)
+        self.assertEqual(install.call_args.args[-1], ["board-registry"])
+
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            code = release.main(
+                [
+                    "install",
+                    str(self.archive),
+                    "--checksum",
+                    str(self.checksum),
+                    "--install-root",
+                    str(self.root / "other"),
+                    "--include-optional",
+                    "board-registry",
+                    "--json",
+                ]
+            )
+        self.assertEqual(code, 2)
+        self.assertIn("requires --component-install-root", output.getvalue())
 
     def test_catalog_install_rejects_outputs_inside_immutable_plugin(self) -> None:
         self.prepare("0.9.0")

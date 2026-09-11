@@ -64,6 +64,7 @@ class ComponentInstallTests(unittest.TestCase):
         self.payload = {
             "schema_version": component_install.CATALOG_SCHEMA,
             "components": components,
+            "optional_components": {},
         }
         self.write_catalog()
 
@@ -75,8 +76,32 @@ class ComponentInstallTests(unittest.TestCase):
             "baud": "baud 0.1.0\n",
             "ble": "ble 0.6.4\n",
             "embedded-debugger": "embedded-debugger 0.2.0\n",
+            "board-registry": "board-registry 0.1.0\n",
         }
         return subprocess.CompletedProcess(args, 0, outputs[Path(args[0]).stem], "")
+
+    def add_optional_board_registry(self) -> None:
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w") as archive:
+            archive.writestr("bundle/board-registry.exe", b"fixture board-registry")
+        data = buffer.getvalue()
+        self.archives["board-registry"] = data
+        self.payload["optional_components"]["board-registry"] = {
+            "repository": "Nitmi/board-registry",
+            "version": "0.1.0",
+            "artifacts": {
+                "windows-x86_64": {
+                    "url": (
+                        "https://github.com/Nitmi/board-registry/releases/download/"
+                        "v0.1.0/board-registry.zip"
+                    ),
+                    "sha256": component_install.sha256(data),
+                    "format": "zip",
+                    "executable": "bundle/board-registry.exe",
+                }
+            },
+        }
+        self.write_catalog()
 
     def test_plan_is_offline_and_reports_exact_destinations(self) -> None:
         with mock.patch.object(
@@ -127,6 +152,81 @@ class ComponentInstallTests(unittest.TestCase):
         self.assertEqual(
             set(report["component_lock"]["components"]), set(self.archives)
         )
+
+    def test_optional_component_requires_explicit_selection(self) -> None:
+        self.add_optional_board_registry()
+        default = component_install.plan(
+            self.catalog, self.root / "default", "windows-x86_64"
+        )
+        selected = component_install.plan(
+            self.catalog,
+            self.root / "selected",
+            "windows-x86_64",
+            ["board-registry"],
+        )
+        self.assertEqual(
+            {item["name"] for item in default["components"]},
+            set(component_install.component_lock.SPECS),
+        )
+        self.assertEqual(
+            {item["name"] for item in selected["components"]},
+            set(component_install.component_lock.ALL_SPECS),
+        )
+        self.assertEqual(selected["included_optional_components"], ["board-registry"])
+
+    def test_install_can_create_four_component_v2_lock(self) -> None:
+        self.add_optional_board_registry()
+        by_url = {
+            artifact["url"]: self.archives[name]
+            for group in ("components", "optional_components")
+            for name, record in self.payload[group].items()
+            for artifact in record["artifacts"].values()
+        }
+        lock = self.root / "optional-lock.json"
+        with (
+            mock.patch.object(
+                component_install, "download", side_effect=lambda url, _: by_url[url]
+            ),
+            mock.patch.object(
+                component_install.component_lock.subprocess,
+                "run",
+                side_effect=self.completed,
+            ),
+        ):
+            report = component_install.install(
+                self.catalog,
+                self.root / "optional-install",
+                lock,
+                "windows-x86_64",
+                1.0,
+                ["board-registry"],
+            )
+        self.assertEqual(
+            set(report["component_lock"]["components"]),
+            set(component_install.component_lock.ALL_SPECS),
+        )
+        self.assertEqual(
+            json.loads(lock.read_text(encoding="utf-8"))["schema_version"],
+            component_install.component_lock.SCHEMA,
+        )
+
+    def test_legacy_catalog_remains_supported(self) -> None:
+        self.payload["schema_version"] = component_install.LEGACY_CATALOG_SCHEMA
+        del self.payload["optional_components"]
+        self.write_catalog()
+        report = component_install.plan(
+            self.catalog, self.root / "legacy", "windows-x86_64"
+        )
+        self.assertTrue(report["complete"])
+        with self.assertRaisesRegex(
+            component_install.InstallError, "absent from catalog"
+        ):
+            component_install.plan(
+                self.catalog,
+                self.root / "legacy-optional",
+                "windows-x86_64",
+                ["board-registry"],
+            )
 
     def test_unavailable_catalog_fails_before_network_or_filesystem_writes(
         self,
@@ -288,6 +388,7 @@ class ComponentInstallTests(unittest.TestCase):
                 "embedded-debugger": "available",
             },
         )
+        self.assertEqual(report["available_optional_components"], ["board-registry"])
 
 
 if __name__ == "__main__":

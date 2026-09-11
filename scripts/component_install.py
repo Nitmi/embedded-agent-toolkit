@@ -30,7 +30,8 @@ else:
     import component_lock
 
 SCHEMA = "embedded-agent-toolkit.component-install.v1"
-CATALOG_SCHEMA = "embedded-agent-toolkit.component-catalog.v1"
+LEGACY_CATALOG_SCHEMA = "embedded-agent-toolkit.component-catalog.v1"
+CATALOG_SCHEMA = "embedded-agent-toolkit.component-catalog.v2"
 MAX_CATALOG_BYTES = 256 * 1024
 MAX_DOWNLOAD_BYTES = 256 * 1024 * 1024
 MAX_ARCHIVE_ENTRIES = 256
@@ -77,17 +78,26 @@ def parse_catalog(data: bytes) -> dict:
         payload = json.loads(data, object_pairs_hook=unique_object)
     except (UnicodeError, json.JSONDecodeError) as error:
         raise InstallError(f"invalid catalog JSON: {error}") from error
-    if not isinstance(payload, dict) or set(payload) != {
-        "schema_version",
-        "components",
-    }:
+    if not isinstance(payload, dict) or "schema_version" not in payload:
         raise InstallError("catalog fields differ")
-    if payload["schema_version"] != CATALOG_SCHEMA:
+    schema = payload["schema_version"]
+    if schema == LEGACY_CATALOG_SCHEMA:
+        expected_fields = {"schema_version", "components"}
+    elif schema == CATALOG_SCHEMA:
+        expected_fields = {"schema_version", "components", "optional_components"}
+    else:
         raise InstallError("unsupported catalog schema")
+    if set(payload) != expected_fields:
+        raise InstallError("catalog fields differ")
     components = payload["components"]
     if not isinstance(components, dict) or set(components) != set(component_lock.SPECS):
         raise InstallError("catalog component inventory differs")
-    for name, record in components.items():
+    optional_components = payload.get("optional_components", {})
+    if not isinstance(optional_components, dict) or not set(
+        optional_components
+    ).issubset(component_lock.OPTIONAL_SPECS):
+        raise InstallError("catalog optional component inventory differs")
+    for name, record in {**components, **optional_components}.items():
         if not isinstance(record, dict) or set(record) != {
             "repository",
             "version",
@@ -206,10 +216,33 @@ def destination_path(root: Path, name: str, version: str, asset_path: str) -> Pa
     return resolved
 
 
-def plan(catalog_path: Path, install_root: Path, platform_name: str) -> dict:
+def selected_components(catalog: dict, include_optional: Sequence[str]) -> dict:
+    requested = list(include_optional)
+    if len(set(requested)) != len(requested):
+        raise InstallError("optional component selection contains duplicates")
+    unknown = set(requested) - set(component_lock.OPTIONAL_SPECS)
+    if unknown:
+        raise InstallError(f"unknown optional component: {min(unknown)}")
+    available = catalog.get("optional_components", {})
+    missing = set(requested) - set(available)
+    if missing:
+        raise InstallError(f"optional component is absent from catalog: {min(missing)}")
+    return {
+        **catalog["components"],
+        **{name: available[name] for name in requested},
+    }
+
+
+def plan(
+    catalog_path: Path,
+    install_root: Path,
+    platform_name: str,
+    include_optional: Sequence[str] = (),
+) -> dict:
     catalog, catalog_hash = read_catalog(catalog_path)
+    selected = selected_components(catalog, include_optional)
     components = []
-    for name, record in catalog["components"].items():
+    for name, record in selected.items():
         artifact = record["artifacts"].get(platform_name)
         item = {
             "name": name,
@@ -242,6 +275,8 @@ def plan(catalog_path: Path, install_root: Path, platform_name: str) -> dict:
         "catalog_sha256": catalog_hash,
         "platform": platform_name,
         "complete": all(item["status"] == "available" for item in components),
+        "included_optional_components": list(include_optional),
+        "available_optional_components": sorted(catalog.get("optional_components", {})),
         "components": components,
         "network_access": False,
         "executables_started": False,
@@ -400,10 +435,11 @@ def install(
     lock_output: Path,
     platform_name: str,
     timeout: float,
+    include_optional: Sequence[str] = (),
 ) -> dict:
     if not 0.1 <= timeout <= 600:
         raise InstallError("--timeout must be between 0.1 and 600 seconds")
-    proposed = plan(catalog_path, install_root, platform_name)
+    proposed = plan(catalog_path, install_root, platform_name, include_optional)
     if not proposed["complete"]:
         unavailable = [
             item["name"]
@@ -416,11 +452,12 @@ def install(
     if lock_output.exists() or is_link(lock_output):
         raise InstallError("component lock output already exists")
     catalog, _ = read_catalog(catalog_path)
+    selected = selected_components(catalog, include_optional)
     statuses = []
     locked = {}
     for item in proposed["components"]:
         name = item["name"]
-        record = catalog["components"][name]
+        record = selected[name]
         artifact = record["artifacts"][platform_name]
         archive = download(artifact["url"], timeout)
         if sha256(archive) != artifact["sha256"]:
@@ -441,6 +478,7 @@ def install(
         "catalog": proposed["catalog"],
         "catalog_sha256": proposed["catalog_sha256"],
         "platform": platform_name,
+        "included_optional_components": list(include_optional),
         "components": statuses,
         "component_lock": lock,
         "network_access": True,
@@ -467,6 +505,12 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         if name == "install":
             command.add_argument("--lock-output", type=Path, required=True)
             command.add_argument("--timeout", type=float, default=15.0)
+        command.add_argument(
+            "--include-optional",
+            action="append",
+            default=[],
+            choices=sorted(component_lock.OPTIONAL_SPECS),
+        )
     return parser.parse_args(argv)
 
 
@@ -475,7 +519,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         platform_name = args.platform or current_platform()
         if args.operation == "plan":
-            report = plan(args.catalog, args.install_root, platform_name)
+            report = plan(
+                args.catalog,
+                args.install_root,
+                platform_name,
+                args.include_optional,
+            )
         else:
             report = install(
                 args.catalog,
@@ -483,6 +532,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.lock_output,
                 platform_name,
                 args.timeout,
+                args.include_optional,
             )
     except (
         InstallError,
