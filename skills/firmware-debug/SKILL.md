@@ -38,6 +38,10 @@ machine-readable ledger beside the human report.
 
 - Classify each claim as observed, documented, inferred, rejected, or unknown,
   and attach exact source paths, hashes, and validity times.
+- For multi-interface or multi-board ambiguity, adapt the saved discovery JSON
+  through optional `board-registry`; read
+  [offline board identity resolution](../../docs/board-registry.md). Preserve the
+  native files and do not treat resolution as runtime continuity.
 - Keep USB-interface association, physical-board identity, target/core identity,
   firmware artifact identity, and current runtime identity as separate claims.
 - Treat runtime attestation and target state as point-in-time evidence. Do not

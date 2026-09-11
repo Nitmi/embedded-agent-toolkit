@@ -214,6 +214,50 @@ class ReportStatusTests(unittest.TestCase):
             )
         self.assertEqual(report["component_lock_source"], "provided_by_caller")
 
+    def test_optional_component_absent_from_lock_does_not_fall_back_to_path(
+        self,
+    ) -> None:
+        component = doctor.OPTIONAL_COMPONENTS[0]
+        layout = {"ok": True, "errors": []}
+        with (
+            mock.patch.object(
+                doctor,
+                "check_component",
+                side_effect=AssertionError("must not resolve ambient executable"),
+            ),
+            mock.patch.object(doctor, "check_plugin_layout", return_value=layout),
+        ):
+            report = doctor.build_report(
+                [component],
+                1.0,
+                ROOT,
+                {
+                    "baud": {
+                        "path": __file__,
+                        "sha256": "0" * 64,
+                        "version": "1",
+                    }
+                },
+            )
+
+        self.assertEqual(report["components"][0]["status"], "not_in_component_lock")
+        self.assertFalse(report["complete"])
+
+    def test_optional_component_can_be_checked_explicitly(self) -> None:
+        component = doctor.OPTIONAL_COMPONENTS[0]
+        completed = subprocess.CompletedProcess(
+            ["board-registry", "--version"], 0, "board-registry 0.1.0\n", ""
+        )
+        with (
+            mock.patch.dict("os.environ", {}, clear=True),
+            mock.patch.object(doctor.shutil, "which", return_value="board-registry"),
+            mock.patch.object(doctor.subprocess, "run", return_value=completed),
+        ):
+            result = doctor.check_component(component, 1.0)
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["version"], "0.1.0")
+
 
 class LockSelectionTests(unittest.TestCase):
     def setUp(self) -> None:

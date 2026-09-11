@@ -48,6 +48,12 @@ Keep raw structured component outputs and include a small index containing:
 - every state-changing effect and authorization boundary;
 - cleanup results, final known state, unknowns, and failed collection steps.
 
+If the incident bundle spans multiple interfaces, optional `board-registry` may
+adapt and resolve only the already saved discovery files; read
+[offline board identity resolution](../../docs/board-registry.md). Preserve both
+native and adapted files, and record `no_match` or `ambiguous` without changing
+selectors during capture.
+
 Redact BLE identifiers and user data when the bundle leaves the workstation,
 but retain stable internal correlation keys. Do not rewrite missing evidence as
 an empty successful observation.

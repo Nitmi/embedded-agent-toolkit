@@ -28,6 +28,7 @@ class ComponentLockTests(unittest.TestCase):
             "baud": "baud 0.1.0\n",
             "blea": "ble 0.6.4\n",
             "embedded-debugger": "embedded-debugger 0.2.0\n",
+            "board-registry": "board-registry 0.1.0\n",
         }
         return subprocess.CompletedProcess(args, 0, outputs[Path(args[0]).stem], "")
 
@@ -48,6 +49,32 @@ class ComponentLockTests(unittest.TestCase):
             result = component_lock.inspect(output)
         self.assertFalse(result["executables_started"])
         self.assertEqual(set(result["components"]), set(component_lock.SPECS))
+
+    def test_legacy_v1_core_lock_remains_readable(self) -> None:
+        output = self.create()
+        payload = json.loads(output.read_bytes())
+        payload["schema_version"] = component_lock.LEGACY_SCHEMA
+        output.write_text(json.dumps(payload), encoding="utf-8")
+
+        result = component_lock.inspect(output)
+        self.assertEqual(result["schema_version"], component_lock.LEGACY_SCHEMA)
+        self.assertEqual(set(result["components"]), set(component_lock.SPECS))
+
+    def test_v2_lock_can_bind_optional_board_registry(self) -> None:
+        registry = self.root / "board-registry.exe"
+        registry.write_bytes(b"fixture board-registry")
+        selections = {**self.executables, "board-registry": str(registry)}
+        output = self.root / "optional-lock.json"
+        with mock.patch.object(
+            component_lock.subprocess, "run", side_effect=self.completed
+        ):
+            result = component_lock.create(output, selections, 1.0)
+
+        self.assertEqual(result["schema_version"], component_lock.SCHEMA)
+        self.assertEqual(result["components"]["board-registry"]["version"], "0.1.0")
+        self.assertEqual(
+            component_lock.parse_lock(output)["board-registry"]["path"], str(registry)
+        )
 
     def test_existing_output_is_never_replaced(self) -> None:
         output = self.create()
@@ -110,6 +137,29 @@ class ComponentLockTests(unittest.TestCase):
         report = component_lock.compare(lock, lock)
         self.assertTrue(report["identical"])
         self.assertEqual(report["changes"], {})
+
+    def test_compare_reports_optional_component_presence(self) -> None:
+        base = self.create()
+        registry = self.root / "board-registry.exe"
+        registry.write_bytes(b"fixture board-registry")
+        candidate = self.root / "candidate-with-registry.json"
+        with mock.patch.object(
+            component_lock.subprocess, "run", side_effect=self.completed
+        ):
+            component_lock.create(
+                candidate,
+                {**self.executables, "board-registry": str(registry)},
+                1.0,
+            )
+
+        report = component_lock.compare(base, candidate)
+        self.assertEqual(
+            report["changes"]["board-registry"]["changed_fields"], ["presence"]
+        )
+        self.assertIsNone(report["changes"]["board-registry"]["before"])
+        self.assertEqual(
+            report["changes"]["board-registry"]["after"]["version"], "0.1.0"
+        )
 
     def test_compare_cli_is_structured_with_or_without_json_flag(self) -> None:
         lock = self.create()

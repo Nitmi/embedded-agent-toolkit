@@ -45,6 +45,13 @@ Before hardware access, record:
 - positive and negative assertions with bounded deadlines;
 - cleanup and recovery policy for every stage.
 
+When the station has multiple boards or a test spans interfaces, use optional
+`board-registry` only on saved discovery evidence; read
+[offline board identity resolution](../../docs/board-registry.md). Require a
+unique result for every transport in the test contract. Resolution narrows the
+board selection but does not authorize flash, reset, serial transmit, BLE write,
+or debug control.
+
 Friendly names and discovery order are not exact selection rules. Make retries
 explicit per stage; default state-changing operations to zero retries.
 

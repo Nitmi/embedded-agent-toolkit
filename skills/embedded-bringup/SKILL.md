@@ -43,7 +43,12 @@ host setup, not authorization to discover or operate hardware.
    selector and target, serial port USB identity, and observed BLE identifier.
    Never merge devices solely because friendly names or USB product strings
    resemble one another.
-4. Create an identity ledger that labels each relationship as observed,
+4. When multiple interfaces or candidate boards must be correlated, use the
+   optional host-only `board-registry` on saved component JSON as described in
+   [offline board identity resolution](../../docs/board-registry.md). A resolved
+   board ID constrains later selections but does not prove target or firmware
+   identity and grants no hardware operation.
+5. Create an identity ledger that labels each relationship as observed,
    documented, or inferred. An inference cannot satisfy a write confirmation.
 
 ## Bring up in stages

@@ -115,6 +115,16 @@ python scripts/component_lock.py inspect .embedded/toolchain-lock.json --json
 python scripts/toolkit_doctor.py --component-lock .embedded/toolchain-lock.json --strict --json
 ```
 
+To bind the optional offline resolver as well, create a v2 lock by adding:
+
+```powershell
+  --board-registry (Get-Command board-registry -CommandType Application).Source
+```
+
+The option does not make `board-registry` a hardware runner or add it to the
+catalog installation transaction. Existing v1 locks containing exactly the
+three core components remain valid.
+
 Before switching a project or test station to a candidate lock, compare it with
 the currently selected lock:
 
@@ -139,8 +149,9 @@ execution. Comparison also performs no process execution. The lock requires
 absolute regular-file paths and binds each file's
 version and SHA-256. Doctor verifies hashes before starting `--version` and
 requires observed versions to match. A selected lock is authoritative:
-`EMBEDDED_AGENT_BAUD`, `EMBEDDED_AGENT_BLE`, or `EMBEDDED_AGENT_DEBUGGER` in the
-same process is treated as a conflict, not as an override. The lock does not edit
+`EMBEDDED_AGENT_BAUD`, `EMBEDDED_AGENT_BLE`, `EMBEDDED_AGENT_DEBUGGER`, or
+`EMBEDDED_AGENT_BOARD_REGISTRY` for a component present in the lock is treated as
+a conflict, not as an override. The lock does not edit
 `PATH`, activate plugins, authorize hardware access, or proxy component commands.
 Commit a project lock only when its host-specific absolute paths are intentional;
 otherwise keep it as test-station configuration outside source control.

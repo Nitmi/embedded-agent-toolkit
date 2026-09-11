@@ -14,6 +14,7 @@ tools behind another hardware abstraction:
 | [baud-cli](https://github.com/Nitmi/baud-cli) | Serial and firmware consoles | CLI + Skill |
 | [BLEA](https://github.com/Nitmi/blea) | Bluetooth Low Energy diagnostics and automation | CLI + Skill + MCP |
 | [embedded-debugger](https://github.com/Nitmi/embedded-debugger) | Probe discovery, flash, debug, evidence, and replay | CLI + Skill + MCP |
+| `board-registry` (optional, pre-release) | Offline fail-closed correlation of saved component discovery evidence | CLI |
 
 The value of the toolkit is the cross-tool workflow: one identity ledger, one
 safety policy, correlated evidence, and deterministic cleanup across serial,
@@ -21,7 +22,7 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The current release is `0.10.1`, which provides a standalone `bootstrap.py`
+The latest published release is `0.10.1`, which provides a standalone `bootstrap.py`
 alongside the plugin ZIP. Download the bootstrap with GitHub CLI,
 authenticate it before execution, and keep its exact filename:
 
@@ -61,7 +62,7 @@ Toolkit release installation and bootstrap can reuse that lock with
 `--component-lock`, while `component_lock.py compare` provides a host-only review
 of an intentional component change before selecting a new lock.
 
-The 0.10.1 source can explicitly select a hash-bound workstation lock once:
+The current source can explicitly select a hash-bound workstation lock once:
 
 ```powershell
 python scripts/station_config.py select C:\Tools\embedded-agent-toolkit\component-locks\workstation.json --json
@@ -73,6 +74,12 @@ Doctor selection order is an explicit `--component-lock`, the current project's
 environment/PATH resolution. Its JSON result reports the selected source, path,
 and lock SHA-256. Use `--no-auto-lock` only when intentionally diagnosing the
 ambient environment.
+
+`board-registry` is an optional fourth host-only component. It is not yet in the
+trusted component catalog and is not installed by bootstrap. Check it explicitly
+with `--component board-registry`; a v2 component lock may include its exact path,
+version, and SHA-256 while existing v1 three-component locks remain valid. See
+[offline board identity resolution](docs/board-registry.md).
 
 The Toolkit also includes `component_install.py`. Its offline `plan`
 validates the release-bound component catalog and reports exact sources,
@@ -128,12 +135,14 @@ python scripts/toolkit_doctor.py --strict
 ```
 
 Use `EMBEDDED_AGENT_BAUD`, `EMBEDDED_AGENT_BLE`, or
-`EMBEDDED_AGENT_DEBUGGER` to point a check at a specific executable. The
+`EMBEDDED_AGENT_DEBUGGER` to point a core check at a specific executable. Use
+`EMBEDDED_AGENT_BOARD_REGISTRY` only for an explicit optional-component check. The
 default check reports a missing `PATH` entry as `ready_with_warnings`; use
 `--strict` when every component CLI must be directly invocable.
 
 For stable project or test-station selection, `scripts/component_lock.py` creates
-an explicit lock of all three executable paths, versions, and SHA-256 values.
+an explicit lock of the three core executable paths, versions, and SHA-256 values,
+with optional `board-registry` identity in a v2 lock.
 Pass it to doctor with `--component-lock`; it remains host-only and does not
 modify `PATH` or proxy hardware commands. See [installation](docs/installation.md).
 Release installation can create or reuse this lock and complete strict doctor in

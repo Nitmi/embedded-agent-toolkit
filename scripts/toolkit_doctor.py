@@ -63,6 +63,16 @@ COMPONENTS = (
         ),
     ),
 )
+OPTIONAL_COMPONENTS = (
+    Component(
+        name="board-registry",
+        executable="board-registry",
+        environment_variable="EMBEDDED_AGENT_BOARD_REGISTRY",
+        version_pattern=r"board-registry\s+([^\s]+)",
+        install_hint="Install embedded-board-registry 0.1.0 from a reviewed local wheel or release",
+    ),
+)
+ALL_COMPONENTS = COMPONENTS + OPTIONAL_COMPONENTS
 
 
 def resolve_executable(
@@ -254,14 +264,34 @@ def build_report(
     component_lock_path: Path | None = None,
     component_lock_sha256: str | None = None,
 ) -> dict[str, object]:
-    component_results = [
-        check_component(
-            component,
-            timeout,
-            locked_components.get(component.name) if locked_components else None,
+    component_results = []
+    for component in selected_components:
+        if locked_components is not None and component.name not in locked_components:
+            component_results.append(
+                {
+                    "name": component.name,
+                    "requested_executable": None,
+                    "resolution_source": "component_lock",
+                    "environment_variable": component.environment_variable,
+                    "install_hint": component.install_hint,
+                    "fallback_hint": (
+                        "Create a new reviewed component lock that includes this component."
+                    ),
+                    "ok": False,
+                    "severity": "warning",
+                    "status": "not_in_component_lock",
+                    "executable": None,
+                    "version": None,
+                }
+            )
+            continue
+        component_results.append(
+            check_component(
+                component,
+                timeout,
+                locked_components.get(component.name) if locked_components else None,
+            )
         )
-        for component in selected_components
-    ]
     layout = check_plugin_layout(plugin_root)
     warnings = [
         f"{result['name']}: {result['status']}"
@@ -356,7 +386,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--component",
         action="append",
-        choices=[component.name for component in COMPONENTS],
+        choices=[component.name for component in ALL_COMPONENTS],
         help="check only this component; repeat to select more than one",
     )
     parser.add_argument(
@@ -380,7 +410,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 2
     names = set(args.component or [])
     selected = [
-        component for component in COMPONENTS if not names or component.name in names
+        component
+        for component in (ALL_COMPONENTS if names else COMPONENTS)
+        if not names or component.name in names
     ]
     plugin_root = Path(__file__).resolve().parent.parent
     lock_path: Path | None = None

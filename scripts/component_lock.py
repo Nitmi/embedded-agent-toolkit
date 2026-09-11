@@ -12,7 +12,8 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-SCHEMA = "embedded-agent-toolkit.component-lock.v1"
+LEGACY_SCHEMA = "embedded-agent-toolkit.component-lock.v1"
+SCHEMA = "embedded-agent-toolkit.component-lock.v2"
 MAX_LOCK_BYTES = 64 * 1024
 HASH = re.compile(r"[0-9a-f]{64}")
 SPECS = {
@@ -23,6 +24,13 @@ SPECS = {
         re.compile(r"embedded-debugger\s+([^\s]+)"),
     ),
 }
+OPTIONAL_SPECS = {
+    "board-registry": (
+        "board-registry",
+        re.compile(r"board-registry\s+([^\s]+)"),
+    ),
+}
+ALL_SPECS = {**SPECS, **OPTIONAL_SPECS}
 
 
 class LockError(ValueError):
@@ -57,6 +65,18 @@ def regular_executable(path_value: object) -> Path:
     return path.resolve()
 
 
+def lock_schema(path: Path) -> str:
+    try:
+        payload = json.loads(path.read_bytes(), object_pairs_hook=unique_object)
+    except (OSError, UnicodeError, json.JSONDecodeError) as error:
+        raise LockError(f"invalid component lock JSON: {error}") from error
+    if not isinstance(payload, dict) or not isinstance(
+        payload.get("schema_version"), str
+    ):
+        raise LockError("component lock schema is missing")
+    return payload["schema_version"]
+
+
 def parse_lock(path: Path) -> dict[str, dict[str, str]]:
     if path.is_symlink() or not path.is_file():
         raise LockError(f"component lock is not a regular file: {path}")
@@ -72,13 +92,22 @@ def parse_lock(path: Path) -> dict[str, dict[str, str]]:
         "components",
     }:
         raise LockError("component lock fields differ")
-    if payload["schema_version"] != SCHEMA:
+    schema = payload["schema_version"]
+    if schema not in {LEGACY_SCHEMA, SCHEMA}:
         raise LockError("unsupported component lock schema")
     components = payload["components"]
-    if not isinstance(components, dict) or set(components) != set(SPECS):
+    names = set(components) if isinstance(components, dict) else set()
+    valid_inventory = (
+        names == set(SPECS)
+        if schema == LEGACY_SCHEMA
+        else (set(SPECS) <= names <= set(ALL_SPECS))
+    )
+    if not isinstance(components, dict) or not valid_inventory:
         raise LockError("component lock inventory differs")
     normalized = {}
     for name, record in components.items():
+        if name not in ALL_SPECS:
+            raise LockError(f"unsupported component: {name}")
         if not isinstance(record, dict) or set(record) != {"path", "sha256", "version"}:
             raise LockError(f"component lock record differs: {name}")
         executable = regular_executable(record["path"])
@@ -99,11 +128,12 @@ def parse_lock(path: Path) -> dict[str, dict[str, str]]:
 
 
 def inspect(path: Path) -> dict[str, object]:
+    components = parse_lock(path)
     return {
-        "schema_version": SCHEMA,
+        "schema_version": lock_schema(path),
         "ok": True,
         "lock": str(path.resolve()),
-        "components": parse_lock(path),
+        "components": components,
         "executables_started": False,
         "hardware_access": False,
     }
@@ -113,7 +143,15 @@ def compare(base_path: Path, candidate_path: Path) -> dict[str, object]:
     base = parse_lock(base_path)
     candidate = parse_lock(candidate_path)
     changes = {}
-    for name in SPECS:
+    for name in ALL_SPECS:
+        if name not in base or name not in candidate:
+            if base.get(name) != candidate.get(name):
+                changes[name] = {
+                    "changed_fields": ["presence"],
+                    "before": base.get(name),
+                    "after": candidate.get(name),
+                }
+            continue
         fields = [
             field
             for field in ("path", "version", "sha256")
@@ -149,7 +187,7 @@ def identify(name: str, path_value: str, timeout: float) -> dict[str, str]:
         errors="replace",
         timeout=timeout,
     )
-    expected_command, pattern = SPECS[name]
+    expected_command, pattern = ALL_SPECS[name]
     match = pattern.fullmatch(completed.stdout.strip())
     if completed.returncode != 0 or match is None or completed.stderr.strip():
         raise LockError(f"unexpected {expected_command} version result")
@@ -161,7 +199,16 @@ def create(
 ) -> dict[str, object]:
     if output.exists() or output.is_symlink():
         raise LockError("component lock output already exists")
-    components = {name: identify(name, selections[name], timeout) for name in SPECS}
+    names = set(selections)
+    if not set(SPECS) <= names <= set(ALL_SPECS):
+        raise LockError(
+            "component selections must contain every core component and only known optional components"
+        )
+    components = {
+        name: identify(name, selections[name], timeout)
+        for name in ALL_SPECS
+        if name in selections
+    }
     data = (
         json.dumps(
             {"schema_version": SCHEMA, "components": components},
@@ -199,6 +246,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     creator.add_argument("--baud", required=True)
     creator.add_argument("--blea", required=True)
     creator.add_argument("--debugger", required=True)
+    creator.add_argument("--board-registry")
     creator.add_argument("--timeout", type=float, default=5.0)
     creator.add_argument("--json", action="store_true")
     inspector = commands.add_parser("inspect")
@@ -217,15 +265,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.operation == "create":
             if not 0.1 <= args.timeout <= 30:
                 raise LockError("--timeout must be between 0.1 and 30 seconds")
-            result = create(
-                args.output,
-                {
-                    "baud": args.baud,
-                    "blea": args.blea,
-                    "embedded-debugger": args.debugger,
-                },
-                args.timeout,
-            )
+            selections = {
+                "baud": args.baud,
+                "blea": args.blea,
+                "embedded-debugger": args.debugger,
+            }
+            if args.board_registry is not None:
+                selections["board-registry"] = args.board_registry
+            result = create(args.output, selections, args.timeout)
         elif args.operation == "inspect":
             result = inspect(args.lock)
         else:
