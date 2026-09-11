@@ -72,8 +72,10 @@ class ComponentLockTests(unittest.TestCase):
 
         self.assertEqual(result["schema_version"], component_lock.SCHEMA)
         self.assertEqual(result["components"]["board-registry"]["version"], "0.1.0")
-        self.assertEqual(
-            component_lock.parse_lock(output)["board-registry"]["path"], str(registry)
+        self.assertTrue(
+            Path(component_lock.parse_lock(output)["board-registry"]["path"]).samefile(
+                registry
+            )
         )
 
     def test_existing_output_is_never_replaced(self) -> None:
