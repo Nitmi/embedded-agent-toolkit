@@ -17,11 +17,32 @@ board-registry resolve registry.json evidence\combined.observations.json `
   --require serial --require debug --json
 ```
 
+After and only after a unique resolution, emit and validate the transport
+selection passed to the next workflow stage:
+
+```powershell
+board-registry select registry.json evidence\combined.observations.json `
+  --require serial --require debug > evidence\board-selection.json
+board-registry validate selection evidence\board-selection.json --json
+```
+
+The selection binds the matched selector and full observed identity for each
+required transport to the hashes of the registry, combined observations, and
+native discovery source. Use those fields to populate each component's native
+identity guard. Do not pass the selection to a generic command runner and do
+not treat it as an operation plan.
+
+Every selection is deliberately non-authorizing:
+`authorization.granted=false`, `allowed_operations=[]`, `hardware_access=false`,
+and `executables_started=false`. A debug target is not inferred from probe
+enumeration. The later hardware-test contract must independently declare the
+target, firmware hashes, allowed effects, deadlines, and retry policy.
+
 Keep the native component JSON beside the adapted observations. A resolved
-board ID proves only that the supplied point-in-time observations uniquely
-match the declared registry selectors. It does not prove wiring, target type,
-running firmware, physical continuity after discovery, or authorization for a
-later hardware operation.
+board ID or generated selection proves only that the supplied point-in-time
+observations uniquely match the declared registry selectors. It does not prove
+wiring, target type, running firmware, physical continuity after discovery, or
+authorization for a later hardware operation.
 
 Do not add target names to probe-list observations: enumeration has not attached
 to a target. Do not match BLE solely by a friendly name. Treat `no_match` and
