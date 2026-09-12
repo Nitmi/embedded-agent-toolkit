@@ -56,7 +56,7 @@ components. Check the optional resolver explicitly:
 python scripts\toolkit_doctor.py --component board-registry --strict --json
 ```
 
-The authenticated Toolkit catalog pins the `board-registry 0.1.0` Windows
+The authenticated Toolkit catalog pins the `board-registry 0.2.3` Windows
 standalone release. Include it during catalog-backed installation with
 `--include-optional board-registry`; omission keeps the three-core default.
 

@@ -390,6 +390,25 @@ class ComponentInstallTests(unittest.TestCase):
         )
         self.assertEqual(report["available_optional_components"], ["board-registry"])
 
+    def test_current_catalog_pins_board_registry_selection_release(self) -> None:
+        official = (
+            Path(component_install.__file__).resolve().parents[1]
+            / "component-catalog.json"
+        )
+        catalog, _ = component_install.read_catalog(official)
+        registry = catalog["optional_components"]["board-registry"]
+        artifact = registry["artifacts"]["windows-x86_64"]
+        self.assertEqual(registry["version"], "0.2.3")
+        self.assertEqual(
+            artifact["url"],
+            "https://github.com/Nitmi/board-registry/releases/download/"
+            "v0.2.3/embedded-board-registry-0.2.3-windows-x86_64.zip",
+        )
+        self.assertEqual(
+            artifact["sha256"],
+            "a6168a5d73144dbc9f81db306497313796f7772d0d28fce5146262d6d0015a91",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

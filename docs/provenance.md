@@ -21,9 +21,9 @@ After the workflow has successfully produced an attestation in the expected
 repository, verify both the repository identity and the downloaded ZIP:
 
 ```powershell
-gh attestation verify embedded-agent-toolkit-0.11.1.zip `
+gh attestation verify embedded-agent-toolkit-0.12.0.zip `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.11.1 `
+  --source-ref refs/tags/v0.12.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 ```

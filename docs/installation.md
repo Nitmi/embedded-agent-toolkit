@@ -26,7 +26,7 @@ python scripts/component_install.py plan `
 ```
 
 The current v2 catalog includes the attested Windows x86_64 releases of `baud 0.1.2`,
-`BLEA 0.6.5`, and `embedded-debugger 0.2.1`, plus optional `board-registry 0.1.0`.
+`BLEA 0.6.5`, and `embedded-debugger 0.2.1`, plus optional `board-registry 0.2.3`.
 The default offline plan therefore reports
 `complete=true` on that platform and binds every URL, SHA-256, executable member,
 version, and destination before any download or process execution, while selecting

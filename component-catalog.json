@@ -41,13 +41,13 @@
   "optional_components": {
     "board-registry": {
       "repository": "Nitmi/board-registry",
-      "version": "0.1.0",
+      "version": "0.2.3",
       "artifacts": {
         "windows-x86_64": {
-          "url": "https://github.com/Nitmi/board-registry/releases/download/v0.1.0/embedded-board-registry-0.1.0-windows-x86_64.zip",
-          "sha256": "88510093b8bc9d6f142ca5bd0fcb0cd120ad5119d8e20508cfdc1c1061ce3dd9",
+          "url": "https://github.com/Nitmi/board-registry/releases/download/v0.2.3/embedded-board-registry-0.2.3-windows-x86_64.zip",
+          "sha256": "a6168a5d73144dbc9f81db306497313796f7772d0d28fce5146262d6d0015a91",
           "format": "zip",
-          "executable": "embedded-board-registry-0.1.0-windows-x86_64/board-registry.exe"
+          "executable": "embedded-board-registry-0.2.3-windows-x86_64/board-registry.exe"
         }
       }
     }

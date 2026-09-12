@@ -69,7 +69,7 @@ OPTIONAL_COMPONENTS = (
         executable="board-registry",
         environment_variable="EMBEDDED_AGENT_BOARD_REGISTRY",
         version_pattern=r"board-registry\s+([^\s]+)",
-        install_hint="Install embedded-board-registry 0.1.0 from a reviewed local wheel or release",
+        install_hint="Install embedded-board-registry 0.2.3 from a reviewed local wheel or release",
     ),
 )
 ALL_COMPONENTS = COMPONENTS + OPTIONAL_COMPONENTS

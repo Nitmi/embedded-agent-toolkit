@@ -14,7 +14,7 @@ tools behind another hardware abstraction:
 | [baud-cli](https://github.com/Nitmi/baud-cli) | Serial and firmware consoles | CLI + Skill |
 | [BLEA](https://github.com/Nitmi/blea) | Bluetooth Low Energy diagnostics and automation | CLI + Skill + MCP |
 | [embedded-debugger](https://github.com/Nitmi/embedded-debugger) | Probe discovery, flash, debug, evidence, and replay | CLI + Skill + MCP |
-| `board-registry` (optional, pre-release) | Offline fail-closed correlation of saved component discovery evidence | CLI |
+| [board-registry](https://github.com/Nitmi/board-registry) (optional) | Offline fail-closed correlation and non-authorizing selection from saved discovery evidence | CLI |
 
 The value of the toolkit is the cross-tool workflow: one identity ledger, one
 safety policy, correlated evidence, and deterministic cleanup across serial,
@@ -22,16 +22,16 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The latest published release is `0.10.1`, which provides a standalone `bootstrap.py`
+The latest published release is `0.12.0`, which provides a standalone `bootstrap.py`
 alongside the plugin ZIP. Download the bootstrap with GitHub CLI,
 authenticate it before execution, and keep its exact filename:
 
 ```powershell
-gh release download v0.10.1 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.12.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.10.1 `
+  --source-ref refs/tags/v0.12.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -87,7 +87,7 @@ validates the release-bound component catalog and reports exact sources,
 hashes, destinations, and availability without network or process execution.
 Its `install` mode is fail-closed. The current catalog
 pins attested Windows x86_64 releases of `baud 0.1.2`, `BLEA 0.6.5`, and
-`embedded-debugger 0.2.1`, plus opt-in `board-registry 0.1.0`, so its default
+`embedded-debugger 0.2.1`, plus opt-in `board-registry 0.2.3`, so its default
 Windows plan is complete without falling back to ambient package-manager resolution.
 
 For a new workstation, the authenticated bootstrap can perform the complete
