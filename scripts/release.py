@@ -47,6 +47,8 @@ REQUIRED_FILES = {
     "scripts/toolkit_doctor.py",
     "schemas/test-spec.schema.json",
     "schemas/test-contract.schema.json",
+    "schemas/test-run.schema.json",
+    "schemas/test-report.schema.json",
     *(
         f"skills/{name}/SKILL.md"
         for name in (

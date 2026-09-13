@@ -120,6 +120,8 @@ class ReleaseTests(unittest.TestCase):
             "scripts/test_contract.py",
             "schemas/test-spec.schema.json",
             "schemas/test-contract.schema.json",
+            "schemas/test-run.schema.json",
+            "schemas/test-report.schema.json",
             "skills/hardware-test/references/runtime-contract.md",
             "docs/releases.md",
         ):

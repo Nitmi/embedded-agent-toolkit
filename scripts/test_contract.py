@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compile and inspect non-authorizing embedded hardware-test contracts."""
+"""Compile, inspect, and evaluate non-authorizing hardware-test contracts."""
 
 from __future__ import annotations
 
@@ -20,6 +20,8 @@ sys.dont_write_bytecode = True
 SPEC_SCHEMA = "embedded-agent-toolkit.test-spec.v1"
 CONTRACT_SCHEMA = "embedded-agent-toolkit.test-contract.v1"
 REPORT_SCHEMA = "embedded-agent-toolkit.test-contract-report.v1"
+RUN_SCHEMA = "embedded-agent-toolkit.test-run.v1"
+EVALUATION_SCHEMA = "embedded-agent-toolkit.test-report.v1"
 SELECTION_SCHEMA = "embedded-board-registry.selection.v1"
 MAX_JSON_BYTES = 4 * 1024 * 1024
 MAX_NATIVE_INPUT_BYTES = 32 * 1024 * 1024
@@ -263,18 +265,44 @@ def unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     return result
 
 
-def load_json(path: Path, label: str) -> dict[str, Any]:
+def reject_nonfinite(value: str) -> None:
+    raise ContractError(f"non-finite JSON number is not allowed: {value}")
+
+
+def _decode_json(data: bytes, label: str, path: Path) -> Any:
+    try:
+        return json.loads(
+            data.decode("utf-8"),
+            object_pairs_hook=unique_object,
+            parse_constant=reject_nonfinite,
+        )
+    except ContractError:
+        raise
+    except (UnicodeError, json.JSONDecodeError) as error:
+        raise ContractError(f"unable to load {label} {path}: {error}") from error
+
+
+def _load_json_snapshot(path: Path, label: str) -> tuple[Any, str]:
     try:
         size = path.stat().st_size
         if size > MAX_JSON_BYTES:
             raise ContractError(f"{label} exceeds {MAX_JSON_BYTES} bytes")
-        value = json.loads(
-            path.read_text(encoding="utf-8"), object_pairs_hook=unique_object
-        )
+        data = path.read_bytes()
+        if len(data) > MAX_JSON_BYTES:
+            raise ContractError(f"{label} exceeds {MAX_JSON_BYTES} bytes")
     except ContractError:
         raise
-    except (OSError, UnicodeError, json.JSONDecodeError) as error:
+    except OSError as error:
         raise ContractError(f"unable to load {label} {path}: {error}") from error
+    return _decode_json(data, label, path), hashlib.sha256(data).hexdigest()
+
+
+def load_json_value(path: Path, label: str) -> Any:
+    return _load_json_snapshot(path, label)[0]
+
+
+def load_json(path: Path, label: str) -> dict[str, Any]:
+    value = load_json_value(path, label)
     if not isinstance(value, dict):
         raise ContractError(f"{label} root must be an object")
     return value
@@ -1239,7 +1267,10 @@ def _current_input(
 
 def inspect_contract(contract_path: Path) -> dict[str, Any]:
     resolved = _resolve(str(contract_path), Path.cwd(), "contract", existing=True)
-    contract = load_json(resolved, "test contract")
+    value, contract_hash = _load_json_snapshot(resolved, "test contract")
+    if not isinstance(value, dict):
+        raise ContractError("test contract root must be an object")
+    contract = value
     errors = validate_contract(contract)
     checks = []
     if not errors:
@@ -1267,7 +1298,7 @@ def inspect_contract(contract_path: Path) -> dict[str, Any]:
         "ok": not errors,
         "status": "valid" if not errors else "invalid_or_drifted",
         "contract": str(resolved),
-        "contract_sha256": sha256(resolved),
+        "contract_sha256": contract_hash,
         "board_id": contract.get("board", {}).get("id")
         if isinstance(contract.get("board"), dict)
         else None,
@@ -1277,6 +1308,414 @@ def inspect_contract(contract_path: Path) -> dict[str, Any]:
         "input_checks": checks,
         "authorization_granted": False,
         "execution_supported": False,
+        "hardware_access": False,
+        "executables_started": False,
+        "errors": errors,
+    }
+
+
+def validate_run(
+    data: object, contract: dict[str, Any], contract_sha256: str
+) -> list[str]:
+    errors: list[str] = []
+    if not isinstance(data, dict):
+        return ["run root must be an object"]
+    _reject_unknown(
+        data,
+        {
+            "schema_version",
+            "contract_sha256",
+            "stage_evidence",
+            "cleanup_evidence",
+            "authorization",
+        },
+        "run",
+        errors,
+    )
+    if data.get("schema_version") != RUN_SCHEMA:
+        errors.append(f"run.schema_version must equal {RUN_SCHEMA}")
+    digest = _digest(data.get("contract_sha256"), "run.contract_sha256", errors)
+    if digest is not None and digest != contract_sha256:
+        errors.append("run.contract_sha256 does not match the contract")
+
+    stage_entries = data.get("stage_evidence")
+    stage_ids: list[str] = []
+    if not isinstance(stage_entries, list):
+        errors.append("run.stage_evidence must be an array")
+        stage_entries = []
+    elif len(stage_entries) > 64:
+        errors.append("run.stage_evidence must contain at most 64 items")
+    for index, entry in enumerate(stage_entries):
+        field = f"run.stage_evidence[{index}]"
+        if not isinstance(entry, dict):
+            errors.append(f"{field} must be an object")
+            continue
+        _reject_unknown(entry, {"stage", "path", "sha256"}, field, errors)
+        identifier = _identifier(entry.get("stage"), f"{field}.stage", errors)
+        _string(entry.get("path"), f"{field}.path", errors)
+        _digest(entry.get("sha256"), f"{field}.sha256", errors)
+        if identifier is not None:
+            stage_ids.append(identifier)
+    expected_stage_ids = [stage["id"] for stage in contract["stages"]]
+    if stage_ids != expected_stage_ids or len(stage_entries) != len(expected_stage_ids):
+        errors.append(
+            "run.stage_evidence must contain exactly one entry per contract stage in order"
+        )
+
+    cleanup_entries = data.get("cleanup_evidence")
+    cleanup_resources: list[str] = []
+    if not isinstance(cleanup_entries, list):
+        errors.append("run.cleanup_evidence must be an array")
+        cleanup_entries = []
+    elif len(cleanup_entries) > 4:
+        errors.append("run.cleanup_evidence must contain at most 4 items")
+    for index, entry in enumerate(cleanup_entries):
+        field = f"run.cleanup_evidence[{index}]"
+        if not isinstance(entry, dict):
+            errors.append(f"{field} must be an object")
+            continue
+        _reject_unknown(
+            entry, {"resource", "path", "sha256", "json_pointer"}, field, errors
+        )
+        resource = _string(entry.get("resource"), f"{field}.resource", errors)
+        if resource is not None:
+            cleanup_resources.append(resource)
+            if resource not in CLEANUP_STATES:
+                errors.append(
+                    f"{field}.resource must be one of {sorted(CLEANUP_STATES)}"
+                )
+        _string(entry.get("path"), f"{field}.path", errors)
+        _digest(entry.get("sha256"), f"{field}.sha256", errors)
+        _json_pointer(entry.get("json_pointer"), f"{field}.json_pointer", errors)
+    expected_cleanup = [item["resource"] for item in contract["cleanup"]]
+    if cleanup_resources != expected_cleanup or len(cleanup_entries) != len(
+        expected_cleanup
+    ):
+        errors.append(
+            "run.cleanup_evidence must contain exactly one entry per cleanup resource in order"
+        )
+
+    expected_authorization = {
+        "granted": False,
+        "allowed_operations": [],
+        "manifest_is_authorization": False,
+    }
+    if data.get("authorization") != expected_authorization:
+        errors.append("run.authorization must preserve the non-authorizing boundary")
+    return errors
+
+
+def _json_type(value: Any) -> str:
+    if value is None:
+        return "null"
+    if isinstance(value, bool):
+        return "boolean"
+    if isinstance(value, (int, float)):
+        return "number"
+    if isinstance(value, str):
+        return "string"
+    if isinstance(value, list):
+        return "array"
+    if isinstance(value, dict):
+        return "object"
+    return "unknown"
+
+
+def _json_equal(left: Any, right: Any) -> bool:
+    left_type = _json_type(left)
+    right_type = _json_type(right)
+    if left_type != right_type:
+        return False
+    if left_type == "array":
+        return len(left) == len(right) and all(
+            _json_equal(left_item, right_item)
+            for left_item, right_item in zip(left, right, strict=True)
+        )
+    if left_type == "object":
+        return left.keys() == right.keys() and all(
+            _json_equal(left[key], right[key]) for key in left
+        )
+    return bool(left == right)
+
+
+def _resolve_pointer(document: Any, pointer: str) -> Any:
+    current = document
+    if pointer == "":
+        return current
+    for raw_token in pointer.split("/")[1:]:
+        token = raw_token.replace("~1", "/").replace("~0", "~")
+        if isinstance(current, dict):
+            if token not in current:
+                raise ContractError(f"JSON Pointer field is absent: {pointer}")
+            current = current[token]
+        elif isinstance(current, list):
+            if re.fullmatch(r"0|[1-9][0-9]*", token) is None:
+                raise ContractError(f"JSON Pointer array index is invalid: {pointer}")
+            if len(token) > 10:
+                raise ContractError(f"JSON Pointer array index is absent: {pointer}")
+            index = int(token)
+            if index >= len(current):
+                raise ContractError(f"JSON Pointer array index is absent: {pointer}")
+            current = current[index]
+        else:
+            raise ContractError(f"JSON Pointer cannot traverse {_json_type(current)}")
+    return current
+
+
+def _assertion_passes(
+    actual: Any, operator: str, expected: Any
+) -> tuple[bool, str | None]:
+    if operator == "equals":
+        return _json_equal(actual, expected), None
+    if operator == "not_equals":
+        return not _json_equal(actual, expected), None
+    if operator in {"at_least", "at_most"}:
+        if isinstance(actual, bool) or not isinstance(actual, (int, float)):
+            return False, f"{operator} requires numeric evidence"
+        if not math.isfinite(actual):
+            return False, f"{operator} requires finite numeric evidence"
+        if operator == "at_least":
+            return actual >= expected, None
+        return actual <= expected, None
+    if operator == "contains":
+        if isinstance(actual, str) and isinstance(expected, str):
+            return expected in actual, None
+        if isinstance(actual, list):
+            return any(_json_equal(item, expected) for item in actual), None
+        if isinstance(actual, dict) and isinstance(expected, str):
+            return expected in actual, None
+        return False, "contains requires a string, array, or object with a string key"
+    return False, f"unsupported assertion operator: {operator}"
+
+
+def _actual_summary(value: Any) -> dict[str, Any]:
+    result: dict[str, Any] = {"type": _json_type(value)}
+    if isinstance(value, str):
+        if len(value) <= 1024:
+            result["value"] = value
+        else:
+            result["size"] = len(value)
+    elif isinstance(value, (int, float, bool)) or value is None:
+        result["value"] = value
+    elif isinstance(value, (list, dict)):
+        result["size"] = len(value)
+    return result
+
+
+def _evidence_check(path: Path, expected_hash: str) -> tuple[dict[str, Any], Any]:
+    check: dict[str, Any] = {
+        "path": str(path),
+        "expected_sha256": expected_hash,
+        "actual_sha256": None,
+        "size": None,
+        "current": False,
+        "valid_json": False,
+    }
+    try:
+        resolved = path.resolve(strict=True)
+        if not resolved.is_file():
+            raise OSError("not a regular file")
+        data = resolved.read_bytes()
+        check["path"] = str(resolved)
+        check["size"] = len(data)
+        if len(data) > MAX_JSON_BYTES:
+            raise ContractError(f"evidence exceeds {MAX_JSON_BYTES} bytes")
+        actual = hashlib.sha256(data).hexdigest()
+        check["actual_sha256"] = actual
+        if actual != expected_hash:
+            raise ContractError(
+                f"evidence SHA-256 differs: expected {expected_hash}, actual {actual}"
+            )
+        value = _decode_json(data, "evidence", resolved)
+        check["current"] = True
+        check["valid_json"] = True
+        return check, value
+    except (OSError, ContractError) as error:
+        check["error"] = str(error)
+        return check, None
+
+
+def evaluate_contract(contract_path: Path, run_path: Path) -> dict[str, Any]:
+    resolved_contract = _resolve(
+        str(contract_path), Path.cwd(), "contract", existing=True
+    )
+    contract_value, contract_hash = _load_json_snapshot(
+        resolved_contract, "test contract"
+    )
+    if not isinstance(contract_value, dict):
+        raise ContractError("test contract root must be an object")
+    contract = contract_value
+    contract_errors = validate_contract(contract)
+    if contract_errors:
+        raise ContractError("invalid test contract: " + "; ".join(contract_errors))
+    inspection = inspect_contract(resolved_contract)
+    if inspection["contract_sha256"] != contract_hash:
+        raise ContractError("test contract changed while it was being inspected")
+
+    resolved_run = _resolve(str(run_path), Path.cwd(), "run", existing=True)
+    run_value, run_hash = _load_json_snapshot(resolved_run, "test run")
+    if not isinstance(run_value, dict):
+        raise ContractError("test run root must be an object")
+    run = run_value
+    run_errors = validate_run(run, contract, contract_hash)
+    if run_errors:
+        raise ContractError("invalid test run: " + "; ".join(run_errors))
+
+    run_base = resolved_run.parent
+    stage_entries = {entry["stage"]: entry for entry in run["stage_evidence"]}
+    resolved_entries: dict[tuple[str, str], tuple[dict[str, Any], Any]] = {}
+    declared_hashes: dict[Path, str] = {}
+
+    def load_entry(entry: dict[str, Any], field: str) -> tuple[dict[str, Any], Any]:
+        path = _resolve(entry["path"], run_base, field, existing=False)
+        previous = declared_hashes.setdefault(path, entry["sha256"])
+        if previous != entry["sha256"]:
+            raise ContractError(f"{field} conflicts with another hash for {path}")
+        key = (str(path), entry["sha256"])
+        if key not in resolved_entries:
+            resolved_entries[key] = _evidence_check(path, entry["sha256"])
+        check, value = resolved_entries[key]
+        return dict(check), value
+
+    stages: list[dict[str, Any]] = []
+    stage_values: dict[str, tuple[bool, Any]] = {}
+    errors = list(inspection["errors"])
+    for stage in contract["stages"]:
+        entry = stage_entries[stage["id"]]
+        actual_path = _resolve(
+            entry["path"], run_base, f"stage {stage['id']} evidence", existing=False
+        )
+        expected_path = Path(stage["evidence_output"]).resolve(strict=False)
+        if actual_path != expected_path:
+            raise ContractError(
+                f"stage {stage['id']} evidence path differs from contract: "
+                f"expected {expected_path}, actual {actual_path}"
+            )
+        check, value = load_entry(entry, f"stage {stage['id']} evidence")
+        stage_values[stage["id"]] = (check["current"], value)
+        result = {
+            "id": stage["id"],
+            "component": stage["component"],
+            "operation": stage["operation"],
+            "risk": stage["risk"],
+            "evidence": check,
+        }
+        stages.append(result)
+        if not check["current"]:
+            errors.append(
+                f"stage {stage['id']} evidence is unavailable, invalid, or drifted"
+            )
+
+    assertions: list[dict[str, Any]] = []
+    for assertion in contract["assertions"]:
+        current, document = stage_values[assertion["stage"]]
+        result: dict[str, Any] = {
+            "id": assertion["id"],
+            "stage": assertion["stage"],
+            "json_pointer": assertion["json_pointer"],
+            "operator": assertion["operator"],
+            "expected": assertion["expected"],
+            "actual": None,
+            "evaluated": False,
+            "passed": False,
+        }
+        if not current:
+            result["error"] = "stage evidence is not current and valid"
+        else:
+            try:
+                actual = _resolve_pointer(document, assertion["json_pointer"])
+                passed, problem = _assertion_passes(
+                    actual, assertion["operator"], assertion["expected"]
+                )
+                result["actual"] = _actual_summary(actual)
+                result["evaluated"] = problem is None
+                result["passed"] = passed
+                if problem is not None:
+                    result["error"] = problem
+            except ContractError as error:
+                result["error"] = str(error)
+        assertions.append(result)
+        if not result["passed"]:
+            errors.append(f"assertion {assertion['id']} did not pass")
+
+    cleanup: list[dict[str, Any]] = []
+    for expected, entry in zip(
+        contract["cleanup"], run["cleanup_evidence"], strict=True
+    ):
+        check, document = load_entry(entry, f"cleanup {expected['resource']} evidence")
+        result = {
+            "resource": expected["resource"],
+            "required_state": expected["required_state"],
+            "json_pointer": entry["json_pointer"],
+            "actual_state": None,
+            "evaluated": False,
+            "passed": False,
+            "evidence": check,
+        }
+        if not check["current"]:
+            result["error"] = "cleanup evidence is not current and valid"
+        else:
+            try:
+                actual = _resolve_pointer(document, entry["json_pointer"])
+                if not isinstance(actual, str):
+                    result["error"] = "cleanup state must be a string"
+                else:
+                    result["actual_state"] = actual
+                    result["evaluated"] = True
+                    result["passed"] = actual == expected["required_state"]
+            except ContractError as error:
+                result["error"] = str(error)
+        cleanup.append(result)
+        if not result["passed"]:
+            errors.append(f"cleanup state for {expected['resource']} did not pass")
+
+    assertion_passed = sum(item["passed"] for item in assertions)
+    cleanup_passed = sum(item["passed"] for item in cleanup)
+    evidence_current = all(stage["evidence"]["current"] for stage in stages) and all(
+        item["evidence"]["current"] for item in cleanup
+    )
+    complete = (
+        inspection["ok"]
+        and evidence_current
+        and all(item["evaluated"] for item in assertions)
+        and all(item["evaluated"] for item in cleanup)
+    )
+    ok = (
+        complete
+        and assertion_passed == len(assertions)
+        and cleanup_passed == len(cleanup)
+    )
+    return {
+        "schema_version": EVALUATION_SCHEMA,
+        "operation": "evaluate",
+        "ok": ok,
+        "status": "passed" if ok else "failed",
+        "complete": complete,
+        "scope": "host_only_evidence_evaluation",
+        "contract": {
+            "path": str(resolved_contract),
+            "sha256": contract_hash,
+            "current": inspection["ok"],
+            "input_checks": inspection["input_checks"],
+        },
+        "run": {"path": str(resolved_run), "sha256": run_hash},
+        "board_id": contract["board"]["id"],
+        "stages": stages,
+        "assertions": assertions,
+        "cleanup": cleanup,
+        "summary": {
+            "stages_total": len(stages),
+            "stage_evidence_current": sum(
+                stage["evidence"]["current"] for stage in stages
+            ),
+            "assertions_total": len(assertions),
+            "assertions_passed": assertion_passed,
+            "cleanup_total": len(cleanup),
+            "cleanup_passed": cleanup_passed,
+        },
+        "authorization_granted": False,
+        "execution_supported": False,
+        "source_execution_not_performed": True,
         "hardware_access": False,
         "executables_started": False,
         "errors": errors,
@@ -1321,6 +1760,12 @@ def compile_report(spec: Path, output: Path) -> dict[str, Any]:
     }
 
 
+def evaluate_report(contract: Path, run: Path, output: Path) -> dict[str, Any]:
+    report = evaluate_contract(contract, run)
+    _write_exclusive(output, report)
+    return report
+
+
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="operation", required=True)
@@ -1335,6 +1780,14 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     )
     inspect_parser.add_argument("contract", type=Path)
     inspect_parser.add_argument("--json", action="store_true")
+    evaluate_parser = subparsers.add_parser(
+        "evaluate",
+        help="evaluate hash-bound JSON evidence without executing components",
+    )
+    evaluate_parser.add_argument("contract", type=Path)
+    evaluate_parser.add_argument("--run", type=Path, required=True)
+    evaluate_parser.add_argument("--output", type=Path, required=True)
+    evaluate_parser.add_argument("--json", action="store_true")
     return parser.parse_args(argv)
 
 
@@ -1346,14 +1799,22 @@ def _render(report: dict[str, Any]) -> str:
                 f"SHA-256: {report['contract_sha256']}\n"
                 "Host only; execution and authorization are not provided."
             )
+        if report["operation"] == "evaluate":
+            return (
+                f"Test evidence passed for board: {report['board_id']}\n"
+                "All assertions and cleanup states passed; no component was executed."
+            )
         return (
             f"Test contract valid: {report['contract']}\n"
             f"SHA-256: {report['contract_sha256']}\n"
             "All bound inputs are current; no component was executed."
         )
-    return "Test contract invalid\n" + "\n".join(
-        f"- {error}" for error in report["errors"]
+    noun = (
+        "Test evidence failed"
+        if report["operation"] == "evaluate"
+        else "Test contract invalid"
     )
+    return noun + "\n" + "\n".join(f"- {error}" for error in report["errors"])
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -1361,8 +1822,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         if args.operation == "compile":
             report = compile_report(args.spec, args.output)
-        else:
+        elif args.operation == "inspect":
             report = inspect_contract(args.contract)
+        else:
+            report = evaluate_report(args.contract, args.run, args.output)
     except ContractError as error:
         report = {
             "schema_version": REPORT_SCHEMA,

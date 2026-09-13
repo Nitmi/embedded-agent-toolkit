@@ -53,12 +53,15 @@ board selection but does not authorize flash, reset, serial transmit, BLE write,
 or debug control.
 
 For a multi-stage test, read [hardware test contracts](../../docs/test-contract.md)
-and use the host-only `test_contract.py compile` and `inspect` commands. Reference
-component-native workflows and firmware by path and SHA-256; never put shell
-commands, argv, executable paths, confirmation digests, or authorization claims
-in the contract. Treat input drift or an incomplete effect declaration as a
-stopping state. The compiled contract orders and constrains native workflows but
-cannot execute them or bypass their own gates.
+and use the host-only `test_contract.py compile`, `inspect`, and `evaluate`
+commands. Reference component-native workflows and firmware by path and SHA-256;
+never put shell commands, argv, executable paths, confirmation digests, or
+authorization claims in the contract or run manifest. Treat input drift, missing
+evidence, or an incomplete effect declaration as a stopping state. The compiled
+contract orders and constrains native workflows but cannot execute them or bypass
+their own gates. After separately gated component operations, bind the unchanged
+native JSON evidence in a non-authorizing run manifest and evaluate assertions
+and cleanup offline.
 
 Friendly names and discovery order are not exact selection rules. Make retries
 explicit per stage; default state-changing operations to zero retries.
@@ -75,7 +78,9 @@ explicit per stage; default state-changing operations to zero retries.
    RTT when supported by the debugger, or read-only BLE evidence.
 5. Perform only the declared interactions. Serial transmissions, BLE writes,
    reset control lines, and debug target control retain their component gates.
-6. Evaluate assertions from structured evidence, not console appearance.
+6. Evaluate hash-bound structured evidence with `test_contract.py evaluate`, not
+   console appearance. A missing pointer, mismatched digest, or unverified cleanup
+   state is a failure, never an implicit pass.
 7. Close the exact sessions and report target, process, port, and adapter cleanup.
 
 Stop at the first indeterminate state-changing result. Preserve all evidence and

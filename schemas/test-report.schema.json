@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Nitmi/embedded-agent-toolkit/schemas/test-report.schema.json",
+  "title": "Embedded Agent Toolkit Hardware Test Evaluation Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "operation",
+    "ok",
+    "status",
+    "complete",
+    "scope",
+    "contract",
+    "run",
+    "board_id",
+    "stages",
+    "assertions",
+    "cleanup",
+    "summary",
+    "authorization_granted",
+    "execution_supported",
+    "source_execution_not_performed",
+    "hardware_access",
+    "executables_started",
+    "errors"
+  ],
+  "properties": {
+    "schema_version": {"const": "embedded-agent-toolkit.test-report.v1"},
+    "operation": {"const": "evaluate"},
+    "ok": {"type": "boolean"},
+    "status": {"enum": ["passed", "failed"]},
+    "complete": {"type": "boolean"},
+    "scope": {"const": "host_only_evidence_evaluation"},
+    "contract": {"$ref": "#/$defs/contract"},
+    "run": {"$ref": "#/$defs/reference"},
+    "board_id": {"$ref": "test-spec.schema.json#/$defs/id"},
+    "stages": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {"$ref": "#/$defs/stage"}
+    },
+    "assertions": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {"$ref": "#/$defs/assertion"}
+    },
+    "cleanup": {
+      "type": "array",
+      "maxItems": 4,
+      "items": {"$ref": "#/$defs/cleanup"}
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stages_total",
+        "stage_evidence_current",
+        "assertions_total",
+        "assertions_passed",
+        "cleanup_total",
+        "cleanup_passed"
+      ],
+      "properties": {
+        "stages_total": {"type": "integer", "minimum": 0},
+        "stage_evidence_current": {"type": "integer", "minimum": 0},
+        "assertions_total": {"type": "integer", "minimum": 0},
+        "assertions_passed": {"type": "integer", "minimum": 0},
+        "cleanup_total": {"type": "integer", "minimum": 0},
+        "cleanup_passed": {"type": "integer", "minimum": 0}
+      }
+    },
+    "authorization_granted": {"const": false},
+    "execution_supported": {"const": false},
+    "source_execution_not_performed": {"const": true},
+    "hardware_access": {"const": false},
+    "executables_started": {"const": false},
+    "errors": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "sha256OrNull": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "test-spec.schema.json#/$defs/sha256"}
+      }
+    },
+    "inputCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "id",
+        "path",
+        "expected_sha256",
+        "actual_sha256",
+        "expected_size",
+        "actual_size",
+        "current"
+      ],
+      "properties": {
+        "kind": {"type": "string", "minLength": 1},
+        "id": {"type": "string", "minLength": 1},
+        "path": {"type": "string", "minLength": 1},
+        "expected_sha256": {"$ref": "test-spec.schema.json#/$defs/sha256"},
+        "actual_sha256": {"$ref": "#/$defs/sha256OrNull"},
+        "expected_size": {"type": ["integer", "null"], "minimum": 0},
+        "actual_size": {"type": ["integer", "null"], "minimum": 0},
+        "current": {"type": "boolean"},
+        "error": {"type": "string", "minLength": 1}
+      }
+    },
+    "contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "current", "input_checks"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "test-spec.schema.json#/$defs/sha256"},
+        "current": {"type": "boolean"},
+        "input_checks": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/inputCheck"}
+        }
+      }
+    },
+    "evidenceCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "expected_sha256",
+        "actual_sha256",
+        "size",
+        "current",
+        "valid_json"
+      ],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "expected_sha256": {"$ref": "test-spec.schema.json#/$defs/sha256"},
+        "actual_sha256": {"$ref": "#/$defs/sha256OrNull"},
+        "size": {"type": ["integer", "null"], "minimum": 0},
+        "current": {"type": "boolean"},
+        "valid_json": {"type": "boolean"},
+        "error": {"type": "string", "minLength": 1}
+      }
+    },
+    "stage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "component", "operation", "risk", "evidence"],
+      "properties": {
+        "id": {"$ref": "test-spec.schema.json#/$defs/id"},
+        "component": {"enum": ["baud", "blea", "embedded-debugger"]},
+        "operation": {"$ref": "test-spec.schema.json#/$defs/operation"},
+        "risk": {
+          "enum": [
+            "host-only",
+            "hardware-observation",
+            "target-control",
+            "external-interaction",
+            "persistent-write"
+          ]
+        },
+        "evidence": {"$ref": "#/$defs/evidenceCheck"}
+      }
+    },
+    "actual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": {"enum": ["null", "boolean", "number", "string", "array", "object"]},
+        "value": {"type": ["string", "number", "integer", "boolean", "null"]},
+        "size": {"type": "integer", "minimum": 0}
+      }
+    },
+    "assertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "stage",
+        "json_pointer",
+        "operator",
+        "expected",
+        "actual",
+        "evaluated",
+        "passed"
+      ],
+      "properties": {
+        "id": {"$ref": "test-spec.schema.json#/$defs/id"},
+        "stage": {"$ref": "test-spec.schema.json#/$defs/id"},
+        "json_pointer": {"type": "string"},
+        "operator": {"enum": ["equals", "not_equals", "at_least", "at_most", "contains"]},
+        "expected": {"type": ["string", "number", "integer", "boolean", "null"]},
+        "actual": {"oneOf": [{"$ref": "#/$defs/actual"}, {"type": "null"}]},
+        "evaluated": {"type": "boolean"},
+        "passed": {"type": "boolean"},
+        "error": {"type": "string", "minLength": 1}
+      }
+    },
+    "cleanup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resource",
+        "required_state",
+        "json_pointer",
+        "actual_state",
+        "evaluated",
+        "passed",
+        "evidence"
+      ],
+      "properties": {
+        "resource": {"enum": ["serial", "ble", "debug", "target"]},
+        "required_state": {"enum": ["closed", "disconnected", "running", "halted", "unchanged"]},
+        "json_pointer": {"type": "string"},
+        "actual_state": {"type": ["string", "null"]},
+        "evaluated": {"type": "boolean"},
+        "passed": {"type": "boolean"},
+        "evidence": {"$ref": "#/$defs/evidenceCheck"},
+        "error": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

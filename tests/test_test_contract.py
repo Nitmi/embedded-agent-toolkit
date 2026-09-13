@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import copy
+import io
 import json
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 
 from scripts import test_contract
@@ -163,6 +165,67 @@ class TestContractTests(unittest.TestCase):
     def save_spec(self, value: dict) -> None:
         self.write_json(self.spec_path, value)
 
+    def prepare_evaluation(
+        self,
+        *,
+        flash_ok: bool = True,
+        debug_state: str = "disconnected",
+        target_state: str = "running",
+    ) -> tuple[Path, Path, Path]:
+        contract_path = self.root / "contract.json"
+        test_contract.compile_report(self.spec_path, contract_path)
+        contract = test_contract.load_json(contract_path, "contract")
+        evidence_dir = self.root / "evidence"
+        evidence_dir.mkdir()
+        plan = evidence_dir / "flash-plan.json"
+        execute = evidence_dir / "flash-execute.json"
+        self.write_json(plan, {"ok": True, "ranges": ["0x00000000-0x00000fff"]})
+        self.write_json(
+            execute,
+            {
+                "ok": flash_ok,
+                "cleanup": {"debug": debug_state, "target": target_state},
+            },
+        )
+        run_path = self.root / "run.json"
+        run = {
+            "schema_version": test_contract.RUN_SCHEMA,
+            "contract_sha256": test_contract.sha256(contract_path),
+            "stage_evidence": [
+                {
+                    "stage": "flash-plan",
+                    "path": contract["stages"][0]["evidence_output"],
+                    "sha256": test_contract.sha256(plan),
+                },
+                {
+                    "stage": "flash-execute",
+                    "path": contract["stages"][1]["evidence_output"],
+                    "sha256": test_contract.sha256(execute),
+                },
+            ],
+            "cleanup_evidence": [
+                {
+                    "resource": "debug",
+                    "path": str(execute),
+                    "sha256": test_contract.sha256(execute),
+                    "json_pointer": "/cleanup/debug",
+                },
+                {
+                    "resource": "target",
+                    "path": str(execute),
+                    "sha256": test_contract.sha256(execute),
+                    "json_pointer": "/cleanup/target",
+                },
+            ],
+            "authorization": {
+                "granted": False,
+                "allowed_operations": [],
+                "manifest_is_authorization": False,
+            },
+        }
+        self.write_json(run_path, run)
+        return contract_path, run_path, execute
+
     def test_compile_binds_selection_firmware_effects_and_no_authorization(
         self,
     ) -> None:
@@ -208,6 +271,126 @@ class TestContractTests(unittest.TestCase):
         self.assertTrue(first["ok"])
         with self.assertRaisesRegex(test_contract.ContractError, "already exists"):
             test_contract.compile_report(self.spec_path, output)
+
+    def test_evaluate_passes_hash_bound_evidence_and_cleanup(self) -> None:
+        contract, run, _ = self.prepare_evaluation()
+        output = self.root / "report.json"
+
+        report = test_contract.evaluate_report(contract, run, output)
+
+        self.assertTrue(report["ok"])
+        self.assertTrue(report["complete"])
+        self.assertEqual(report["status"], "passed")
+        self.assertEqual(report["scope"], "host_only_evidence_evaluation")
+        self.assertEqual(report["summary"]["assertions_passed"], 1)
+        self.assertEqual(report["summary"]["cleanup_passed"], 2)
+        self.assertFalse(report["authorization_granted"])
+        self.assertFalse(report["execution_supported"])
+        self.assertTrue(report["source_execution_not_performed"])
+        self.assertFalse(report["hardware_access"])
+        self.assertFalse(report["executables_started"])
+        self.assertEqual(test_contract.load_json(output, "report"), report)
+
+    def test_evaluate_reports_failed_assertion_and_cleanup(self) -> None:
+        contract, run, _ = self.prepare_evaluation(
+            flash_ok=False, target_state="halted"
+        )
+        output = self.root / "failed-report.json"
+
+        report = test_contract.evaluate_report(contract, run, output)
+
+        self.assertFalse(report["ok"])
+        self.assertTrue(report["complete"])
+        self.assertEqual(report["status"], "failed")
+        self.assertFalse(report["assertions"][0]["passed"])
+        self.assertFalse(report["cleanup"][1]["passed"])
+        self.assertIn("assertion flash-ok did not pass", report["errors"])
+        self.assertIn("cleanup state for target did not pass", report["errors"])
+        self.assertEqual(test_contract.load_json(output, "report"), report)
+
+    def test_evaluate_marks_drifted_evidence_incomplete(self) -> None:
+        contract, run, execute = self.prepare_evaluation()
+        execute.write_text('{"ok": false}\n', encoding="utf-8")
+
+        report = test_contract.evaluate_contract(contract, run)
+
+        self.assertFalse(report["ok"])
+        self.assertFalse(report["complete"])
+        execute_stage = next(
+            stage for stage in report["stages"] if stage["id"] == "flash-execute"
+        )
+        self.assertFalse(execute_stage["evidence"]["current"])
+        self.assertIn("SHA-256 differs", execute_stage["evidence"]["error"])
+        self.assertFalse(report["assertions"][0]["evaluated"])
+
+    def test_evaluate_rejects_stage_evidence_path_not_bound_by_contract(self) -> None:
+        contract, run_path, _ = self.prepare_evaluation()
+        run = test_contract.load_json(run_path, "run")
+        alternate = self.root / "alternate.json"
+        self.write_json(alternate, {"ok": True})
+        run["stage_evidence"][1]["path"] = str(alternate)
+        run["stage_evidence"][1]["sha256"] = test_contract.sha256(alternate)
+        self.write_json(self.root / "alternate-run.json", run)
+
+        with self.assertRaisesRegex(
+            test_contract.ContractError, "differs from contract"
+        ):
+            test_contract.evaluate_contract(contract, self.root / "alternate-run.json")
+
+    def test_evaluate_report_refuses_to_overwrite(self) -> None:
+        contract, run, _ = self.prepare_evaluation()
+        output = self.root / "report.json"
+        test_contract.evaluate_report(contract, run, output)
+
+        with self.assertRaisesRegex(test_contract.ContractError, "already exists"):
+            test_contract.evaluate_report(contract, run, output)
+
+    def test_evaluate_cli_writes_machine_readable_report(self) -> None:
+        contract, run, _ = self.prepare_evaluation()
+        output = self.root / "report.json"
+        stdout = io.StringIO()
+
+        with redirect_stdout(stdout):
+            exit_code = test_contract.main(
+                [
+                    "evaluate",
+                    str(contract),
+                    "--run",
+                    str(run),
+                    "--output",
+                    str(output),
+                    "--json",
+                ]
+            )
+
+        self.assertEqual(exit_code, 0)
+        self.assertTrue(json.loads(stdout.getvalue())["ok"])
+        self.assertTrue(test_contract.load_json(output, "report")["ok"])
+
+    def test_json_pointer_and_assertion_types_are_strict(self) -> None:
+        document = {"a/b": {"~key": [1, True, "ready"]}, "object": {"ok": 1}}
+
+        self.assertEqual(
+            test_contract._resolve_pointer(document, "/a~1b/~0key/2"), "ready"
+        )
+        self.assertFalse(test_contract._json_equal(1, True))
+        self.assertTrue(test_contract._assertion_passes([1, 2], "contains", 2)[0])
+        self.assertTrue(
+            test_contract._assertion_passes(document["object"], "contains", "ok")[0]
+        )
+        with self.assertRaisesRegex(test_contract.ContractError, "array index"):
+            test_contract._resolve_pointer(["value"], "/01")
+        self.assertEqual(
+            test_contract._actual_summary("x" * 2048),
+            {"type": "string", "size": 2048},
+        )
+
+    def test_nonfinite_evidence_json_is_rejected(self) -> None:
+        evidence = self.root / "evidence.json"
+        evidence.write_text('{"value": NaN}\n', encoding="utf-8")
+
+        with self.assertRaisesRegex(test_contract.ContractError, "non-finite"):
+            test_contract.load_json_value(evidence, "evidence")
 
     def test_wrong_firmware_hash_fails_before_output(self) -> None:
         spec = copy.deepcopy(self.spec)
@@ -373,7 +556,12 @@ class TestContractTests(unittest.TestCase):
             test_contract.load_json(duplicate, "fixture")
 
     def test_published_schemas_and_example_are_valid_json(self) -> None:
-        for name in ("test-spec.schema.json", "test-contract.schema.json"):
+        for name in (
+            "test-spec.schema.json",
+            "test-contract.schema.json",
+            "test-run.schema.json",
+            "test-report.schema.json",
+        ):
             schema = json.loads((ROOT / "schemas" / name).read_text(encoding="utf-8"))
             self.assertEqual(
                 schema["$schema"], "https://json-schema.org/draft/2020-12/schema"

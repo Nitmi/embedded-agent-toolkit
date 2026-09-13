@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Nitmi/embedded-agent-toolkit/schemas/test-run.schema.json",
+  "title": "Embedded Agent Toolkit Hardware Test Evidence Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_sha256",
+    "stage_evidence",
+    "cleanup_evidence",
+    "authorization"
+  ],
+  "properties": {
+    "schema_version": {"const": "embedded-agent-toolkit.test-run.v1"},
+    "contract_sha256": {"$ref": "test-spec.schema.json#/$defs/sha256"},
+    "stage_evidence": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {"$ref": "#/$defs/stageEvidence"}
+    },
+    "cleanup_evidence": {
+      "type": "array",
+      "maxItems": 4,
+      "items": {"$ref": "#/$defs/cleanupEvidence"}
+    },
+    "authorization": {
+      "const": {
+        "granted": false,
+        "allowed_operations": [],
+        "manifest_is_authorization": false
+      }
+    }
+  },
+  "$defs": {
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "test-spec.schema.json#/$defs/sha256"}
+      }
+    },
+    "stageEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stage", "path", "sha256"],
+      "properties": {
+        "stage": {"$ref": "test-spec.schema.json#/$defs/id"},
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "test-spec.schema.json#/$defs/sha256"}
+      }
+    },
+    "cleanupEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resource", "path", "sha256", "json_pointer"],
+      "properties": {
+        "resource": {"enum": ["serial", "ble", "debug", "target"]},
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "test-spec.schema.json#/$defs/sha256"},
+        "json_pointer": {
+          "type": "string",
+          "pattern": "^(?:/(?:[^~/]|~[01])*)*$"
+        }
+      }
+    }
+  }
+}
