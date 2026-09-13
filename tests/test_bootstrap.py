@@ -37,6 +37,15 @@ class BootstrapTests(unittest.TestCase):
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name)
 
+    def test_version_matches_both_plugin_manifests(self) -> None:
+        repository = Path(__file__).resolve().parents[1]
+        versions = {
+            json.loads((repository / name).read_text(encoding="utf-8"))["version"]
+            for name in ("plugin.json", ".codex-plugin/plugin.json")
+        }
+
+        self.assertEqual(versions, {bootstrap.VERSION})
+
     def attestation(self, name: str, digest: str, revision: str = "a" * 40) -> str:
         return json.dumps(
             [
