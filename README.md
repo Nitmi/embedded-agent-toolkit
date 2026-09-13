@@ -22,16 +22,16 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The latest published release is `0.12.0`, which provides a standalone `bootstrap.py`
+The latest published release is `0.13.0`, which provides a standalone `bootstrap.py`
 alongside the plugin ZIP. Download the bootstrap with GitHub CLI,
 authenticate it before execution, and keep its exact filename:
 
 ```powershell
-gh release download v0.12.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.13.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.12.0 `
+  --source-ref refs/tags/v0.13.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -81,6 +81,12 @@ three core components. Opt in with `--include-optional board-registry` and check
 it explicitly with `--component board-registry`; a v2 component lock may include
 its exact path, version, and SHA-256 while existing v1 three-component locks remain valid. See
 [offline board identity resolution](docs/board-registry.md).
+
+After unique board selection, `scripts/test_contract.py` can compile a reviewed
+multi-stage [hardware test contract](docs/test-contract.md). It binds the
+selection, firmware and native component inputs, declared effects, deadlines,
+retries, structured assertions, and cleanup without starting a component or
+authorizing execution.
 
 The Toolkit also includes `component_install.py`. Its offline `plan`
 validates the release-bound component catalog and reports exact sources,

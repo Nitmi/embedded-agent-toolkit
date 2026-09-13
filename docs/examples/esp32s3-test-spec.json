@@ -1,0 +1,72 @@
+{
+  "assertions": [
+    {
+      "expected": true,
+      "id": "probe-test-ok",
+      "json_pointer": "/ok",
+      "operator": "equals",
+      "stage": "probe-attach"
+    },
+    {
+      "expected": 0,
+      "id": "serial-zero-transmit",
+      "json_pointer": "/bytes_written",
+      "operator": "equals",
+      "stage": "serial-observe"
+    }
+  ],
+  "cleanup": [
+    {
+      "required_state": "closed",
+      "resource": "serial",
+      "timeout_seconds": 5
+    },
+    {
+      "required_state": "disconnected",
+      "resource": "debug",
+      "timeout_seconds": 5
+    },
+    {
+      "required_state": "unchanged",
+      "resource": "target",
+      "timeout_seconds": 5
+    }
+  ],
+  "debug_target": "esp32s3",
+  "name": "esp32s3-readiness",
+  "resources": [],
+  "schema_version": "embedded-agent-toolkit.test-spec.v1",
+  "selection": "esp32s3-board-selection.json",
+  "stages": [
+    {
+      "declared_effects": [
+        "debug_attach",
+        "hardware_discovery",
+        "host_process_start",
+        "target_state_may_change"
+      ],
+      "evidence_output": "evidence/probe-test.json",
+      "id": "probe-attach",
+      "inputs": [],
+      "max_retries": 0,
+      "operation": "embedded-debugger.probes-test",
+      "requires": [],
+      "timeout_seconds": 15
+    },
+    {
+      "declared_effects": [
+        "host_process_start",
+        "serial_open"
+      ],
+      "evidence_output": "evidence/serial-monitor.json",
+      "id": "serial-observe",
+      "inputs": [],
+      "max_retries": 0,
+      "operation": "baud.monitor",
+      "requires": [
+        "probe-attach"
+      ],
+      "timeout_seconds": 15
+    }
+  ]
+}

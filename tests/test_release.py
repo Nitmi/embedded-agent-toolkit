@@ -117,6 +117,9 @@ class ReleaseTests(unittest.TestCase):
             "scripts/release.py",
             "scripts/bootstrap.py",
             "scripts/station_config.py",
+            "scripts/test_contract.py",
+            "schemas/test-spec.schema.json",
+            "schemas/test-contract.schema.json",
             "skills/hardware-test/references/runtime-contract.md",
             "docs/releases.md",
         ):

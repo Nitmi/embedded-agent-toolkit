@@ -43,7 +43,10 @@ REQUIRED_FILES = {
     "scripts/release.py",
     "scripts/component_lock.py",
     "scripts/station_config.py",
+    "scripts/test_contract.py",
     "scripts/toolkit_doctor.py",
+    "schemas/test-spec.schema.json",
+    "schemas/test-contract.schema.json",
     *(
         f"skills/{name}/SKILL.md"
         for name in (
@@ -164,7 +167,7 @@ def included(path: str) -> bool:
             "LICENSE",
             "README.md",
         }
-        or path.startswith("skills/")
+        or path.startswith(("skills/", "schemas/"))
         or (path.startswith("docs/") and path != "docs/local-acceptance.md")
         or (path.startswith("scripts/") and path.endswith(".py"))
     )

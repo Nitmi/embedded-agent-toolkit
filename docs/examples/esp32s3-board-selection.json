@@ -1,0 +1,65 @@
+{
+  "authorization": {
+    "allowed_operations": [],
+    "granted": false
+  },
+  "bindings": [
+    {
+      "observation_id": "debugger-probes-list",
+      "observed_identity": {
+        "probe_selector": "303a:1001:E0:72:A1:D4:1F:DC"
+      },
+      "selector_id": "native-usb-jtag",
+      "selector_identity": {
+        "probe_selector": "303a:1001:E0:72:A1:D4:1F:DC"
+      },
+      "source": {
+        "path": "evidence/probes-list.json",
+        "point_in_time": true,
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "transport": "debug"
+    },
+    {
+      "observation_id": "baud-list-com3",
+      "observed_identity": {
+        "port": "COM3",
+        "usb_pid": "1001",
+        "usb_serial": "E0:72:A1:D4:1F:DC",
+        "usb_vid": "303A"
+      },
+      "selector_id": "native-usb-serial",
+      "selector_identity": {
+        "usb_pid": "1001",
+        "usb_serial": "E0:72:A1:D4:1F:DC",
+        "usb_vid": "303A"
+      },
+      "source": {
+        "path": "evidence/baud-list.json",
+        "point_in_time": true,
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "transport": "serial"
+    }
+  ],
+  "board_id": "esp32s3-lab",
+  "executables_started": false,
+  "hardware_access": false,
+  "inputs": {
+    "observations": {
+      "path": "board-registry/examples/observations.json",
+      "sha256": "3da137a31a9a0334b5e544125ae973449118d66f566c718567544007afc1c62a"
+    },
+    "registry": {
+      "path": "board-registry/examples/registry.json",
+      "sha256": "3d28bdcc8847a41216d559e8c228fa2bc664baad97189dc9818f163619243204"
+    }
+  },
+  "ok": true,
+  "required_transports": [
+    "debug",
+    "serial"
+  ],
+  "schema_version": "embedded-board-registry.selection.v1",
+  "status": "selected"
+}

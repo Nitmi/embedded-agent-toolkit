@@ -1,0 +1,213 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Nitmi/embedded-agent-toolkit/schemas/test-contract.schema.json",
+  "title": "Embedded Agent Toolkit Compiled Hardware Test Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "ok",
+    "status",
+    "name",
+    "source_spec",
+    "board",
+    "bindings",
+    "debug_target",
+    "resources",
+    "stages",
+    "assertions",
+    "cleanup",
+    "authorization",
+    "execution_supported",
+    "hardware_access",
+    "executables_started"
+  ],
+  "properties": {
+    "schema_version": {"const": "embedded-agent-toolkit.test-contract.v1"},
+    "ok": {"const": true},
+    "status": {"const": "compiled"},
+    "name": {"$ref": "test-spec.schema.json#/$defs/id"},
+    "source_spec": {"$ref": "#/$defs/reference"},
+    "board": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "selection", "required_transports"],
+      "properties": {
+        "id": {"$ref": "test-spec.schema.json#/$defs/id"},
+        "selection": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "sha256", "schema_version"],
+          "properties": {
+            "path": {"type": "string", "minLength": 1},
+            "sha256": {"$ref": "test-spec.schema.json#/$defs/sha256"},
+            "schema_version": {"const": "embedded-board-registry.selection.v1"}
+          }
+        },
+        "required_transports": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"enum": ["ble", "debug", "serial"]}
+        }
+      }
+    },
+    "bindings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/binding"}
+    },
+    "debug_target": {"type": ["string", "null"], "minLength": 1},
+    "resources": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {"$ref": "#/$defs/compiledResource"}
+    },
+    "stages": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {"$ref": "#/$defs/compiledStage"}
+    },
+    "assertions": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {"$ref": "test-spec.schema.json#/$defs/assertion"}
+    },
+    "cleanup": {
+      "type": "array",
+      "maxItems": 4,
+      "items": {"$ref": "test-spec.schema.json#/$defs/cleanup"}
+    },
+    "authorization": {
+      "const": {
+        "granted": false,
+        "allowed_operations": [],
+        "contract_is_authorization": false,
+        "native_component_gates_preserved": true
+      }
+    },
+    "execution_supported": {"const": false},
+    "hardware_access": {"const": false},
+    "executables_started": {"const": false}
+  },
+  "$defs": {
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "test-spec.schema.json#/$defs/sha256"}
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "point_in_time"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "test-spec.schema.json#/$defs/sha256"},
+        "point_in_time": {"const": true}
+      }
+    },
+    "identity": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "component",
+        "transport",
+        "selector_id",
+        "observation_id",
+        "selector_identity",
+        "observed_identity",
+        "source"
+      ],
+      "properties": {
+        "component": {"enum": ["baud", "blea", "embedded-debugger"]},
+        "transport": {"enum": ["ble", "debug", "serial"]},
+        "selector_id": {"$ref": "test-spec.schema.json#/$defs/id"},
+        "observation_id": {"$ref": "test-spec.schema.json#/$defs/id"},
+        "selector_identity": {"$ref": "#/$defs/identity"},
+        "observed_identity": {"$ref": "#/$defs/identity"},
+        "source": {"$ref": "#/$defs/source"}
+      }
+    },
+    "compiledResource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "path", "sha256", "size"],
+      "properties": {
+        "id": {"$ref": "test-spec.schema.json#/$defs/id"},
+        "kind": {
+          "enum": [
+            "firmware",
+            "baud-workflow",
+            "blea-workflow",
+            "debugger-runtime-contract"
+          ]
+        },
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "test-spec.schema.json#/$defs/sha256"},
+        "size": {"type": "integer", "minimum": 0, "maximum": 536870912}
+      }
+    },
+    "compiledStage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "operation",
+        "component",
+        "inputs",
+        "requires",
+        "declared_effects",
+        "risk",
+        "timeout_seconds",
+        "max_retries",
+        "evidence_output"
+      ],
+      "properties": {
+        "id": {"$ref": "test-spec.schema.json#/$defs/id"},
+        "operation": {"$ref": "test-spec.schema.json#/$defs/operation"},
+        "component": {"enum": ["baud", "blea", "embedded-debugger"]},
+        "inputs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "test-spec.schema.json#/$defs/id"}
+        },
+        "requires": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "test-spec.schema.json#/$defs/id"}
+        },
+        "declared_effects": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "test-spec.schema.json#/$defs/effect"}
+        },
+        "risk": {
+          "enum": [
+            "host-only",
+            "hardware-observation",
+            "target-control",
+            "external-interaction",
+            "persistent-write"
+          ]
+        },
+        "timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 86400},
+        "max_retries": {"type": "integer", "minimum": 0, "maximum": 3},
+        "evidence_output": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

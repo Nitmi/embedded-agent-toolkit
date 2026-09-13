@@ -52,6 +52,14 @@ unique result for every transport in the test contract. Resolution narrows the
 board selection but does not authorize flash, reset, serial transmit, BLE write,
 or debug control.
 
+For a multi-stage test, read [hardware test contracts](../../docs/test-contract.md)
+and use the host-only `test_contract.py compile` and `inspect` commands. Reference
+component-native workflows and firmware by path and SHA-256; never put shell
+commands, argv, executable paths, confirmation digests, or authorization claims
+in the contract. Treat input drift or an incomplete effect declaration as a
+stopping state. The compiled contract orders and constrains native workflows but
+cannot execute them or bypass their own gates.
+
 Friendly names and discovery order are not exact selection rules. Make retries
 explicit per stage; default state-changing operations to zero retries.
 
