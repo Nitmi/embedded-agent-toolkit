@@ -22,16 +22,16 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The latest published release is `0.14.0`, which provides a standalone `bootstrap.py`
+The latest published release is `0.15.0`, which provides a standalone `bootstrap.py`
 alongside the plugin ZIP. Download the bootstrap with GitHub CLI,
 authenticate it before execution, and keep its exact filename:
 
 ```powershell
-gh release download v0.14.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.15.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.14.0 `
+  --source-ref refs/tags/v0.15.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -89,6 +89,9 @@ retries, structured assertions, and cleanup without starting a component or
 authorizing execution. After the separately gated component operations produce
 their native JSON evidence, the same script can verify its paths and hashes,
 evaluate RFC 6901 assertions and cleanup states, and emit one offline report.
+Contracts can now begin with observation-only `baud.list`, `blea.doctor`, and
+`embedded-debugger.probes-list` stages, making fresh serial, adapter, and probe
+identity checks part of the same hash-bound test evidence.
 
 The Toolkit also includes `component_install.py`. Its offline `plan`
 validates the release-bound component catalog and reports exact sources,

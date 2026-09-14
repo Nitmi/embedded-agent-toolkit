@@ -121,6 +121,13 @@ def _effects(*values: str) -> frozenset[str]:
 
 
 OPERATION_POLICIES = {
+    "baud.list": OperationPolicy(
+        "baud",
+        frozenset({"serial"}),
+        (),
+        _effects("host_process_start", "hardware_discovery"),
+        _effects("host_process_start", "hardware_discovery"),
+    ),
     "baud.monitor": OperationPolicy(
         "baud",
         frozenset({"serial"}),
@@ -139,6 +146,13 @@ OPERATION_POLICIES = {
             "serial_transmit",
             "external_actuation",
         ),
+    ),
+    "blea.doctor": OperationPolicy(
+        "blea",
+        frozenset({"ble"}),
+        (),
+        _effects("host_process_start", "ble_scan"),
+        _effects("host_process_start", "ble_scan"),
     ),
     "blea.scan": OperationPolicy(
         "blea",
@@ -159,6 +173,13 @@ OPERATION_POLICIES = {
             "ble_write",
             "external_actuation",
         ),
+    ),
+    "embedded-debugger.probes-list": OperationPolicy(
+        "embedded-debugger",
+        frozenset({"debug"}),
+        (),
+        _effects("host_process_start", "hardware_discovery"),
+        _effects("host_process_start", "hardware_discovery"),
     ),
     "embedded-debugger.probes-test": OperationPolicy(
         "embedded-debugger",

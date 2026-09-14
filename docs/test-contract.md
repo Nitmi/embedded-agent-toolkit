@@ -42,6 +42,21 @@ each with its component before execution. A stage names one supported semantic
 operation, never a command string, shell fragment, argv list, confirmation
 digest, or executable path. The contract cannot execute itself.
 
+Discovery can be the first contract gate. These operations preserve each
+component's native JSON shape and permit only the listed observation effects:
+
+| Semantic operation | Native command | Required transport | Allowed effects |
+| --- | --- | --- | --- |
+| `baud.list` | `baud list --json` | `serial` | `host_process_start`, `hardware_discovery` |
+| `blea.doctor` | `ble doctor --scan-timeout <seconds> --json` | `ble` | `host_process_start`, `ble_scan` |
+| `embedded-debugger.probes-list` | `embedded-debugger --backend probe-rs probes list --json` | `debug` | `host_process_start`, `hardware_discovery` |
+
+BLEA doctor performs a short discovery scan to prove adapter availability; it
+is not host-only. None of these operations opens a serial port, connects to a
+BLE peripheral, attaches to a target, or changes target state. Assertions should
+bind the newly observed exact identity to the selected board. See
+`docs/examples/esp32s3-discovery-test-spec.json` for a serial and probe baseline.
+
 Flash execution must depend on an earlier flash-plan stage using the same
 firmware. Runtime acceptance must depend on an earlier runtime-inspect stage
 using the same runtime contract. Missing transport bindings, missing baseline

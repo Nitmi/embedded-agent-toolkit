@@ -68,7 +68,12 @@ explicit per stage; default state-changing operations to zero retries.
 
 ## Execute in gates
 
-1. Run the host-only toolkit doctor, then component discovery and health checks.
+1. Run the host-only toolkit doctor. When discovery belongs to a repeatable
+   test, declare `baud.list`, `blea.doctor`, or
+   `embedded-debugger.probes-list` as the first contract stage and assert the
+   exact native identity fields. BLEA doctor performs a short scan; none of
+   these discovery stages may open a serial port, connect, attach, or control a
+   target.
 2. Verify preconditions and acquire exclusive ownership of the relevant ports,
    probes, adapters, and board. Do not run competing transports concurrently
    when reset lines, boot modes, or target state can interact.

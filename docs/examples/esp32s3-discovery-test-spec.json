@@ -1,0 +1,52 @@
+{
+  "assertions": [
+    {
+      "expected": "E0:72:A1:D4:1F:DC",
+      "id": "serial-identity-current",
+      "json_pointer": "/ports/0/serial_number",
+      "operator": "equals",
+      "stage": "serial-discovery"
+    },
+    {
+      "expected": "303a:1001:E0:72:A1:D4:1F:DC",
+      "id": "probe-identity-current",
+      "json_pointer": "/data/probes/0/id",
+      "operator": "equals",
+      "stage": "probe-discovery"
+    }
+  ],
+  "cleanup": [],
+  "debug_target": null,
+  "name": "esp32s3-discovery-baseline",
+  "resources": [],
+  "schema_version": "embedded-agent-toolkit.test-spec.v1",
+  "selection": "esp32s3-board-selection.json",
+  "stages": [
+    {
+      "declared_effects": [
+        "hardware_discovery",
+        "host_process_start"
+      ],
+      "evidence_output": "evidence/current-baud-list.json",
+      "id": "serial-discovery",
+      "inputs": [],
+      "max_retries": 0,
+      "operation": "baud.list",
+      "requires": [],
+      "timeout_seconds": 10
+    },
+    {
+      "declared_effects": [
+        "hardware_discovery",
+        "host_process_start"
+      ],
+      "evidence_output": "evidence/current-probes-list.json",
+      "id": "probe-discovery",
+      "inputs": [],
+      "max_retries": 0,
+      "operation": "embedded-debugger.probes-list",
+      "requires": [],
+      "timeout_seconds": 10
+    }
+  ]
+}

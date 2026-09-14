@@ -70,10 +70,13 @@
     },
     "operation": {
       "enum": [
+        "baud.list",
         "baud.monitor",
         "baud.workflow",
+        "blea.doctor",
         "blea.scan",
         "blea.workflow",
+        "embedded-debugger.probes-list",
         "embedded-debugger.probes-test",
         "embedded-debugger.flash-plan",
         "embedded-debugger.flash-execute",

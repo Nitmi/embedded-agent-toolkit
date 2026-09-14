@@ -162,6 +162,94 @@ class TestContractTests(unittest.TestCase):
             ],
         }
 
+    def discovery_spec(self) -> dict:
+        selection = copy.deepcopy(self.selection)
+        selection["required_transports"] = ["ble", "debug", "serial"]
+        selection["bindings"] = [
+            {
+                "transport": "ble",
+                "selector_id": "advertised-service",
+                "observation_id": "ble-scan-device",
+                "selector_identity": {
+                    "service_uuid": "12345678-1234-5678-1234-56789abcdef0"
+                },
+                "observed_identity": {
+                    "identifier": "id:AA:BB:CC:DD:EE:FF",
+                    "service_uuid": "12345678-1234-5678-1234-56789abcdef0",
+                },
+                "source": {
+                    "path": "evidence/ble-scan.json",
+                    "sha256": "e" * 64,
+                    "point_in_time": True,
+                },
+            },
+            *selection["bindings"],
+        ]
+        self.write_json(self.selection_path, selection)
+        return {
+            "schema_version": test_contract.SPEC_SCHEMA,
+            "name": "nrf52840-dk-discovery",
+            "selection": self.selection_path.name,
+            "debug_target": None,
+            "resources": [],
+            "stages": [
+                {
+                    "id": "serial-list",
+                    "operation": "baud.list",
+                    "inputs": [],
+                    "requires": [],
+                    "declared_effects": ["hardware_discovery", "host_process_start"],
+                    "timeout_seconds": 10,
+                    "max_retries": 0,
+                    "evidence_output": "evidence/baud-list.json",
+                },
+                {
+                    "id": "ble-doctor",
+                    "operation": "blea.doctor",
+                    "inputs": [],
+                    "requires": [],
+                    "declared_effects": ["ble_scan", "host_process_start"],
+                    "timeout_seconds": 10,
+                    "max_retries": 0,
+                    "evidence_output": "evidence/ble-doctor.json",
+                },
+                {
+                    "id": "probe-list",
+                    "operation": "embedded-debugger.probes-list",
+                    "inputs": [],
+                    "requires": [],
+                    "declared_effects": ["hardware_discovery", "host_process_start"],
+                    "timeout_seconds": 10,
+                    "max_retries": 0,
+                    "evidence_output": "evidence/probes-list.json",
+                },
+            ],
+            "assertions": [
+                {
+                    "id": "serial-number",
+                    "stage": "serial-list",
+                    "json_pointer": "/ports/0/serial_number",
+                    "operator": "equals",
+                    "expected": "001050275757",
+                },
+                {
+                    "id": "adapter-ready",
+                    "stage": "ble-doctor",
+                    "json_pointer": "/adapter_available",
+                    "operator": "equals",
+                    "expected": True,
+                },
+                {
+                    "id": "probe-selector",
+                    "stage": "probe-list",
+                    "json_pointer": "/data/probes/0/id",
+                    "operator": "equals",
+                    "expected": "1366:1061:001050275757",
+                },
+            ],
+            "cleanup": [],
+        }
+
     def save_spec(self, value: dict) -> None:
         self.write_json(self.spec_path, value)
 
@@ -271,6 +359,148 @@ class TestContractTests(unittest.TestCase):
         self.assertTrue(first["ok"])
         with self.assertRaisesRegex(test_contract.ContractError, "already exists"):
             test_contract.compile_report(self.spec_path, output)
+
+    def test_discovery_operations_compile_as_observation_only(self) -> None:
+        self.save_spec(self.discovery_spec())
+
+        contract = test_contract.compile_contract(self.spec_path)
+
+        self.assertEqual(
+            [stage["component"] for stage in contract["stages"]],
+            ["baud", "blea", "embedded-debugger"],
+        )
+        self.assertEqual(
+            [stage["risk"] for stage in contract["stages"]],
+            ["hardware-observation"] * 3,
+        )
+        forbidden = {
+            "serial_open",
+            "ble_connect",
+            "debug_attach",
+            "target_state_may_change",
+        }
+        self.assertFalse(
+            forbidden
+            & {
+                effect
+                for stage in contract["stages"]
+                for effect in stage["declared_effects"]
+            }
+        )
+
+    def test_ble_doctor_declares_its_short_scan(self) -> None:
+        spec = self.discovery_spec()
+        spec["stages"][1]["declared_effects"] = ["host_process_start"]
+
+        report = test_contract.validate_spec(spec)
+
+        self.assertFalse(report["ok"])
+        self.assertIn("ble_scan", "\n".join(report["errors"]))
+
+    def test_discovery_operations_reject_active_effects(self) -> None:
+        for index, effect in (
+            (0, "serial_open"),
+            (1, "ble_connect"),
+            (2, "debug_attach"),
+        ):
+            with self.subTest(effect=effect):
+                spec = self.discovery_spec()
+                spec["stages"][index]["declared_effects"].append(effect)
+                spec["stages"][index]["declared_effects"].sort()
+
+                report = test_contract.validate_spec(spec)
+
+                self.assertFalse(report["ok"])
+                self.assertIn(effect, "\n".join(report["errors"]))
+
+    def test_discovery_requires_each_selected_transport(self) -> None:
+        spec = self.discovery_spec()
+        selection = test_contract.load_json(self.selection_path, "selection")
+        selection["required_transports"] = ["debug", "serial"]
+        selection["bindings"] = selection["bindings"][1:]
+        self.write_json(self.selection_path, selection)
+        self.save_spec(spec)
+
+        with self.assertRaisesRegex(test_contract.ContractError, "required transports"):
+            test_contract.compile_contract(self.spec_path)
+
+    def test_discovery_native_evidence_evaluates_without_translation(self) -> None:
+        self.save_spec(self.discovery_spec())
+        contract_path = self.root / "discovery-contract.json"
+        test_contract.compile_report(self.spec_path, contract_path)
+        contract = test_contract.load_json(contract_path, "contract")
+        evidence_dir = self.root / "evidence"
+        evidence_dir.mkdir()
+        evidence = [
+            {
+                "ok": True,
+                "ports": [
+                    {
+                        "device": "COM11",
+                        "vid": 0x1366,
+                        "pid": 0x1061,
+                        "serial_number": "001050275757",
+                    }
+                ],
+            },
+            {
+                "ok": True,
+                "operation": "doctor",
+                "backend": "BleakBackend",
+                "adapter_available": True,
+                "devices_observed": 1,
+            },
+            {
+                "schema_version": "1.0",
+                "ok": True,
+                "operation": "probes.list",
+                "data": {
+                    "backend": "probe-rs",
+                    "probes": [
+                        {
+                            "id": "1366:1061:001050275757",
+                            "vendor_id": 0x1366,
+                            "product_id": 0x1061,
+                            "serial": "001050275757",
+                            "accessible": True,
+                        }
+                    ],
+                },
+            },
+        ]
+        entries = []
+        for stage, payload in zip(contract["stages"], evidence, strict=True):
+            path = Path(stage["evidence_output"])
+            self.write_json(path, payload)
+            entries.append(
+                {
+                    "stage": stage["id"],
+                    "path": str(path),
+                    "sha256": test_contract.sha256(path),
+                }
+            )
+        run_path = self.root / "discovery-run.json"
+        self.write_json(
+            run_path,
+            {
+                "schema_version": test_contract.RUN_SCHEMA,
+                "contract_sha256": test_contract.sha256(contract_path),
+                "stage_evidence": entries,
+                "cleanup_evidence": [],
+                "authorization": {
+                    "granted": False,
+                    "allowed_operations": [],
+                    "manifest_is_authorization": False,
+                },
+            },
+        )
+
+        report = test_contract.evaluate_contract(contract_path, run_path)
+
+        self.assertTrue(report["ok"], report["errors"])
+        self.assertEqual(report["summary"]["stage_evidence_current"], 3)
+        self.assertEqual(report["summary"]["assertions_passed"], 3)
+        self.assertEqual(report["summary"]["cleanup_passed"], 0)
 
     def test_evaluate_passes_hash_bound_evidence_and_cleanup(self) -> None:
         contract, run, _ = self.prepare_evaluation()
@@ -575,12 +805,23 @@ class TestContractTests(unittest.TestCase):
             set(compiled_resource["required"]),
             {"id", "kind", "path", "sha256", "size"},
         )
-        example = json.loads(
-            (ROOT / "docs" / "examples" / "esp32s3-test-spec.json").read_text(
-                encoding="utf-8"
-            )
+        operations = set(
+            json.loads(
+                (ROOT / "schemas" / "test-spec.schema.json").read_text(encoding="utf-8")
+            )["$defs"]["operation"]["enum"]
         )
-        self.assertTrue(test_contract.validate_spec(example)["ok"])
+        self.assertTrue(
+            {
+                "baud.list",
+                "blea.doctor",
+                "embedded-debugger.probes-list",
+            }.issubset(operations)
+        )
+        for name in ("esp32s3-test-spec.json", "esp32s3-discovery-test-spec.json"):
+            example = json.loads(
+                (ROOT / "docs" / "examples" / name).read_text(encoding="utf-8")
+            )
+            self.assertTrue(test_contract.validate_spec(example)["ok"])
 
 
 if __name__ == "__main__":
