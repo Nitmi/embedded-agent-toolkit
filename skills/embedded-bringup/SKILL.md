@@ -61,6 +61,12 @@ host setup, not authorization to discover or operate hardware.
 4. Execute only after the user provides the current exact confirmation required
    by the component. Never treat earlier approval or a connected board as
    standing authorization, and never retry a failed flash automatically.
+   For iterative firmware work, see [bounded flash sessions](../../docs/bounded-flash-sessions.md).
+   This installed component version has no session authorization interface:
+   do not synthesize, cache, or automatically forward a plan digest as a way
+   around this gate. A future native session may omit per-build user prompts
+   only after its own executor validates the one-time grant and each fresh
+   plan, persists non-rollbackable usage state, and stops after failure.
 5. After cleanup, observe bounded startup logs. Use BLE discovery only after the
    firmware is expected to advertise, and keep it read-only until identity is
    resolved.

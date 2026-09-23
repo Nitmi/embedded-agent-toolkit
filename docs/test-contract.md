@@ -140,6 +140,11 @@ identity, generate the component's native plan, and honor its confirmation or
 authorization boundary. Do not store a flash confirmation digest in the test
 contract.
 
+Repeated firmware builds still require native flash authorization. See
+[bounded flash sessions](bounded-flash-sessions.md) for the proposed
+executor-owned flow; the current Toolkit test contract does not authorize
+any repeated flash or automatically confirm changing firmware digests.
+
 Machine-readable authoring, compiled, run-manifest, and evaluation-report formats
 are published in `schemas/test-spec.schema.json`,
 `schemas/test-contract.schema.json`, `schemas/test-run.schema.json`, and

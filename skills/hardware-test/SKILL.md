@@ -78,7 +78,10 @@ explicit per stage; default state-changing operations to zero retries.
    probes, adapters, and board. Do not run competing transports concurrently
    when reset lines, boot modes, or target state can interact.
 3. Plan and confirm flashing through `$embedded-debugger`; preserve the exact
-   result and cleanup evidence.
+   result and cleanup evidence. For repeated firmware builds, read
+   [bounded flash sessions](../../docs/bounded-flash-sessions.md). Do not turn
+   a test contract into a standing authorization or auto-forward per-build
+   confirmation digests until the native debugger exposes an enforced session.
 4. Wait for a bounded ready assertion through zero-transmit serial observation,
    RTT when supported by the debugger, or read-only BLE evidence.
 5. Perform only the declared interactions. Serial transmissions, BLE writes,
