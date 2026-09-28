@@ -1,49 +1,40 @@
-# Bounded flash sessions (design and current status)
+# Bounded flash sessions
 
-The current `embedded-debugger flash execute --confirm <digest>` checks that
-the executed plan is identical to the reviewed plan. The digest changes with
-the firmware. The current Toolkit Skills additionally require a fresh user
-confirmation for each physical flash. No released or local session-based
-auto-flash interface exists yet. Do not interpret this design as permission
-to pass a freshly copied digest without user approval.
+The `embedded-debugger` source tree implements `flash session plan|inspect|serve`.
+It is not in the published 0.2.1 component or the current locked workstation
+installation. Check `flash session --help` on the **exact hash-bound debugger
+executable** before choosing this path. Until an updated binary is installed
+and qualified on the intended board, keep using its per-flash confirmation
+workflow.
 
-## Intended user flow
+For a supported development target, create a host-only scope plan covering
+the exact probe and target, canonical build directory, image format/options,
+code-Flash write window and whole-sector erase window, flash count (at most
+100), and duration (at most two hours). The plan also binds the debugger binary
+SHA-256 and a nonce. Surface that complete scope and ask the user to approve
+its `confirm_digest` **once**. Do not use a Toolkit test contract as that
+approval.
 
-For a firmware iteration task, the user reviews and approves one narrowly
-bounded development session. Its grant binds the exact backend and debugger
-executable identity, probe selector including a stable serial, target,
-project/build root, allowed firmware format, write window and complete erase
-window, default post-flash reset/halt/snapshot/resume policy, maximum flashes,
-expiry, and a unique session nonce. Each new build has its own SHA-256 and fresh
-plan. The executor, not the Agent or Toolkit test contract, checks every plan
-against the grant and then passes its fresh digest to the existing confirmed
-execution path. Every execution uses a unique evidence file. On success, the
-Agent checks read-back verification, cleanup and, when configured, a bounded
-runtime readiness assertion before the next iteration.
+Start `flash session serve <scope-file> --confirm <approved-scope-digest>`
+as a long-lived debugger process. It accepts one JSONL `flash` request per
+new build, containing only the firmware and a unique evidence path. The native
+executor recomputes the current plan and its digest, checks exact identities,
+image format, write and erase windows, target capability gates, and evidence
+before it calls the original confirmed execution path. On each success, inspect
+verification and cleanup evidence; correlate a bounded runtime readiness
+assertion before moving to the next build. The Agent does not ask the user to
+copy every new firmware digest.
 
-Any changed probe/target, source outside the approved build root, non-code
-NVM, UICR/APPROTECT/security configuration, recover, whole-chip erase,
-out-of-window sector erase, changed post-flash effects, unsupported plan,
-expired/exhausted grant, missing evidence, or indeterminate/failed execution
-halts the session. There is no automatic retry or silent new grant. The native
-component's safety and target-specific capability gates remain mandatory.
+Any scope drift, unsupported image, UICR/APPROTECT/security write, non-boot
+NVM, out-of-window erase, failure or indeterminate result ends the executor
+without retry. The grant also ends on expiry, count exhaustion, process exit,
+or explicit close. The original scope path gets a persistent `.active`
+marker on first start; it cannot be started again. A new session needs a new
+plan, nonce and user approval. Do not remove the marker to reactivate an old
+grant.
 
-## Implementation boundary
-
-An editable JSON session file plus a counter is **not** a safe implementation:
-an old copy can be restored to regain uses. A hash or user-supplied digest of
-that file prevents accidental scope drift but does not stop such rollback.
-Implement the lease and use counter behind a single executor process or in a
-trusted non-rollbackable store with exclusive ownership and crash-consistent
-commit-before-flash semantics. Reject stale clients, concurrent processes,
-restarted leases, and unverifiable state. Persist a terminal stop state before
-returning a failed or uncertain execution. Test file replacement, power loss,
-concurrent attempts, scope drift, and firmware replacement offline with Replay
-before enabling physical use. Do not expose a global `--yes` flag or relax the
-existing `--confirm` path.
-
-The Toolkit may describe the workflow and consume native structured evidence,
-but must neither issue grants on its own nor present a host-only contract as
-write permission. After the native implementation and Replay acceptance, the
-Toolkit Skills can recognize a verified active grant; until then, per-execution
-user confirmation remains required.
+This is a trusted local development workflow, not protection against a user
+deliberately deleting or editing the plan and marker. A copied plan is rejected
+because the original absolute path is in its digest. Refer to the debugger
+source document `docs/flash-sessions.md` for command details; no physical
+board acceptance is claimed here.

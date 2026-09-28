@@ -79,9 +79,10 @@ explicit per stage; default state-changing operations to zero retries.
    when reset lines, boot modes, or target state can interact.
 3. Plan and confirm flashing through `$embedded-debugger`; preserve the exact
    result and cleanup evidence. For repeated firmware builds, read
-   [bounded flash sessions](../../docs/bounded-flash-sessions.md). Do not turn
-   a test contract into a standing authorization or auto-forward per-build
-   confirmation digests until the native debugger exposes an enforced session.
+   [bounded flash sessions](../../docs/bounded-flash-sessions.md). A native
+   session can reuse one user-approved scope for bounded code-Flash builds
+   only while its executor remains alive. Do not turn a test contract into
+   authorization or auto-forward per-build digests through the old CLI path.
 4. Wait for a bounded ready assertion through zero-transmit serial observation,
    RTT when supported by the debugger, or read-only BLE evidence.
 5. Perform only the declared interactions. Serial transmissions, BLE writes,
