@@ -36,17 +36,17 @@ push commits, or publish a remote release.
 
 ## Bootstrap without cloning
 
-The latest published Toolkit release is `0.15.0`; its tagged release publishes
+The latest published Toolkit release is `0.16.0`; its tagged release publishes
 `bootstrap.py` as a separately attested asset. The `0.17.0` candidate must be
 published and attested before using it in this flow.
 Download and authenticate the script before executing it:
 
 ```powershell
-gh release download v0.15.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.16.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.15.0 `
+  --source-ref refs/tags/v0.16.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
