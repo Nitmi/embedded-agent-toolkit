@@ -86,7 +86,13 @@ explicit per stage; default state-changing operations to zero retries.
 4. Wait for a bounded ready assertion through zero-transmit serial observation,
    RTT when supported by the debugger, or read-only BLE evidence.
 5. Perform only the declared interactions. Serial transmissions, BLE writes,
-   reset control lines, and debug target control retain their component gates.
+   pairing changes, reset control lines, and debug target control retain their
+   component gates. For `blea.pair` or `blea.unpair`, require an exact observed
+   identifier and BLEA's native pairing guard. An authorization already granted
+   for the agreed device and bounded task remains valid; do not interrupt each
+   stage to ask for the same authorization again. Never place a pairing PIN in
+   a Toolkit contract, evidence file, process argument, or report, and never
+   retry an indeterminate pairing change.
 6. Evaluate hash-bound structured evidence with `test_contract.py evaluate`, not
    console appearance. A missing pointer, mismatched digest, or unverified cleanup
    state is a failure, never an implicit pass.

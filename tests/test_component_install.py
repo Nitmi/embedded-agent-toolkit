@@ -432,6 +432,28 @@ class ComponentInstallTests(unittest.TestCase):
             "embedded-debugger-0.2.2-x86_64-pc-windows-msvc/embedded-debugger.exe",
         )
 
+    def test_current_catalog_pins_blea_pairing_release(self) -> None:
+        official = (
+            Path(component_install.__file__).resolve().parents[1]
+            / "component-catalog.json"
+        )
+        catalog, _ = component_install.read_catalog(official)
+        blea = catalog["components"]["blea"]
+        artifact = blea["artifacts"]["windows-x86_64"]
+        self.assertEqual(blea["version"], "0.7.0")
+        self.assertEqual(
+            artifact["url"],
+            "https://github.com/Nitmi/blea/releases/download/"
+            "v0.7.0/blea-0.7.0-windows-x86_64.zip",
+        )
+        self.assertEqual(
+            artifact["sha256"],
+            "e26001160916e5350d5074a3036e0b9a13e53126e1b75b6c64f4fc2688d8e054",
+        )
+        self.assertEqual(
+            artifact["executable"], "blea-0.7.0-windows-x86_64/ble.exe"
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

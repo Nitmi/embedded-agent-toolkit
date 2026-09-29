@@ -22,16 +22,16 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The latest published release is `0.15.0`, which provides a standalone `bootstrap.py`
+The latest published release is `0.16.0`, which provides a standalone `bootstrap.py`
 alongside the plugin ZIP. Download the bootstrap with GitHub CLI,
 authenticate it before execution, and keep its exact filename:
 
 ```powershell
-gh release download v0.15.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.16.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.15.0 `
+  --source-ref refs/tags/v0.16.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -97,7 +97,7 @@ The Toolkit also includes `component_install.py`. Its offline `plan`
 validates the release-bound component catalog and reports exact sources,
 hashes, destinations, and availability without network or process execution.
 Its `install` mode is fail-closed. The current catalog
-pins attested Windows x86_64 releases of `baud 0.1.2`, `BLEA 0.6.5`, and
+pins attested Windows x86_64 releases of `baud 0.1.2`, `BLEA 0.7.0`, and
 `embedded-debugger 0.2.2`, plus opt-in `board-registry 0.2.3`, so its default
 Windows plan is complete without falling back to ambient package-manager resolution.
 

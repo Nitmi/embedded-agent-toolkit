@@ -58,6 +58,7 @@ EFFECTS = frozenset(
         "serial_transmit",
         "ble_scan",
         "ble_connect",
+        "ble_pairing_change",
         "ble_write",
         "debug_attach",
         "target_state_may_change",
@@ -76,7 +77,14 @@ EFFECTS = frozenset(
     }
 )
 PERSISTENT_EFFECTS = frozenset(
-    {"register_write", "memory_write", "flash_erase", "flash_write", "recover"}
+    {
+        "ble_pairing_change",
+        "register_write",
+        "memory_write",
+        "flash_erase",
+        "flash_write",
+        "recover",
+    }
 )
 EXTERNAL_EFFECTS = frozenset({"serial_transmit", "ble_write", "external_actuation"})
 TARGET_CONTROL_EFFECTS = frozenset(
@@ -160,6 +168,24 @@ OPERATION_POLICIES = {
         (),
         _effects("host_process_start", "ble_scan"),
         _effects("host_process_start", "ble_scan"),
+    ),
+    "blea.pair": OperationPolicy(
+        "blea",
+        frozenset({"ble"}),
+        (),
+        _effects(
+            "host_process_start", "ble_scan", "ble_connect", "ble_pairing_change"
+        ),
+        _effects(
+            "host_process_start", "ble_scan", "ble_connect", "ble_pairing_change"
+        ),
+    ),
+    "blea.unpair": OperationPolicy(
+        "blea",
+        frozenset({"ble"}),
+        (),
+        _effects("host_process_start", "ble_scan", "ble_pairing_change"),
+        _effects("host_process_start", "ble_scan", "ble_pairing_change"),
     ),
     "blea.workflow": OperationPolicy(
         "blea",

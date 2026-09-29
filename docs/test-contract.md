@@ -63,6 +63,16 @@ using the same runtime contract. Missing transport bindings, missing baseline
 effects, undeclared extra effects, stale inputs, later-stage dependencies, and
 non-zero retries for state-changing stages all fail closed.
 
+`blea.pair` and `blea.unpair` are supported state-changing stages. They bind no
+PIN or other secret in the Toolkit contract and cannot authorize themselves.
+Execute them through BLEA 0.7.0 or newer with an exact `id:<identifier>`, the
+matching native confirmation value, and its explicit pairing guard. Pairing
+declares `host_process_start`, `ble_scan`, `ble_connect`, and
+`ble_pairing_change`; unpairing omits `ble_connect`. Both are persistent-write
+risk and require `max_retries=0`. One user authorization may cover multiple
+operations inside an explicitly agreed device and task scope, but every native
+identity check and component guard remains mandatory.
+
 ## Evidence evaluation
 
 Execute each stage separately through its owning component and preserve that

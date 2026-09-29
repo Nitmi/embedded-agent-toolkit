@@ -776,6 +776,66 @@ class TestContractTests(unittest.TestCase):
             "earlier embedded-debugger.runtime-inspect", "\n".join(report["errors"])
         )
 
+    def test_pairing_operations_are_persistent_and_non_retriable(self) -> None:
+        spec = self.discovery_spec()
+        spec["name"] = "ble-pairing-cycle"
+        spec["stages"] = [
+            {
+                "id": "pair",
+                "operation": "blea.pair",
+                "inputs": [],
+                "requires": [],
+                "declared_effects": [
+                    "ble_connect",
+                    "ble_pairing_change",
+                    "ble_scan",
+                    "host_process_start",
+                ],
+                "timeout_seconds": 90,
+                "max_retries": 0,
+                "evidence_output": "evidence/pair.json",
+            },
+            {
+                "id": "unpair",
+                "operation": "blea.unpair",
+                "inputs": [],
+                "requires": ["pair"],
+                "declared_effects": [
+                    "ble_pairing_change",
+                    "ble_scan",
+                    "host_process_start",
+                ],
+                "timeout_seconds": 90,
+                "max_retries": 0,
+                "evidence_output": "evidence/unpair.json",
+            },
+        ]
+        spec["assertions"] = []
+        spec["cleanup"] = [
+            {
+                "resource": "ble",
+                "required_state": "disconnected",
+                "timeout_seconds": 5,
+            }
+        ]
+
+        report = test_contract.validate_spec(spec)
+        self.assertTrue(report["ok"], report["errors"])
+        self.write_json(self.spec_path, spec)
+        output = self.root / "pairing-contract.json"
+        compiled = test_contract.compile_report(self.spec_path, output)
+        self.assertTrue(compiled["ok"], compiled["errors"])
+        contract = json.loads(output.read_text(encoding="utf-8"))
+        self.assertEqual(
+            [stage["risk"] for stage in contract["stages"]],
+            ["persistent-write", "persistent-write"],
+        )
+
+        spec["stages"][0]["max_retries"] = 1
+        rejected = test_contract.validate_spec(spec)
+        self.assertFalse(rejected["ok"])
+        self.assertIn("max_retries must equal 0", "\n".join(rejected["errors"]))
+
     def test_duplicate_json_fields_are_rejected(self) -> None:
         duplicate = self.root / "duplicate.json"
         duplicate.write_text('{"name":"first","name":"second"}\n', encoding="utf-8")
@@ -814,9 +874,19 @@ class TestContractTests(unittest.TestCase):
             {
                 "baud.list",
                 "blea.doctor",
+                "blea.pair",
+                "blea.unpair",
                 "embedded-debugger.probes-list",
             }.issubset(operations)
         )
+        effects = set(
+            json.loads(
+                (ROOT / "schemas" / "test-spec.schema.json").read_text(
+                    encoding="utf-8"
+                )
+            )["$defs"]["effect"]["enum"]
+        )
+        self.assertIn("ble_pairing_change", effects)
         for name in ("esp32s3-test-spec.json", "esp32s3-discovery-test-spec.json"):
             example = json.loads(
                 (ROOT / "docs" / "examples" / name).read_text(encoding="utf-8")

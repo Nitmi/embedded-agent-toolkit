@@ -15,13 +15,13 @@
     },
     "blea": {
       "repository": "Nitmi/blea",
-      "version": "0.6.5",
+      "version": "0.7.0",
       "artifacts": {
         "windows-x86_64": {
-          "url": "https://github.com/Nitmi/blea/releases/download/v0.6.5/blea-0.6.5-windows-x86_64.zip",
-          "sha256": "3bb4eecc161a924cdaf390da02e1ac1cef3ff54000c1ce98b05b484ab911f101",
+          "url": "https://github.com/Nitmi/blea/releases/download/v0.7.0/blea-0.7.0-windows-x86_64.zip",
+          "sha256": "e26001160916e5350d5074a3036e0b9a13e53126e1b75b6c64f4fc2688d8e054",
           "format": "zip",
-          "executable": "blea-0.6.5-windows-x86_64/ble.exe"
+          "executable": "blea-0.7.0-windows-x86_64/ble.exe"
         }
       }
     },
