@@ -409,6 +409,29 @@ class ComponentInstallTests(unittest.TestCase):
             "a6168a5d73144dbc9f81db306497313796f7772d0d28fce5146262d6d0015a91",
         )
 
+    def test_current_catalog_pins_bounded_flash_debugger_release(self) -> None:
+        official = (
+            Path(component_install.__file__).resolve().parents[1]
+            / "component-catalog.json"
+        )
+        catalog, _ = component_install.read_catalog(official)
+        debugger = catalog["components"]["embedded-debugger"]
+        artifact = debugger["artifacts"]["windows-x86_64"]
+        self.assertEqual(debugger["version"], "0.2.2")
+        self.assertEqual(
+            artifact["url"],
+            "https://github.com/Nitmi/embedded-debugger/releases/download/"
+            "v0.2.2/embedded-debugger-0.2.2-x86_64-pc-windows-msvc.zip",
+        )
+        self.assertEqual(
+            artifact["sha256"],
+            "b117a67f06e977f9d53143bd1a87c681f87ae8a5c368cea1103f56dc897d12d6",
+        )
+        self.assertEqual(
+            artifact["executable"],
+            "embedded-debugger-0.2.2-x86_64-pc-windows-msvc/embedded-debugger.exe",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

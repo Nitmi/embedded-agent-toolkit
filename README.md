@@ -98,7 +98,7 @@ validates the release-bound component catalog and reports exact sources,
 hashes, destinations, and availability without network or process execution.
 Its `install` mode is fail-closed. The current catalog
 pins attested Windows x86_64 releases of `baud 0.1.2`, `BLEA 0.6.5`, and
-`embedded-debugger 0.2.1`, plus opt-in `board-registry 0.2.3`, so its default
+`embedded-debugger 0.2.2`, plus opt-in `board-registry 0.2.3`, so its default
 Windows plan is complete without falling back to ambient package-manager resolution.
 
 For a new workstation, the authenticated bootstrap can perform the complete

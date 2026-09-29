@@ -27,13 +27,13 @@
     },
     "embedded-debugger": {
       "repository": "Nitmi/embedded-debugger",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "artifacts": {
         "windows-x86_64": {
-          "url": "https://github.com/Nitmi/embedded-debugger/releases/download/v0.2.1/embedded-debugger-0.2.1-x86_64-pc-windows-msvc.zip",
-          "sha256": "f5c20e9768cbc6e638e9a4cdda3450add23be1da6f86f3e7f8820580f77409d9",
+          "url": "https://github.com/Nitmi/embedded-debugger/releases/download/v0.2.2/embedded-debugger-0.2.2-x86_64-pc-windows-msvc.zip",
+          "sha256": "b117a67f06e977f9d53143bd1a87c681f87ae8a5c368cea1103f56dc897d12d6",
           "format": "zip",
-          "executable": "embedded-debugger-0.2.1-x86_64-pc-windows-msvc/embedded-debugger.exe"
+          "executable": "embedded-debugger-0.2.2-x86_64-pc-windows-msvc/embedded-debugger.exe"
         }
       }
     }

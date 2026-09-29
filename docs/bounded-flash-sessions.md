@@ -1,11 +1,10 @@
 # Bounded flash sessions
 
-The `embedded-debugger` source tree implements `flash session plan|inspect|serve`.
-It is not in the published 0.2.1 component or the current locked workstation
-installation. Check `flash session --help` on the **exact hash-bound debugger
-executable** before choosing this path. Until an updated binary is installed
-and qualified on the intended board, keep using its per-flash confirmation
-workflow.
+The published `embedded-debugger 0.2.2` implements `flash session plan|inspect|serve`.
+The current workstation lock still selects 0.2.1 until a separately reviewed
+candidate lock is activated. Check `flash session --help` on the **exact hash-bound
+debugger executable** before choosing this path. Until 0.2.2 is installed and
+qualified on the intended board, keep using the per-flash confirmation workflow.
 
 For a supported development target, create a host-only scope plan covering
 the exact probe and target, canonical build directory, image format/options,
