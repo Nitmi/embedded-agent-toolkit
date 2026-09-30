@@ -71,6 +71,15 @@ OPTIONAL_COMPONENTS = (
         version_pattern=r"board-registry\s+([^\s]+)",
         install_hint="Install embedded-board-registry 0.2.3 from a reviewed local wheel or release",
     ),
+    Component(
+        name="firmware-inspect",
+        executable="firmware-inspect",
+        environment_variable="EMBEDDED_AGENT_FIRMWARE_INSPECT",
+        version_pattern=r"firmware-inspect\s+([^\s]+)",
+        install_hint=(
+            "Install embedded-firmware-inspect from a reviewed local wheel or attested release"
+        ),
+    ),
 )
 ALL_COMPONENTS = COMPONENTS + OPTIONAL_COMPONENTS
 

@@ -77,31 +77,83 @@ class ComponentInstallTests(unittest.TestCase):
             "ble": "ble 0.6.4\n",
             "embedded-debugger": "embedded-debugger 0.2.0\n",
             "board-registry": "board-registry 0.1.0\n",
+            "firmware-inspect": "firmware-inspect 0.1.0\n",
         }
         return subprocess.CompletedProcess(args, 0, outputs[Path(args[0]).stem], "")
 
     def add_optional_board_registry(self) -> None:
+        self.add_optional_component("board-registry")
+
+    def add_optional_component(self, name: str) -> None:
         buffer = io.BytesIO()
         with zipfile.ZipFile(buffer, "w") as archive:
-            archive.writestr("bundle/board-registry.exe", b"fixture board-registry")
+            archive.writestr(f"bundle/{name}.exe", f"fixture {name}".encode())
         data = buffer.getvalue()
-        self.archives["board-registry"] = data
-        self.payload["optional_components"]["board-registry"] = {
-            "repository": "Nitmi/board-registry",
+        self.archives[name] = data
+        self.payload["optional_components"][name] = {
+            "repository": f"Nitmi/{name}",
             "version": "0.1.0",
             "artifacts": {
                 "windows-x86_64": {
                     "url": (
-                        "https://github.com/Nitmi/board-registry/releases/download/"
-                        "v0.1.0/board-registry.zip"
+                        f"https://github.com/Nitmi/{name}/releases/download/"
+                        f"v0.1.0/{name}.zip"
                     ),
                     "sha256": component_install.sha256(data),
                     "format": "zip",
-                    "executable": "bundle/board-registry.exe",
+                    "executable": f"bundle/{name}.exe",
                 }
             },
         }
         self.write_catalog()
+
+    def test_two_optional_components_are_explicit_and_install_a_five_component_lock(self) -> None:
+        self.add_optional_board_registry()
+        self.add_optional_component("firmware-inspect")
+        defaults = component_install.plan(self.catalog, self.root / "defaults", "windows-x86_64")
+        self.assertEqual(
+            {item["name"] for item in defaults["components"]},
+            set(component_install.component_lock.SPECS),
+        )
+        by_url = {
+            artifact["url"]: self.archives[name]
+            for group in ("components", "optional_components")
+            for name, record in self.payload[group].items()
+            for artifact in record["artifacts"].values()
+        }
+        output = self.root / "five-components.json"
+        with (
+            mock.patch.object(
+                component_install, "download", side_effect=lambda url, _: by_url[url]
+            ),
+            mock.patch.object(
+                component_install.component_lock.subprocess, "run", side_effect=self.completed
+            ),
+        ):
+            report = component_install.install(
+                self.catalog, self.root / "installed-five", output, "windows-x86_64", 1.0,
+                ["board-registry", "firmware-inspect"],
+            )
+        self.assertEqual(
+            set(report["component_lock"]["components"]),
+            set(component_install.component_lock.ALL_SPECS),
+        )
+        self.assertFalse(report["hardware_access"])
+
+    def test_unpublished_firmware_inspect_is_rejected_before_download_or_write(self) -> None:
+        destination = self.root / "absent-firmware-inspect"
+        lock = self.root / "must-not-exist.json"
+        with (
+            mock.patch.object(
+                component_install, "download", side_effect=AssertionError("no network")
+            ),
+            self.assertRaisesRegex(component_install.InstallError, "absent from catalog"),
+        ):
+            component_install.install(
+                self.catalog, destination, lock, "windows-x86_64", 1.0, ["firmware-inspect"]
+            )
+        self.assertFalse(destination.exists())
+        self.assertFalse(lock.exists())
 
     def test_plan_is_offline_and_reports_exact_destinations(self) -> None:
         with mock.patch.object(
@@ -170,7 +222,7 @@ class ComponentInstallTests(unittest.TestCase):
         )
         self.assertEqual(
             {item["name"] for item in selected["components"]},
-            set(component_install.component_lock.ALL_SPECS),
+            set(component_install.component_lock.SPECS) | {"board-registry"},
         )
         self.assertEqual(selected["included_optional_components"], ["board-registry"])
 
@@ -203,7 +255,7 @@ class ComponentInstallTests(unittest.TestCase):
             )
         self.assertEqual(
             set(report["component_lock"]["components"]),
-            set(component_install.component_lock.ALL_SPECS),
+            set(component_install.component_lock.SPECS) | {"board-registry"},
         )
         self.assertEqual(
             json.loads(lock.read_text(encoding="utf-8"))["schema_version"],

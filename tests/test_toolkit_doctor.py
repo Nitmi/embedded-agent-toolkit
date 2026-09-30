@@ -13,6 +13,41 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ComponentCheckTests(unittest.TestCase):
+    def test_locked_firmware_inspect_only_runs_version(self) -> None:
+        component = next(item for item in doctor.ALL_COMPONENTS if item.name == "firmware-inspect")
+        with tempfile.TemporaryDirectory() as directory:
+            executable = Path(directory) / "firmware-inspect.exe"
+            executable.write_bytes(b"fixture firmware-inspect")
+            record = {
+                "path": str(executable.resolve()),
+                "sha256": doctor.component_lock.sha256(executable),
+                "version": "0.1.0",
+            }
+            completed = subprocess.CompletedProcess(
+                [str(executable), "--version"], 0, "firmware-inspect 0.1.0\n", ""
+            )
+            with (
+                mock.patch.dict("os.environ", {}, clear=True),
+                mock.patch.object(doctor.shutil, "which", side_effect=AssertionError("no PATH")),
+                mock.patch.object(doctor.subprocess, "run", return_value=completed) as run,
+            ):
+                result = doctor.check_component(component, 1.0, record)
+            self.assertTrue(result["ok"])
+            self.assertEqual(result["resolution_source"], "component_lock")
+            self.assertEqual(run.call_args.args[0], [str(executable.resolve()), "--version"])
+
+    def test_missing_firmware_inspect_in_selected_lock_never_uses_path(self) -> None:
+        component = next(item for item in doctor.ALL_COMPONENTS if item.name == "firmware-inspect")
+        with (
+            mock.patch.object(doctor, "check_component", side_effect=AssertionError("no fallback")),
+            mock.patch.object(
+                doctor, "check_plugin_layout", return_value={"ok": True, "errors": []}
+            ),
+        ):
+            result = doctor.build_report([component], 1.0, ROOT, {"baud": {}})
+        self.assertEqual(result["components"][0]["status"], "not_in_component_lock")
+        self.assertFalse(result["complete"])
+
     def test_ready_component_reports_version(self) -> None:
         component = doctor.COMPONENTS[0]
         completed = subprocess.CompletedProcess(

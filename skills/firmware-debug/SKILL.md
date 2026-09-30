@@ -30,6 +30,16 @@ target/core, and the smallest state needed to decide between hypotheses. Record
 whether firmware identity is verified on the running target, was verified only
 in an earlier observation window, or is merely selected from a local build.
 
+## Inspect local builds when relevant
+
+For artifact identity, linker layout, or footprint regressions, use optional
+`firmware-inspect` if available through the selected component lock; read
+[offline firmware inspection](../../docs/firmware-inspect.md). This file-only
+analysis needs no target attach or hardware confirmation. Do not block an
+unrelated debug workflow or install a missing component during diagnosis.
+Its file hashes, Build IDs, section sums and load ranges are not proof of the
+running firmware, board memory capacity, or permission to flash.
+
 ## Build an identity ledger
 
 When evidence spans multiple transports, operations, or observation windows,

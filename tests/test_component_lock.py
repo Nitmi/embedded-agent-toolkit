@@ -29,6 +29,7 @@ class ComponentLockTests(unittest.TestCase):
             "blea": "ble 0.6.4\n",
             "embedded-debugger": "embedded-debugger 0.2.0\n",
             "board-registry": "board-registry 0.1.0\n",
+            "firmware-inspect": "firmware-inspect 0.1.0\n",
         }
         return subprocess.CompletedProcess(args, 0, outputs[Path(args[0]).stem], "")
 
@@ -84,6 +85,49 @@ class ComponentLockTests(unittest.TestCase):
         with self.assertRaisesRegex(component_lock.LockError, "already exists"):
             component_lock.create(output, self.executables, 1.0)
         self.assertEqual(output.read_bytes(), before)
+
+    def test_v2_lock_can_bind_five_components_and_compare_only_new_presence(self) -> None:
+        base = self.create()
+        selections = dict(self.executables)
+        for name in ("board-registry", "firmware-inspect"):
+            executable = self.root / f"{name}.exe"
+            executable.write_bytes(f"fixture {name}".encode())
+            selections[name] = str(executable)
+        candidate = self.root / "five-components.json"
+        with mock.patch.object(component_lock.subprocess, "run", side_effect=self.completed):
+            component_lock.create(candidate, selections, 1.0)
+        with mock.patch.object(
+            component_lock.subprocess, "run", side_effect=AssertionError("must not run")
+        ):
+            inspection = component_lock.inspect(candidate)
+            comparison = component_lock.compare(base, candidate)
+        self.assertEqual(set(inspection["components"]), set(component_lock.ALL_SPECS))
+        self.assertEqual(comparison["change_count"], 2)
+        self.assertEqual(
+            comparison["changes"]["firmware-inspect"]["changed_fields"], ["presence"]
+        )
+        self.assertFalse(inspection["executables_started"])
+        self.assertFalse(inspection["hardware_access"])
+
+    def test_create_cli_accepts_firmware_inspect_without_registry(self) -> None:
+        executable = self.root / "firmware-inspect.exe"
+        executable.write_bytes(b"fixture firmware-inspect")
+        output = self.root / "firmware-lock.json"
+        arguments = [
+            "create", "--output", str(output), "--baud", self.executables["baud"],
+            "--blea", self.executables["blea"], "--debugger", self.executables["embedded-debugger"],
+            "--firmware-inspect", str(executable), "--json",
+        ]
+        stdout = io.StringIO()
+        with (
+            mock.patch.object(component_lock.subprocess, "run", side_effect=self.completed),
+            contextlib.redirect_stdout(stdout),
+        ):
+            self.assertEqual(component_lock.main(arguments), 0)
+        self.assertEqual(
+            set(json.loads(stdout.getvalue())["components"]),
+            set(component_lock.SPECS) | {"firmware-inspect"},
+        )
 
     def test_failed_post_write_validation_removes_new_output(self) -> None:
         output = self.root / "toolchain-lock.json"

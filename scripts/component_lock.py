@@ -29,6 +29,10 @@ OPTIONAL_SPECS = {
         "board-registry",
         re.compile(r"board-registry\s+([^\s]+)"),
     ),
+    "firmware-inspect": (
+        "firmware-inspect",
+        re.compile(r"firmware-inspect\s+([^\s]+)"),
+    ),
 }
 ALL_SPECS = {**SPECS, **OPTIONAL_SPECS}
 
@@ -202,7 +206,8 @@ def create(
     names = set(selections)
     if not set(SPECS) <= names <= set(ALL_SPECS):
         raise LockError(
-            "component selections must contain every core component and only known optional components"
+            "component selections must contain every core component "
+            "and only known optional components"
         )
     components = {
         name: identify(name, selections[name], timeout)
@@ -247,6 +252,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     creator.add_argument("--blea", required=True)
     creator.add_argument("--debugger", required=True)
     creator.add_argument("--board-registry")
+    creator.add_argument("--firmware-inspect")
     creator.add_argument("--timeout", type=float, default=5.0)
     creator.add_argument("--json", action="store_true")
     inspector = commands.add_parser("inspect")
@@ -272,6 +278,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             }
             if args.board_registry is not None:
                 selections["board-registry"] = args.board_registry
+            if args.firmware_inspect is not None:
+                selections["firmware-inspect"] = args.firmware_inspect
             result = create(args.output, selections, args.timeout)
         elif args.operation == "inspect":
             result = inspect(args.lock)

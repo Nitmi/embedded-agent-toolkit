@@ -32,6 +32,24 @@ class Response:
 
 
 class BootstrapTests(unittest.TestCase):
+    def test_cli_accepts_and_forwards_both_optional_names(self) -> None:
+        stdout = io.StringIO()
+        with (
+            mock.patch.object(bootstrap, "gh_executable", return_value=Path("gh")),
+            mock.patch.object(bootstrap, "bootstrap", return_value={}) as install,
+            mock.patch("sys.stdout", stdout),
+        ):
+            code = bootstrap.main([
+                "--install-root", "fixture-install",
+                "--component-install-root", "fixture-components",
+                "--lock-output", "fixture-lock.json", "--include-optional", "board-registry",
+                "--include-optional", "firmware-inspect", "--json",
+            ])
+        self.assertEqual(code, 0)
+        self.assertEqual(
+            install.call_args.args[2]["include_optional"], ["board-registry", "firmware-inspect"]
+        )
+
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)

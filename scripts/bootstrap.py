@@ -386,7 +386,7 @@ def main(argv: list[str] | None = None) -> int:
         "--include-optional",
         action="append",
         default=[],
-        choices=["board-registry"],
+        choices=["board-registry", "firmware-inspect"],
     )
     parser.add_argument("--timeout", type=float, default=30.0)
     parser.add_argument("--json", action="store_true")
