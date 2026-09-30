@@ -27,8 +27,8 @@ python scripts/component_install.py plan `
 
 The current v2 catalog includes the attested Windows x86_64 releases of `baud 0.1.2`,
 `BLEA 0.7.0`, and `embedded-debugger 0.2.2`, plus optional `board-registry 0.2.3`
-and `firmware-inspect 0.1.0`. Firmware inspection is new in the unpublished
-Toolkit `0.18.0` source candidate, not the published `0.17.0` bootstrap.
+and `firmware-inspect 0.1.0`. Firmware inspection is available starting with the
+published Toolkit `0.18.0` bootstrap, not the earlier `0.17.0` version.
 The default offline plan therefore reports
 `complete=true` on that platform and binds every URL, SHA-256, executable member,
 version, and destination before any download or process execution, while selecting

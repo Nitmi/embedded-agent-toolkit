@@ -1,7 +1,7 @@
 # Offline firmware inspection
 
-The `0.18.0` source candidate includes `firmware-inspect` as an optional host-only
-component. This integration is not yet in a published Toolkit release. Its v2
+Toolkit `0.18.0` includes `firmware-inspect` as an optional host-only
+component. Its published v2
 catalog pins the immutable, provenance-verified component Release `0.1.0` for
 Windows x86_64. Default
 installation and doctor still select only baud, BLEA, and embedded-debugger.
@@ -34,7 +34,7 @@ candidate can be examined in an explicit host setup using a process-local
 `EMBEDDED_AGENT_FIRMWARE_INSPECT` override and `--no-auto-lock`; do not use that
 mode to hide a lock conflict.
 
-In this candidate, `--include-optional firmware-inspect` opts into catalog-backed
+In Toolkit `0.18.0`, `--include-optional firmware-inspect` opts into catalog-backed
 installation and lock generation. Inspect a host-only plan before installation:
 
 ```powershell
@@ -57,8 +57,8 @@ The pinned asset is
 `4de53a107b3286c67fea86a36ef91779ca15e85fff682d2ff20374afca5c5c15`.
 Its Release source is `17f1fc24c53c9e31ca9169d9de277929545d7e11` and signer is
 `Nitmi/firmware-inspect/.github/workflows/binary-release.yml@refs/tags/v0.1.0`.
-The component's verification is separate from publishing and authenticating the
-Toolkit candidate. An arbitrary external catalog is not publisher authority.
+The component's verification is separate from authenticating the enclosing
+Toolkit Release. An arbitrary external catalog is not publisher authority.
 
 ## Use the native CLI
 

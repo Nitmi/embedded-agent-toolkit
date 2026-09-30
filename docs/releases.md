@@ -2,7 +2,7 @@
 
 ## Contents and scope
 
-The current source builds the unpublished `0.18.0` portable **plugin-only** release candidate. It contains the four
+The published `0.18.0` portable **plugin-only** release contains the four
 orchestration Skills, their references, host-only scripts, user documentation,
 license, the strict component catalog, and both plugin manifests. Component executables, component MCP servers,
 Git internals, tests, local hardware evidence, and build outputs are not bundled.
@@ -38,17 +38,16 @@ push commits, or publish a remote release.
 
 ## Bootstrap without cloning
 
-The latest published Toolkit release is `0.17.0`; its tagged release publishes
-`bootstrap.py` as a separately attested asset. The `0.18.0` candidate must be
-published and attested before using it in this flow.
+The latest published Toolkit release is `0.18.0`; its immutable tagged release
+publishes `bootstrap.py` as a separately attested asset.
 Download and authenticate the script before executing it:
 
 ```powershell
-gh release download v0.17.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.18.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.17.0 `
+  --source-ref refs/tags/v0.18.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -88,7 +87,7 @@ named by `--include-optional`. Every asset is pinned by the catalog in
 the authenticated Toolkit release, installs them into versioned directories,
 creates the new lock, and runs strict doctor. It cannot be combined with an
 existing lock or explicit component paths. The default remains plugin-only.
-In the `0.18.0` candidate, add `--include-optional firmware-inspect` for the
+In Toolkit `0.18.0`, add `--include-optional firmware-inspect` for the
 inspector, either alone or alongside `--include-optional board-registry`. This is
 not available from the earlier published `0.17.0` bootstrap.
 The component root and generated lock must remain outside the immutable plugin

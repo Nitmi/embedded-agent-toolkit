@@ -15,7 +15,7 @@ tools behind another hardware abstraction:
 | [BLEA](https://github.com/Nitmi/blea) | Bluetooth Low Energy diagnostics and automation | CLI + Skill + MCP |
 | [embedded-debugger](https://github.com/Nitmi/embedded-debugger) | Probe discovery, flash, debug, evidence, and replay | CLI + Skill + MCP |
 | [board-registry](https://github.com/Nitmi/board-registry) (optional) | Offline fail-closed correlation and non-authorizing selection from saved discovery evidence | CLI |
-| [firmware-inspect](https://github.com/Nitmi/firmware-inspect) (optional, source candidate) | Offline ELF/HEX/BIN identity, layout, footprint and build comparison | CLI |
+| [firmware-inspect](https://github.com/Nitmi/firmware-inspect) (optional) | Offline ELF/HEX/BIN identity, layout, footprint and build comparison | CLI |
 
 The value of the toolkit is the cross-tool workflow: one identity ledger, one
 safety policy, correlated evidence, and deterministic cleanup across serial,
@@ -23,16 +23,16 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The latest published release is `0.17.0`, which provides a standalone `bootstrap.py`
+The latest published release is `0.18.0`, which provides a standalone `bootstrap.py`
 alongside the plugin ZIP. Download the bootstrap with GitHub CLI,
 authenticate it before execution, and keep its exact filename:
 
 ```powershell
-gh release download v0.17.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.18.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.17.0 `
+  --source-ref refs/tags/v0.18.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -83,12 +83,12 @@ it explicitly with `--component board-registry`; a v2 component lock may include
 its exact path, version, and SHA-256 while existing v1 three-component locks remain valid. See
 [offline board identity resolution](docs/board-registry.md).
 
-The current, unreleased `0.18.0` source candidate includes optional `firmware-inspect` for
+Toolkit `0.18.0` includes optional `firmware-inspect` for
 offline ELF/HEX/BIN identity, layout, footprint and build comparison. It can be
 explicitly checked and bound in a v2 lock without changing default component
 selection. Its catalog pins the published, provenance-verified `0.1.0` Windows
 release. Opt in with `--include-optional firmware-inspect` when installing from
-this candidate; the published Toolkit `0.17.0` does not provide this integration. See
+Toolkit `0.18.0` or newer; earlier releases do not provide this integration. See
 [offline firmware inspection](docs/firmware-inspect.md).
 
 After unique board selection, `scripts/test_contract.py` can compile a reviewed
@@ -123,7 +123,8 @@ python bootstrap.py `
 ```
 
 Add `--include-optional board-registry` to install and lock the offline resolver
-in the same transaction.
+in the same transaction, `--include-optional firmware-inspect` for the artifact
+inspector, or both flags for a five-component lock.
 
 This opt-in mode installs only the catalog-pinned component executables and
 allowlisted sibling license/manifest files, creates
