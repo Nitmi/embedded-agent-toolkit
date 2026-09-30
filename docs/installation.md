@@ -26,13 +26,15 @@ python scripts/component_install.py plan `
 ```
 
 The current v2 catalog includes the attested Windows x86_64 releases of `baud 0.1.2`,
-`BLEA 0.7.0`, and `embedded-debugger 0.2.2`, plus optional `board-registry 0.2.3`.
+`BLEA 0.7.0`, and `embedded-debugger 0.2.2`, plus optional `board-registry 0.2.3`
+and `firmware-inspect 0.1.0`. Firmware inspection is new in the unpublished
+Toolkit `0.18.0` source candidate, not the published `0.17.0` bootstrap.
 The default offline plan therefore reports
 `complete=true` on that platform and binds every URL, SHA-256, executable member,
 version, and destination before any download or process execution, while selecting
 only the three core components.
 
-Install the complete catalog with:
+Install the three core components with:
 
 ```powershell
 python scripts/component_install.py install `
@@ -41,15 +43,19 @@ python scripts/component_install.py install `
   --json
 ```
 
-To include the offline resolver, add `--include-optional board-registry`. This
-creates a v2 lock containing all four components; omitting it preserves the
-three-component default.
+To include the offline resolver, add `--include-optional board-registry`. To
+include the firmware artifact inspector, add `--include-optional firmware-inspect`.
+Either selection creates a four-component v2 lock, both create a five-component
+lock, and omitting both preserves the three-component default. See
+[offline firmware inspection](firmware-inspect.md) for native CLI usage and limits.
 
 Installation accepts only exact `https://github.com/<catalog repository>/releases/download/v<version>/...`
 assets, validates bounded ZIP contents and SHA-256 before writing, installs each
-executable under `<root>/<component>/<version>/`, runs only one `--version` per
+executable under `<root>/<component>/<version>/`, preserves only its sibling
+`LICENSE`, `THIRD-PARTY-NOTICES.txt`, and `release-manifest.json` when present,
+runs only one `--version` per
 component, and creates a new component lock. It never edits PATH or accesses
-hardware. It refuses an existing lock or a different existing executable. A
+hardware. It refuses an existing lock or any different existing selected file. A
 late failure can leave already verified version directories for inspection, but
 no lock is produced; review and compare the new lock before selecting it.
 Installed entry points suppress Python bytecode writes before importing sibling

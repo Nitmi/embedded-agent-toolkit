@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 import io
 import json
+import stat
 import subprocess
 import tempfile
 import threading
@@ -140,7 +141,7 @@ class ComponentInstallTests(unittest.TestCase):
         )
         self.assertFalse(report["hardware_access"])
 
-    def test_unpublished_firmware_inspect_is_rejected_before_download_or_write(self) -> None:
+    def test_missing_optional_entry_is_rejected_before_download_or_write(self) -> None:
         destination = self.root / "absent-firmware-inspect"
         lock = self.root / "must-not-exist.json"
         with (
@@ -154,6 +155,75 @@ class ComponentInstallTests(unittest.TestCase):
             )
         self.assertFalse(destination.exists())
         self.assertFalse(lock.exists())
+
+    def test_install_preserves_only_allowlisted_sibling_companions(self) -> None:
+        self.add_optional_component("firmware-inspect")
+        buffer = io.BytesIO()
+        companions = {
+            "LICENSE": b"license terms",
+            "THIRD-PARTY-NOTICES.txt": b"third-party terms",
+            "release-manifest.json": b'{"version":"0.1.0"}',
+        }
+        with zipfile.ZipFile(buffer, "w") as archive:
+            archive.writestr("bundle/firmware-inspect.exe", b"fixture firmware-inspect")
+            for name, contents in companions.items():
+                archive.writestr(f"bundle/{name}", contents)
+            archive.writestr("other/LICENSE", b"unrelated")
+            archive.writestr("bundle/extra.exe", b"not selected")
+            archive.writestr("../escape.txt", b"not extracted")
+        self.archives["firmware-inspect"] = buffer.getvalue()
+        artifact = self.payload["optional_components"]["firmware-inspect"]["artifacts"][
+            "windows-x86_64"
+        ]
+        artifact["sha256"] = component_install.sha256(self.archives["firmware-inspect"])
+        self.write_catalog()
+        by_url = {
+            entry["url"]: self.archives[name]
+            for group in ("components", "optional_components")
+            for name, record in self.payload[group].items()
+            for entry in record["artifacts"].values()
+        }
+        install_root = self.root / "installed"
+        with (
+            mock.patch.object(
+                component_install, "download", side_effect=lambda url, _: by_url[url]
+            ),
+            mock.patch.object(
+                component_install.component_lock.subprocess, "run", side_effect=self.completed
+            ) as run,
+        ):
+            report = component_install.install(
+                self.catalog, install_root, self.root / "lock.json", "windows-x86_64", 1.0,
+                ["firmware-inspect"],
+            )
+        installed = install_root / "firmware-inspect" / "0.1.0"
+        self.assertEqual(
+            {path.name for path in installed.iterdir()}, set(companions) | {"firmware-inspect.exe"}
+        )
+        for name, contents in companions.items():
+            self.assertEqual((installed / name).read_bytes(), contents)
+        inspector = next(
+            item for item in report["components"] if item["name"] == "firmware-inspect"
+        )
+        self.assertEqual({item["name"] for item in inspector["companion_files"]}, set(companions))
+        self.assertTrue(all(call.args[0][1:] == ["--version"] for call in run.call_args_list))
+        self.assertFalse((self.root / "escape.txt").exists())
+        (installed / "LICENSE").write_bytes(b"user changes")
+        with (
+            mock.patch.object(
+                component_install, "download", side_effect=lambda url, _: by_url[url]
+            ),
+            mock.patch.object(
+                component_install.component_lock.subprocess, "run", side_effect=self.completed
+            ),
+            self.assertRaisesRegex(component_install.InstallError, "destination differs"),
+        ):
+            component_install.install(
+                self.catalog, install_root, self.root / "second-lock.json", "windows-x86_64", 1.0,
+                ["firmware-inspect"],
+            )
+        self.assertEqual((installed / "LICENSE").read_bytes(), b"user changes")
+        self.assertFalse((self.root / "second-lock.json").exists())
 
     def test_plan_is_offline_and_reports_exact_destinations(self) -> None:
         with mock.patch.object(
@@ -392,13 +462,34 @@ class ComponentInstallTests(unittest.TestCase):
 
     def test_zip_requires_one_exact_bounded_regular_executable(self) -> None:
         with self.assertRaisesRegex(component_install.InstallError, "missing"):
-            component_install.executable_from_zip(self.archives["baud"], "other.exe")
+            component_install.files_from_zip(self.archives["baud"], "other.exe")
         buffer = io.BytesIO()
         with zipfile.ZipFile(buffer, "w") as archive:
             archive.writestr("Tool.exe", b"one")
             archive.writestr("tool.exe", b"two")
         with self.assertRaisesRegex(component_install.InstallError, "duplicate paths"):
-            component_install.executable_from_zip(buffer.getvalue(), "Tool.exe")
+            component_install.files_from_zip(buffer.getvalue(), "Tool.exe")
+
+    def test_zip_rejects_unsafe_or_oversized_companions(self) -> None:
+        for kind in (stat.S_IFLNK, stat.S_IFDIR, stat.S_IFIFO):
+            with self.subTest(kind=kind):
+                buffer = io.BytesIO()
+                with zipfile.ZipFile(buffer, "w") as archive:
+                    archive.writestr("bundle/Tool.exe", b"executable")
+                    entry = zipfile.ZipInfo("bundle/LICENSE")
+                    entry.external_attr = (kind | 0o644) << 16
+                    archive.writestr(entry, b"not regular")
+                with self.assertRaisesRegex(component_install.InstallError, "not a regular file"):
+                    component_install.files_from_zip(buffer.getvalue(), "bundle/Tool.exe")
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w") as archive:
+            archive.writestr("bundle/Tool.exe", b"executable")
+            archive.writestr("bundle/LICENSE", b"oversized")
+        with (
+            mock.patch.object(component_install, "MAX_COMPANION_BYTES", 1),
+            self.assertRaisesRegex(component_install.InstallError, "size is invalid"),
+        ):
+            component_install.files_from_zip(buffer.getvalue(), "bundle/Tool.exe")
 
     def test_cli_plan_current_catalog_reports_all_components_without_network(
         self,
@@ -440,7 +531,40 @@ class ComponentInstallTests(unittest.TestCase):
                 "embedded-debugger": "available",
             },
         )
-        self.assertEqual(report["available_optional_components"], ["board-registry"])
+        self.assertEqual(
+            report["available_optional_components"], ["board-registry", "firmware-inspect"]
+        )
+
+    def test_current_catalog_pins_authenticated_firmware_release_and_all_opt_in_plans(self) -> None:
+        official = (
+            Path(component_install.__file__).resolve().parents[1] / "component-catalog.json"
+        )
+        catalog, _ = component_install.read_catalog(official)
+        inspector = catalog["optional_components"]["firmware-inspect"]
+        self.assertEqual(inspector["repository"], "Nitmi/firmware-inspect")
+        self.assertEqual(inspector["version"], "0.1.0")
+        artifact = inspector["artifacts"]["windows-x86_64"]
+        self.assertEqual(artifact["sha256"],
+                         "4de53a107b3286c67fea86a36ef91779ca15e85fff682d2ff20374afca5c5c15")
+        self.assertEqual(artifact["url"],
+                         "https://github.com/Nitmi/firmware-inspect/releases/download/"
+                         "v0.1.0/embedded-firmware-inspect-0.1.0-windows-x86_64.zip")
+        self.assertEqual(artifact["executable"],
+                         "embedded-firmware-inspect-0.1.0-windows-x86_64/firmware-inspect.exe")
+        for optional in ([], ["board-registry"], ["firmware-inspect"],
+                         ["board-registry", "firmware-inspect"]):
+            with self.subTest(optional=optional):
+                report = component_install.plan(
+                    official, self.root / "candidate", "windows-x86_64", optional
+                )
+                self.assertTrue(report["complete"])
+                self.assertEqual(
+                    {item["name"] for item in report["components"]},
+                    set(component_install.component_lock.SPECS) | set(optional),
+                )
+                self.assertFalse(report["network_access"])
+                self.assertFalse(report["executables_started"])
+                self.assertFalse(report["hardware_access"])
 
     def test_current_catalog_pins_board_registry_selection_release(self) -> None:
         official = (

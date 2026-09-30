@@ -2,14 +2,16 @@
 
 ## Contents and scope
 
-The current source builds the `0.17.0` portable **plugin-only** release candidate. It contains the four
+The current source builds the unpublished `0.18.0` portable **plugin-only** release candidate. It contains the four
 orchestration Skills, their references, host-only scripts, user documentation,
 license, the strict component catalog, and both plugin manifests. Component executables, component MCP servers,
 Git internals, tests, local hardware evidence, and build outputs are not bundled.
 Use Python 3.11 or newer for the release commands; only the standard library is
 required. The bundled v2 catalog pins attested standalone Windows x86_64 releases
 of all three core component CLIs, including `embedded-debugger 0.2.2`, and the
-optional offline `board-registry 0.2.3` resolver and selection-contract generator.
+optional offline `board-registry 0.2.3` resolver and selection-contract generator,
+plus `firmware-inspect 0.1.0` for local ELF/HEX/BIN analysis. Optional tools require
+explicit `--include-optional` selections; defaults remain unchanged.
 
 The archive has a single `embedded-agent-toolkit` root. Its
 `release-manifest.json` binds the source commit and every payload file's SHA-256
@@ -25,7 +27,7 @@ After tests and a cohesive commit, from this repository:
 
 ```powershell
 python scripts/release.py build --output-dir dist --json
-python scripts/release.py verify dist/embedded-agent-toolkit-0.17.0.zip --checksum dist/embedded-agent-toolkit-0.17.0.zip.sha256 --json
+python scripts/release.py verify dist/embedded-agent-toolkit-0.18.0.zip --checksum dist/embedded-agent-toolkit-0.18.0.zip.sha256 --json
 ```
 
 The builder requires a clean worktree and reads pinned Git blobs rather than
@@ -36,17 +38,17 @@ push commits, or publish a remote release.
 
 ## Bootstrap without cloning
 
-The latest published Toolkit release is `0.16.0`; its tagged release publishes
-`bootstrap.py` as a separately attested asset. The `0.17.0` candidate must be
+The latest published Toolkit release is `0.17.0`; its tagged release publishes
+`bootstrap.py` as a separately attested asset. The `0.18.0` candidate must be
 published and attested before using it in this flow.
 Download and authenticate the script before executing it:
 
 ```powershell
-gh release download v0.16.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.17.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.16.0 `
+  --source-ref refs/tags/v0.17.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -86,6 +88,9 @@ named by `--include-optional`. Every asset is pinned by the catalog in
 the authenticated Toolkit release, installs them into versioned directories,
 creates the new lock, and runs strict doctor. It cannot be combined with an
 existing lock or explicit component paths. The default remains plugin-only.
+In the `0.18.0` candidate, add `--include-optional firmware-inspect` for the
+inspector, either alone or alongside `--include-optional board-registry`. This is
+not available from the earlier published `0.17.0` bootstrap.
 The component root and generated lock must remain outside the immutable plugin
 directory.
 
@@ -102,8 +107,8 @@ Use the release script from a trusted source checkout. Obtain the ZIP and its
 checksum from a trusted channel, then install into a directory you own:
 
 ```powershell
-python scripts/release.py install dist/embedded-agent-toolkit-0.17.0.zip `
-  --checksum dist/embedded-agent-toolkit-0.17.0.zip.sha256 `
+python scripts/release.py install dist/embedded-agent-toolkit-0.18.0.zip `
+  --checksum dist/embedded-agent-toolkit-0.18.0.zip.sha256 `
   --install-root C:\Tools\embedded-agent-toolkit `
   --lock-output C:\Tools\embedded-agent-toolkit\component-locks\workstation.json `
   --baud C:\Users\you\.local\bin\baud.exe `
@@ -112,7 +117,7 @@ python scripts/release.py install dist/embedded-agent-toolkit-0.17.0.zip `
   --json
 ```
 
-This creates `C:\Tools\embedded-agent-toolkit\0.17.0\embedded-agent-toolkit`,
+This creates `C:\Tools\embedded-agent-toolkit\0.18.0\embedded-agent-toolkit`,
 then creates the requested component lock and runs strict doctor against the
 installed plugin. The three component executables are invoked only with
 `--version`; no hardware command is run. All four setup options (`--lock-output`,

@@ -1,9 +1,9 @@
 # Offline firmware inspection
 
-The current source recognizes `firmware-inspect` as an optional host-only
-component. This integration is not yet in a published Toolkit release, and
-`component-catalog.json` intentionally has no firmware-inspect asset until the
-official component Release and its provenance have been verified. Default
+The `0.18.0` source candidate includes `firmware-inspect` as an optional host-only
+component. This integration is not yet in a published Toolkit release. Its v2
+catalog pins the immutable, provenance-verified component Release `0.1.0` for
+Windows x86_64. Default
 installation and doctor still select only baud, BLEA, and embedded-debugger.
 
 The component checks local ELF/HEX/BIN artifacts without reading a target,
@@ -34,11 +34,31 @@ candidate can be examined in an explicit host setup using a process-local
 `EMBEDDED_AGENT_FIRMWARE_INSPECT` override and `--no-auto-lock`; do not use that
 mode to hide a lock conflict.
 
-After an authenticated component asset has entered the trusted catalog,
-`--include-optional firmware-inspect` will opt into catalog-backed installation
-and lock generation. The source installer already accepts that name, but today
-it fails before network access if selected against the absent catalog entry.
-There is no placeholder URL or unverified hash.
+In this candidate, `--include-optional firmware-inspect` opts into catalog-backed
+installation and lock generation. Inspect a host-only plan before installation:
+
+```powershell
+python scripts/component_install.py plan --install-root C:\Tools\embedded-agent-components `
+  --include-optional firmware-inspect --json
+python scripts/component_install.py install --install-root C:\Tools\embedded-agent-components `
+  --lock-output C:\Tools\embedded-agent-toolkit\component-locks\candidate.json `
+  --include-optional firmware-inspect --timeout 120 --json
+```
+
+Add `--include-optional board-registry` to include both optional tools in a
+five-component v2 lock. Selecting just firmware-inspect produces four components;
+omitting both still installs only three. Installation preserves the executable's
+sibling `LICENSE`, `THIRD-PARTY-NOTICES.txt`, and `release-manifest.json` when
+present in the hash-verified archive. It does not extract arbitrary extra files
+or claim that a copied component manifest has independently been authenticated.
+
+The pinned asset is
+`embedded-firmware-inspect-0.1.0-windows-x86_64.zip`, SHA-256
+`4de53a107b3286c67fea86a36ef91779ca15e85fff682d2ff20374afca5c5c15`.
+Its Release source is `17f1fc24c53c9e31ca9169d9de277929545d7e11` and signer is
+`Nitmi/firmware-inspect/.github/workflows/binary-release.yml@refs/tags/v0.1.0`.
+The component's verification is separate from publishing and authenticating the
+Toolkit candidate. An arbitrary external catalog is not publisher authority.
 
 ## Use the native CLI
 

@@ -36,6 +36,8 @@ MAX_CATALOG_BYTES = 256 * 1024
 MAX_DOWNLOAD_BYTES = 256 * 1024 * 1024
 MAX_ARCHIVE_ENTRIES = 256
 MAX_EXECUTABLE_BYTES = 128 * 1024 * 1024
+MAX_COMPANION_BYTES = 4 * 1024 * 1024
+COMPANION_FILES = ("LICENSE", "THIRD-PARTY-NOTICES.txt", "release-manifest.json")
 HASH = re.compile(r"[0-9a-f]{64}")
 VERSION = re.compile(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)")
 REPOSITORY = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+")
@@ -359,7 +361,7 @@ def download(url: str, timeout: float) -> bytes:
     return data
 
 
-def executable_from_zip(data: bytes, asset_path: str) -> bytes:
+def files_from_zip(data: bytes, asset_path: str) -> dict[str, bytes]:
     try:
         with zipfile.ZipFile(io.BytesIO(data)) as archive:
             entries = archive.infolist()
@@ -371,21 +373,31 @@ def executable_from_zip(data: bytes, asset_path: str) -> bytes:
             matches = [entry for entry in entries if entry.filename == asset_path]
             if len(matches) != 1:
                 raise InstallError("component executable is missing or duplicated")
-            entry = matches[0]
-            mode = entry.external_attr >> 16
-            if entry.is_dir() or stat.S_IFMT(mode) == stat.S_IFLNK:
-                raise InstallError("component executable is not a regular file")
-            if entry.file_size <= 0 or entry.file_size > MAX_EXECUTABLE_BYTES:
-                raise InstallError("component executable size is invalid")
-            executable = archive.read(entry)
+            executable_name = PurePosixPath(asset_path).name
+            selected = {executable_name: matches[0]}
+            parent = PurePosixPath(asset_path).parent
+            for name in COMPANION_FILES:
+                member = str(parent / name)
+                if member in names:
+                    selected[name] = entries[names.index(member)]
+            files = {}
+            for name, entry in selected.items():
+                mode = stat.S_IFMT(entry.external_attr >> 16)
+                if entry.is_dir() or mode not in {0, stat.S_IFREG}:
+                    raise InstallError(f"component file is not a regular file: {name}")
+                limit = MAX_EXECUTABLE_BYTES if name == executable_name else MAX_COMPANION_BYTES
+                if entry.file_size <= 0 or entry.file_size > limit:
+                    raise InstallError(f"component file size is invalid: {name}")
+                contents = archive.read(entry)
+                if len(contents) != entry.file_size:
+                    raise InstallError(f"component file extraction is incomplete: {name}")
+                files[name] = contents
     except zipfile.BadZipFile as error:
         raise InstallError("invalid component ZIP") from error
-    if len(executable) != entry.file_size:
-        raise InstallError("component executable extraction is incomplete")
-    return executable
+    return files
 
 
-def install_file(destination: Path, data: bytes) -> str:
+def install_file(destination: Path, data: bytes, *, executable: bool = True) -> str:
     if is_link(destination):
         raise InstallError(f"component destination is a link: {destination}")
     if destination.exists():
@@ -399,7 +411,8 @@ def install_file(destination: Path, data: bytes) -> str:
     destination.parent.mkdir(parents=True, exist_ok=True)
     with destination.open("xb") as stream:
         stream.write(data)
-    destination.chmod(destination.stat().st_mode | stat.S_IXUSR)
+    if executable:
+        destination.chmod(destination.stat().st_mode | stat.S_IXUSR)
     return "installed"
 
 
@@ -462,14 +475,27 @@ def install(
         archive = download(artifact["url"], timeout)
         if sha256(archive) != artifact["sha256"]:
             raise InstallError(f"component artifact hash differs: {name}")
-        executable = executable_from_zip(archive, artifact["executable"])
+        files = files_from_zip(archive, artifact["executable"])
         destination = Path(item["destination"])
-        status = install_file(destination, executable)
+        status = install_file(destination, files[destination.name])
+        companions = []
+        for filename, contents in files.items():
+            if filename == destination.name:
+                continue
+            companion_path = destination.with_name(filename)
+            companion_status = install_file(companion_path, contents, executable=False)
+            companions.append({
+                "name": filename,
+                "path": str(companion_path),
+                "sha256": sha256(contents),
+                "bytes": len(contents),
+                "status": companion_status,
+            })
         identity = component_lock.identify(name, str(destination), timeout)
         if identity["version"] != record["version"]:
             raise InstallError(f"component version differs: {name}")
         locked[name] = identity
-        statuses.append({**item, "status": status})
+        statuses.append({**item, "status": status, "companion_files": companions})
     lock = write_lock(lock_output, locked)
     return {
         "schema_version": SCHEMA,

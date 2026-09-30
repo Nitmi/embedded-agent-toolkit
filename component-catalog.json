@@ -39,6 +39,18 @@
     }
   },
   "optional_components": {
+    "firmware-inspect": {
+      "repository": "Nitmi/firmware-inspect",
+      "version": "0.1.0",
+      "artifacts": {
+        "windows-x86_64": {
+          "url": "https://github.com/Nitmi/firmware-inspect/releases/download/v0.1.0/embedded-firmware-inspect-0.1.0-windows-x86_64.zip",
+          "sha256": "4de53a107b3286c67fea86a36ef91779ca15e85fff682d2ff20374afca5c5c15",
+          "format": "zip",
+          "executable": "embedded-firmware-inspect-0.1.0-windows-x86_64/firmware-inspect.exe"
+        }
+      }
+    },
     "board-registry": {
       "repository": "Nitmi/board-registry",
       "version": "0.2.3",

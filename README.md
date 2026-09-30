@@ -15,6 +15,7 @@ tools behind another hardware abstraction:
 | [BLEA](https://github.com/Nitmi/blea) | Bluetooth Low Energy diagnostics and automation | CLI + Skill + MCP |
 | [embedded-debugger](https://github.com/Nitmi/embedded-debugger) | Probe discovery, flash, debug, evidence, and replay | CLI + Skill + MCP |
 | [board-registry](https://github.com/Nitmi/board-registry) (optional) | Offline fail-closed correlation and non-authorizing selection from saved discovery evidence | CLI |
+| [firmware-inspect](https://github.com/Nitmi/firmware-inspect) (optional, source candidate) | Offline ELF/HEX/BIN identity, layout, footprint and build comparison | CLI |
 
 The value of the toolkit is the cross-tool workflow: one identity ledger, one
 safety policy, correlated evidence, and deterministic cleanup across serial,
@@ -82,11 +83,12 @@ it explicitly with `--component board-registry`; a v2 component lock may include
 its exact path, version, and SHA-256 while existing v1 three-component locks remain valid. See
 [offline board identity resolution](docs/board-registry.md).
 
-The current, unreleased source also recognizes optional `firmware-inspect` for
+The current, unreleased `0.18.0` source candidate includes optional `firmware-inspect` for
 offline ELF/HEX/BIN identity, layout, footprint and build comparison. It can be
 explicitly checked and bound in a v2 lock without changing default component
-selection. Its trusted catalog asset is deliberately absent until the component
-is formally published and authenticated; see
+selection. Its catalog pins the published, provenance-verified `0.1.0` Windows
+release. Opt in with `--include-optional firmware-inspect` when installing from
+this candidate; the published Toolkit `0.17.0` does not provide this integration. See
 [offline firmware inspection](docs/firmware-inspect.md).
 
 After unique board selection, `scripts/test_contract.py` can compile a reviewed
@@ -105,7 +107,8 @@ validates the release-bound component catalog and reports exact sources,
 hashes, destinations, and availability without network or process execution.
 Its `install` mode is fail-closed. The current catalog
 pins attested Windows x86_64 releases of `baud 0.1.2`, `BLEA 0.7.0`, and
-`embedded-debugger 0.2.2`, plus opt-in `board-registry 0.2.3`, so its default
+`embedded-debugger 0.2.2`, plus opt-in `board-registry 0.2.3` and
+`firmware-inspect 0.1.0`, so its default
 Windows plan is complete without falling back to ambient package-manager resolution.
 
 For a new workstation, the authenticated bootstrap can perform the complete
@@ -122,7 +125,8 @@ python bootstrap.py `
 Add `--include-optional board-registry` to install and lock the offline resolver
 in the same transaction.
 
-This opt-in mode installs only the catalog-pinned component executables, creates
+This opt-in mode installs only the catalog-pinned component executables and
+allowlisted sibling license/manifest files, creates
 the exact component lock, and runs strict doctor. The default bootstrap remains
 plugin-only. Neither mode edits `PATH`, activates plugins, launches MCP servers,
 or accesses hardware.
@@ -157,13 +161,14 @@ python scripts/toolkit_doctor.py --strict
 
 Use `EMBEDDED_AGENT_BAUD`, `EMBEDDED_AGENT_BLE`, or
 `EMBEDDED_AGENT_DEBUGGER` to point a core check at a specific executable. Use
-`EMBEDDED_AGENT_BOARD_REGISTRY` only for an explicit optional-component check. The
+`EMBEDDED_AGENT_BOARD_REGISTRY` or `EMBEDDED_AGENT_FIRMWARE_INSPECT` only for an
+explicit optional-component check. The
 default check reports a missing `PATH` entry as `ready_with_warnings`; use
 `--strict` when every component CLI must be directly invocable.
 
 For stable project or test-station selection, `scripts/component_lock.py` creates
 an explicit lock of the three core executable paths, versions, and SHA-256 values,
-with optional `board-registry` identity in a v2 lock.
+with optional `board-registry` and/or `firmware-inspect` identity in a v2 lock.
 Pass it to doctor with `--component-lock`; it remains host-only and does not
 modify `PATH` or proxy hardware commands. See [installation](docs/installation.md).
 Release installation can create or reuse this lock and complete strict doctor in
