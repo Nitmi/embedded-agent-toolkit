@@ -1,6 +1,6 @@
 ---
 name: incident-capture
-description: Preserve and package evidence from an embedded crash, hang, reset, or protocol failure across target debug state, serial logs, BLE observations, firmware identity, and host environment. Trigger when an Agent must capture a failure scene before recovery or produce a reproducible evidence bundle.
+description: Preserve and package evidence from an embedded crash, hang, reset, or protocol failure across target debug state, serial and RTT logs, BLE observations, firmware identity, and host environment. Trigger when an Agent must capture a failure scene before recovery or produce a reproducible evidence bundle.
 ---
 
 # Incident Capture
@@ -38,6 +38,12 @@ operation.
    and confirmation flow.
 
 ## Build the evidence bundle
+
+For RTT collection, read [bounded RTT workflows](../../docs/rtt.md) first.
+RTT consumes the selected RAM read cursor and attachment may perturb the target.
+Preserve the native summary and raw JSONL, including partial evidence and cleanup
+failures. Treat cursor offsets as positions in one capture, not target addresses
+or continuity across captures. Stop/disconnect does not prove the core is running.
 
 Keep raw structured component outputs and include a small index containing:
 

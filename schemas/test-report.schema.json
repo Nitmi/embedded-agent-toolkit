@@ -168,7 +168,23 @@
             "persistent-write"
           ]
         },
-        "evidence": {"$ref": "#/$defs/evidenceCheck"}
+        "evidence": {"$ref": "#/$defs/evidenceCheck"},
+        "rtt_artifact": {"$ref": "#/$defs/rttArtifact"}
+      }
+    },
+    "rttArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ok", "path", "sha256", "size", "bytes_captured", "chunk_count", "payload_sha256"],
+      "properties": {
+        "ok": {"type": "boolean"},
+        "path": {"type": ["string", "null"]},
+        "sha256": {"$ref": "#/$defs/sha256OrNull"},
+        "size": {"type": ["integer", "null"], "minimum": 0},
+        "bytes_captured": {"type": ["integer", "null"], "minimum": 0},
+        "chunk_count": {"type": ["integer", "null"], "minimum": 0},
+        "payload_sha256": {"$ref": "#/$defs/sha256OrNull"},
+        "error": {"type": "string", "minLength": 1}
       }
     },
     "actual": {

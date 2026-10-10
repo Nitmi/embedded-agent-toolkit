@@ -44,6 +44,7 @@ REQUIRED_FILES = {
     "scripts/component_lock.py",
     "scripts/station_config.py",
     "scripts/test_contract.py",
+    "scripts/rtt_evidence.py",
     "scripts/toolkit_doctor.py",
     "schemas/test-spec.schema.json",
     "schemas/test-contract.schema.json",

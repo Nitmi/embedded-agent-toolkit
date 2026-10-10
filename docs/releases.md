@@ -2,13 +2,16 @@
 
 ## Contents and scope
 
-The published `0.18.0` portable **plugin-only** release contains the four
+The source `0.19.0` candidate adds bounded RTT contract stages and offline
+summary/JSONL verification; it has not been published. The latest published
+Toolkit is `0.18.0`. The portable **plugin-only** release contains the four
 orchestration Skills, their references, host-only scripts, user documentation,
 license, the strict component catalog, and both plugin manifests. Component executables, component MCP servers,
 Git internals, tests, local hardware evidence, and build outputs are not bundled.
 Use Python 3.11 or newer for the release commands; only the standard library is
 required. The bundled v2 catalog pins attested standalone Windows x86_64 releases
-of all three core component CLIs, including `embedded-debugger 0.2.2`, and the
+of all three core component CLIs, including `embedded-debugger 0.2.4` in the
+current source candidate (`0.18.0` pinned `0.2.2`), and the
 optional offline `board-registry 0.2.3` resolver and selection-contract generator,
 plus `firmware-inspect 0.1.0` for local ELF/HEX/BIN analysis. Optional tools require
 explicit `--include-optional` selections; defaults remain unchanged.
@@ -27,7 +30,7 @@ After tests and a cohesive commit, from this repository:
 
 ```powershell
 python scripts/release.py build --output-dir dist --json
-python scripts/release.py verify dist/embedded-agent-toolkit-0.18.0.zip --checksum dist/embedded-agent-toolkit-0.18.0.zip.sha256 --json
+python scripts/release.py verify dist/embedded-agent-toolkit-0.19.0.zip --checksum dist/embedded-agent-toolkit-0.19.0.zip.sha256 --json
 ```
 
 The builder requires a clean worktree and reads pinned Git blobs rather than

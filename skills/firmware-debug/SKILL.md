@@ -1,6 +1,6 @@
 ---
 name: firmware-debug
-description: Correlate bounded embedded target state with serial and BLE evidence during firmware diagnosis. Trigger for crashes, hangs, unexpected resets, missing output, bad peripheral behavior, register or stack inspection, breakpoint-driven diagnosis, and comparisons between target state and external observations.
+description: Correlate bounded embedded target state with serial, RTT and BLE evidence during firmware diagnosis. Trigger for crashes, hangs, unexpected resets, missing output, bad peripheral behavior, register or stack inspection, breakpoint-driven diagnosis, and comparisons between target state and external observations.
 ---
 
 # Firmware Debug
@@ -62,6 +62,13 @@ machine-readable ledger beside the human report.
   reset, power loss, reflash, alternate firmware, or a different device.
 
 ## Gather evidence conservatively
+
+For firmware exposing RTT, read [bounded RTT workflows](../../docs/rtt.md).
+Debugger 0.2.4 provides native CLI capture for probe-rs/nRF52840, not a
+persistent-session or MCP RTT request. Bind the initialized address to the exact
+ELF and record read-cursor consumption plus attachment effects. Keep raw JSONL,
+summary and serial evidence separately hashed; clocks do not establish shared
+identity or continuity. Do not install another RTT consumer during diagnosis.
 
 1. Start with bounded, zero-transmit serial observation and read-only BLE
    evidence when those interfaces remain alive. When firmware exposes a

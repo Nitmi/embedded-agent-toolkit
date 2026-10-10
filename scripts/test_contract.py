@@ -17,6 +17,11 @@ from typing import Any
 
 sys.dont_write_bytecode = True
 
+if __package__:
+    from . import rtt_evidence
+else:
+    import rtt_evidence
+
 SPEC_SCHEMA = "embedded-agent-toolkit.test-spec.v1"
 CONTRACT_SCHEMA = "embedded-agent-toolkit.test-contract.v1"
 REPORT_SCHEMA = "embedded-agent-toolkit.test-contract-report.v1"
@@ -70,6 +75,7 @@ EFFECTS = frozenset(
         "register_write",
         "memory_read",
         "memory_write",
+        "rtt_read_cursor_write",
         "flash_erase",
         "flash_write",
         "recover",
@@ -95,6 +101,7 @@ TARGET_CONTROL_EFFECTS = frozenset(
         "target_halt",
         "target_resume",
         "target_step",
+        "rtt_read_cursor_write",
     }
 )
 HARDWARE_EFFECTS = EFFECTS - {"host_process_start"}
@@ -122,6 +129,7 @@ class OperationPolicy:
     allowed_effects: frozenset[str]
     target_required: bool = False
     prerequisite_operation: str | None = None
+    cleanup_in_native_evidence: bool = False
 
 
 def _effects(*values: str) -> frozenset[str]:
@@ -173,12 +181,8 @@ OPERATION_POLICIES = {
         "blea",
         frozenset({"ble"}),
         (),
-        _effects(
-            "host_process_start", "ble_scan", "ble_connect", "ble_pairing_change"
-        ),
-        _effects(
-            "host_process_start", "ble_scan", "ble_connect", "ble_pairing_change"
-        ),
+        _effects("host_process_start", "ble_scan", "ble_connect", "ble_pairing_change"),
+        _effects("host_process_start", "ble_scan", "ble_connect", "ble_pairing_change"),
     ),
     "blea.unpair": OperationPolicy(
         "blea",
@@ -206,6 +210,38 @@ OPERATION_POLICIES = {
         (),
         _effects("host_process_start", "hardware_discovery"),
         _effects("host_process_start", "hardware_discovery"),
+    ),
+    "embedded-debugger.rtt-plan": OperationPolicy(
+        "embedded-debugger",
+        frozenset({"debug"}),
+        ("firmware",),
+        _effects("host_process_start"),
+        _effects("host_process_start"),
+        target_required=True,
+    ),
+    "embedded-debugger.rtt-capture": OperationPolicy(
+        "embedded-debugger",
+        frozenset({"debug"}),
+        ("firmware",),
+        _effects(
+            "host_process_start",
+            "hardware_discovery",
+            "debug_attach",
+            "target_state_may_change",
+            "memory_read",
+            "rtt_read_cursor_write",
+        ),
+        _effects(
+            "host_process_start",
+            "hardware_discovery",
+            "debug_attach",
+            "target_state_may_change",
+            "memory_read",
+            "rtt_read_cursor_write",
+        ),
+        target_required=True,
+        prerequisite_operation="embedded-debugger.rtt-plan",
+        cleanup_in_native_evidence=True,
     ),
     "embedded-debugger.probes-test": OperationPolicy(
         "embedded-debugger",
@@ -899,6 +935,18 @@ def _validate_cleanup(
     return result
 
 
+def _cleanup_effects(stages: list[dict[str, Any]]) -> set[str]:
+    # RTT cleanup uses native boolean fields verified together with the JSONL.
+    # Do not require invented string states or claim a post-disconnect CPU state.
+    return {
+        effect
+        for stage in stages
+        if stage["operation"] in OPERATION_POLICIES
+        and not OPERATION_POLICIES[stage["operation"]].cleanup_in_native_evidence
+        for effect in stage["declared_effects"]
+    }
+
+
 def validate_spec(data: object) -> dict[str, Any]:
     errors: list[str] = []
     if not isinstance(data, dict):
@@ -932,7 +980,7 @@ def validate_spec(data: object) -> dict[str, Any]:
     )
     stage_ids = {item["id"] for item in stages if isinstance(item.get("id"), str)}
     _validate_assertions(data.get("assertions"), stage_ids, errors)
-    _validate_cleanup(data.get("cleanup"), all_effects, errors)
+    _validate_cleanup(data.get("cleanup"), _cleanup_effects(stages), errors)
     return {
         "ok": not errors,
         "errors": errors,
@@ -1245,7 +1293,7 @@ def validate_contract(data: object) -> list[str]:
                 )
             }
         )
-    normalized_stages, used_transports, all_effects = _validate_stages(
+    normalized_stages, used_transports, _all_effects = _validate_stages(
         spec_stages, resource_map, debug_target, errors
     )
     if not used_transports.issubset(set(required_transports)):
@@ -1254,7 +1302,7 @@ def validate_contract(data: object) -> list[str]:
         item["id"] for item in normalized_stages if isinstance(item.get("id"), str)
     }
     _validate_assertions(data.get("assertions"), stage_ids, errors)
-    _validate_cleanup(data.get("cleanup"), all_effects, errors)
+    _validate_cleanup(data.get("cleanup"), _cleanup_effects(normalized_stages), errors)
     authorization = data.get("authorization")
     expected_authorization = {
         "granted": False,
@@ -1639,7 +1687,6 @@ def evaluate_contract(contract_path: Path, run_path: Path) -> dict[str, Any]:
                 f"expected {expected_path}, actual {actual_path}"
             )
         check, value = load_entry(entry, f"stage {stage['id']} evidence")
-        stage_values[stage["id"]] = (check["current"], value)
         result = {
             "id": stage["id"],
             "component": stage["component"],
@@ -1647,6 +1694,57 @@ def evaluate_contract(contract_path: Path, run_path: Path) -> dict[str, Any]:
             "risk": stage["risk"],
             "evidence": check,
         }
+        if check["current"] and stage["operation"] in {
+            "embedded-debugger.rtt-plan",
+            "embedded-debugger.rtt-capture",
+        }:
+            try:
+                probe_id = next(
+                    item["observed_identity"]["probe_selector"]
+                    for item in contract["bindings"]
+                    if item["transport"] == "debug"
+                )
+                if stage["operation"] == "embedded-debugger.rtt-plan":
+                    plan = rtt_evidence.plan_from_envelope(value)
+                else:
+                    artifact = rtt_evidence.check_capture(value, actual_path.parent)
+                    result["rtt_artifact"] = artifact
+                    if not artifact["ok"]:
+                        raise rtt_evidence.EvidenceError(artifact["error"])
+                    plan = value["data"]["plan"]
+                    plan_stages = [
+                        item
+                        for item in contract["stages"]
+                        if item["id"] in stage["requires"]
+                        and item["operation"] == "embedded-debugger.rtt-plan"
+                        and item["inputs"] == stage["inputs"]
+                    ]
+                    if not any(
+                        stage_values[item["id"]][0]
+                        and rtt_evidence.same(plan, stage_values[item["id"]][1]["data"])
+                        for item in plan_stages
+                    ):
+                        raise rtt_evidence.EvidenceError(
+                            "capture plan differs from prerequisite evidence"
+                        )
+                if (
+                    plan["probe_id"] != probe_id
+                    or plan["target"]["name"] != contract["debug_target"]
+                ):
+                    raise rtt_evidence.EvidenceError(
+                        "RTT identity differs from board selection or debug_target"
+                    )
+            except (
+                rtt_evidence.EvidenceError,
+                KeyError,
+                StopIteration,
+                TypeError,
+                ValueError,
+                RecursionError,
+            ) as error:
+                check["current"] = False
+                check["error"] = f"RTT evidence validation failed: {error}"
+        stage_values[stage["id"]] = (check["current"], value)
         stages.append(result)
         if not check["current"]:
             errors.append(

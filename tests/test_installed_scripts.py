@@ -23,6 +23,7 @@ class InstalledScriptTests(unittest.TestCase):
                 "release.py",
                 "station_config.py",
                 "test_contract.py",
+                "rtt_evidence.py",
                 "toolkit_doctor.py",
             ):
                 shutil.copy2(ROOT / "scripts" / name, scripts / name)

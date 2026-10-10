@@ -69,6 +69,10 @@ host setup, not authorization to discover or operate hardware.
 5. After cleanup, observe bounded startup logs. Use BLE discovery only after the
    firmware is expected to advertise, and keep it read-only until identity is
    resolved.
+   If startup is exposed through RTT, read
+   [bounded RTT workflows](../../docs/rtt.md). Bind the initialized control-block
+   address to the exact ELF, preserve native summary/JSONL, and account for RAM
+   read-cursor consumption. Do not infer firmware readiness from capture success.
 
 ## Decide from evidence
 

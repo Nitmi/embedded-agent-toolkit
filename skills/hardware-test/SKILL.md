@@ -1,6 +1,6 @@
 ---
 name: hardware-test
-description: Design or run repeatable embedded hardware tests that coordinate flashing, serial or BLE readiness, guarded interactions, assertions, evidence, and cleanup. Trigger for hardware-in-the-loop checks, manufacturing checks, firmware smoke tests, regression reproduction, or CI workflows involving real boards.
+description: Design or run repeatable embedded hardware tests that coordinate flashing, serial, RTT or BLE readiness, guarded interactions, assertions, evidence, and cleanup. Trigger for hardware-in-the-loop checks, manufacturing checks, firmware smoke tests, regression reproduction, or CI workflows involving real boards.
 ---
 
 # Hardware Test
@@ -85,6 +85,10 @@ explicit per stage; default state-changing operations to zero retries.
    authorization or auto-forward per-build digests through the old CLI path.
 4. Wait for a bounded ready assertion through zero-transmit serial observation,
    RTT when supported by the debugger, or read-only BLE evidence.
+   For RTT, read [bounded RTT workflows](../../docs/rtt.md). Use the native
+   CLI, declare read-cursor consumption and attach effects, and preserve both
+   summary and raw JSONL. Offline integrity checks do not replace a project's
+   complete READY/build/heartbeat assertions or prove final core state.
 5. Perform only the declared interactions. Serial transmissions, BLE writes,
    pairing changes, reset control lines, and debug target control retain their
    component gates. For `blea.pair` or `blea.unpair`, require an exact observed

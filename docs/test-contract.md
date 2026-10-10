@@ -75,6 +75,15 @@ identity check and component guard remains mandatory.
 
 ## Evidence evaluation
 
+Toolkit `0.19.0` adds `embedded-debugger.rtt-plan` and
+`embedded-debugger.rtt-capture`. Read [bounded RTT workflows](rtt.md) before
+using them. Both bind the same firmware input and capture requires the earlier
+plan. Capture declares the selected RAM read-cursor write and zero retries.
+Evaluation checks the unchanged native summary plus its hash-bound raw JSONL;
+it starts no component. Boolean stop/disconnect fields are assertions, not
+invented cleanup strings. Integrity does not establish project-specific READY
+or runtime build identity.
+
 Execute each stage separately through its owning component and preserve that
 component's native JSON output at the contract's exact `evidence_output` path.
 The Toolkit does not translate, normalize, or regenerate this evidence. Create a

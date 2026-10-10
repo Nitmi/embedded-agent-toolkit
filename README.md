@@ -23,7 +23,9 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The latest published release is `0.18.0`, which provides a standalone `bootstrap.py`
+The source tree is a `0.19.0` candidate with bounded RTT guidance and offline
+native JSONL verification; see [RTT workflows](docs/rtt.md). It is not yet a
+published or activated plugin. The latest published release is `0.18.0`, which provides a standalone `bootstrap.py`
 alongside the plugin ZIP. Download the bootstrap with GitHub CLI,
 authenticate it before execution, and keep its exact filename:
 
@@ -107,7 +109,7 @@ validates the release-bound component catalog and reports exact sources,
 hashes, destinations, and availability without network or process execution.
 Its `install` mode is fail-closed. The current catalog
 pins attested Windows x86_64 releases of `baud 0.1.2`, `BLEA 0.7.0`, and
-`embedded-debugger 0.2.2`, plus opt-in `board-registry 0.2.3` and
+`embedded-debugger 0.2.4`, plus opt-in `board-registry 0.2.3` and
 `firmware-inspect 0.1.0`, so its default
 Windows plan is complete without falling back to ambient package-manager resolution.
 

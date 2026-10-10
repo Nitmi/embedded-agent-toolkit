@@ -1,0 +1,38 @@
+{
+  "schema_version": "embedded-agent-toolkit.test-spec.v1",
+  "name": "nrf52840-rtt-integrity",
+  "selection": "project-board-selection.json",
+  "debug_target": "nRF52840_xxAA",
+  "resources": [{
+    "id": "application-elf", "kind": "firmware", "path": "build/app.elf",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  }],
+  "stages": [
+    {
+      "id": "rtt-plan", "operation": "embedded-debugger.rtt-plan",
+      "inputs": ["application-elf"], "requires": [],
+      "declared_effects": ["host_process_start"],
+      "timeout_seconds": 10, "max_retries": 0,
+      "evidence_output": "evidence/rtt-plan.json"
+    },
+    {
+      "id": "rtt-capture", "operation": "embedded-debugger.rtt-capture",
+      "inputs": ["application-elf"], "requires": ["rtt-plan"],
+      "declared_effects": [
+        "debug_attach", "hardware_discovery", "host_process_start", "memory_read",
+        "rtt_read_cursor_write", "target_state_may_change"
+      ],
+      "timeout_seconds": 30, "max_retries": 0,
+      "evidence_output": "evidence/rtt-capture.json"
+    }
+  ],
+  "assertions": [
+    {"id": "capture-complete", "stage": "rtt-capture", "json_pointer": "/data/complete", "operator": "equals", "expected": true},
+    {"id": "bytes-observed", "stage": "rtt-capture", "json_pointer": "/data/bytes_captured", "operator": "at_least", "expected": 1},
+    {"id": "channel-stopped", "stage": "rtt-capture", "json_pointer": "/data/channel_stopped", "operator": "equals", "expected": true},
+    {"id": "probe-disconnected", "stage": "rtt-capture", "json_pointer": "/data/disconnected", "operator": "equals", "expected": true},
+    {"id": "selected-channel", "stage": "rtt-capture", "json_pointer": "/data/channel/selection/channel", "operator": "equals", "expected": 0},
+    {"id": "selected-control-block", "stage": "rtt-capture", "json_pointer": "/data/channel/selection/control_block", "operator": "equals", "expected": "REPLACE_FROM_EXACT_ELF"}
+  ],
+  "cleanup": []
+}

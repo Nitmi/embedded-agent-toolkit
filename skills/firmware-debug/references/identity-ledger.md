@@ -69,6 +69,12 @@ workflow.
 
 ## Closeout
 
+For RTT sources, bind the native plan, capture summary and raw JSONL separately.
+An RTT byte cursor locates bytes in that capture only. Record read-cursor
+consumption, probe routing and the unknown post-disconnect core state; a matching
+serial timestamp or USB serial does not independently prove target/firmware
+continuity. See [bounded RTT workflows](../../../docs/rtt.md).
+
 Hash the completed ledger and its human report. State which source artifacts
 were not copied, whether any hardware operation occurred while building the
 ledger, and whether the proposed next experiment requires a fresh plan or
