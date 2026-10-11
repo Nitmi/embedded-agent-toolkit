@@ -1,12 +1,12 @@
 # Bounded RTT workflows
 
-The Toolkit `0.19.0` candidate pins the published `embedded-debugger 0.2.4`
+Toolkit `0.19.0` pins the published `embedded-debugger 0.2.4`
 Windows asset. Its SHA-256 is
 `f46287d2b981afaa67578e4204ba584c1e29b0a0e788b04a9641d0531995b92c`;
 the source and signer commit is `7053f54e1b9fcca000d1e7e9f1f6d4b904399137`,
 from `.github/workflows/binary-release.yml@refs/tags/v0.2.4` in
-`Nitmi/embedded-debugger`. This component provenance is separate from any
-future Toolkit release provenance.
+`Nitmi/embedded-debugger`. This component provenance is separate from the
+enclosing Toolkit release provenance.
 
 Use the exact executable in the active component lock. RTT is currently a native
 CLI workflow: `rtt plan` and `rtt capture`. Persistent-session and MCP RTT requests
