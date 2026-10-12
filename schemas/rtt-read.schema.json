@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Nitmi/embedded-agent-toolkit/schemas/rtt-read.schema.json",
+  "title": "Offline RTT evidence read report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "operation", "ok", "scope", "hardware_access", "executables_started", "source_execution_not_performed", "runtime_firmware_identity_verified", "errors"],
+  "properties": {
+    "schema_version": {"const": "embedded-agent-toolkit.rtt-read.v1"},
+    "operation": {"enum": ["inspect", "preview", "extract"]},
+    "ok": {"type": "boolean"},
+    "scope": {"const": "host_only_rtt_evidence"},
+    "hardware_access": {"const": false},
+    "executables_started": {"const": false},
+    "source_execution_not_performed": {"const": true},
+    "runtime_firmware_identity_verified": {"const": false},
+    "errors": {"type": "array", "items": {"type": "string"}},
+    "summary": {"$ref": "#/$defs/source"},
+    "integrity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["ok", "path", "sha256", "size", "bytes_captured", "chunk_count", "payload_sha256"],
+      "properties": {
+        "ok": {"const": true}, "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/hash"}, "size": {"type": "integer", "minimum": 1, "maximum": 16777216},
+        "bytes_captured": {"type": "integer", "minimum": 0, "maximum": 1048576},
+        "chunk_count": {"type": "integer", "minimum": 0, "maximum": 4096},
+        "payload_sha256": {"$ref": "#/$defs/hash"}
+      }
+    },
+    "capture": {
+      "type": "object", "additionalProperties": false,
+      "required": ["capture_id", "backend", "probe_id", "target", "selection", "stop_reason", "channel_stopped", "disconnected"],
+      "properties": {
+        "capture_id": {"type": "string", "minLength": 1}, "backend": {"enum": ["probe-rs", "replay"]},
+        "probe_id": {"type": "string", "minLength": 1}, "target": {"type": "object"}, "selection": {"type": "object"},
+        "stop_reason": {"enum": ["duration_limit", "byte_limit", "chunk_limit"]},
+        "channel_stopped": {"const": true}, "disconnected": {"const": true}
+      }
+    },
+    "preview": {
+      "type": "object", "additionalProperties": false,
+      "required": ["lines", "cursor", "next_cursor", "has_more", "max_lines", "max_line_bytes", "preview_byte_budget", "timestamps_are_chunk_observations"],
+      "properties": {
+        "lines": {"type": "array", "maxItems": 100, "items": {"$ref": "#/$defs/line"}},
+        "cursor": {"$ref": "#/$defs/cursor"}, "next_cursor": {"$ref": "#/$defs/cursor"},
+        "has_more": {"type": "boolean"}, "max_lines": {"type": "integer", "minimum": 1, "maximum": 100},
+        "max_line_bytes": {"type": "integer", "minimum": 1, "maximum": 4096},
+        "preview_byte_budget": {"const": 16384}, "timestamps_are_chunk_observations": {"const": true}
+      }
+    },
+    "output": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "size", "sha256", "encoding", "derived_from_verified_capture"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1}, "size": {"type": "integer", "minimum": 0, "maximum": 1048576},
+        "sha256": {"$ref": "#/$defs/hash"}, "encoding": {"const": "binary"}, "derived_from_verified_capture": {"const": true}
+      }
+    }
+  },
+  "allOf": [
+    {"if": {"properties": {"ok": {"const": true}}}, "then": {"required": ["summary", "integrity", "capture"], "properties": {"errors": {"maxItems": 0}}}, "else": {"properties": {"errors": {"minItems": 1}}}},
+    {"if": {"properties": {"ok": {"const": true}, "operation": {"const": "preview"}}}, "then": {"required": ["preview"]}},
+    {"if": {"properties": {"ok": {"const": true}, "operation": {"const": "extract"}}}, "then": {"required": ["output"]}}
+  ],
+  "$defs": {
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "cursor": {"type": "integer", "minimum": 0, "maximum": 1048576},
+    "source": {
+      "type": "object", "additionalProperties": false, "required": ["path", "size", "sha256"],
+      "properties": {"path": {"type": "string", "minLength": 1}, "size": {"type": "integer", "minimum": 1, "maximum": 262144}, "sha256": {"$ref": "#/$defs/hash"}}
+    },
+    "chunk": {
+      "type": "object", "additionalProperties": false,
+      "required": ["sequence", "cursor", "next_cursor", "timestamp", "elapsed_ms"],
+      "properties": {
+        "sequence": {"type": "integer", "minimum": 0, "maximum": 4095},
+        "cursor": {"$ref": "#/$defs/cursor"}, "next_cursor": {"$ref": "#/$defs/cursor"},
+        "timestamp": {"type": "string", "maxLength": 40}, "elapsed_ms": {"type": "integer", "minimum": 0}
+      }
+    },
+    "line": {
+      "type": "object", "additionalProperties": false,
+      "required": ["cursor", "next_cursor", "content_bytes", "complete", "terminator", "initial_fragment", "utf8_valid", "text", "preview_bytes", "truncated", "first_chunk", "last_chunk"],
+      "properties": {
+        "cursor": {"$ref": "#/$defs/cursor"}, "next_cursor": {"$ref": "#/$defs/cursor"},
+        "content_bytes": {"type": "integer", "minimum": 0, "maximum": 1048576},
+        "complete": {"type": "boolean"}, "terminator": {"enum": ["lf", "crlf", null]},
+        "initial_fragment": {"type": "boolean"}, "utf8_valid": {"type": "boolean"},
+        "text": {"type": ["string", "null"]}, "data_hex": {"type": "string", "maxLength": 8192, "pattern": "^[0-9a-f]*$"},
+        "preview_bytes": {"type": "integer", "minimum": 0, "maximum": 4096}, "truncated": {"type": "boolean"},
+        "first_chunk": {"$ref": "#/$defs/chunk"}, "last_chunk": {"$ref": "#/$defs/chunk"}
+      },
+      "allOf": [
+        {"if": {"properties": {"utf8_valid": {"const": false}}}, "then": {"required": ["data_hex"], "properties": {"text": {"const": null}}}, "else": {"properties": {"text": {"type": "string"}}}}
+      ]
+    }
+  }
+}

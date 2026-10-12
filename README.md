@@ -23,6 +23,9 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
+The source tree is a `0.20.0` candidate adding offline RTT inspection, bounded
+line previews and lossless payload export. It is not published or activated.
+
 The latest published release is `0.19.0`, with bounded RTT guidance and offline
 native JSONL verification; see [RTT workflows](docs/rtt.md). It provides a
 standalone `bootstrap.py` alongside the plugin ZIP. Download the bootstrap with GitHub CLI,

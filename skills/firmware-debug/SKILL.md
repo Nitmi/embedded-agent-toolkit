@@ -69,6 +69,10 @@ persistent-session or MCP RTT request. Bind the initialized address to the exact
 ELF and record read-cursor consumption plus attachment effects. Keep raw JSONL,
 summary and serial evidence separately hashed; clocks do not establish shared
 identity or continuity. Do not install another RTT consumer during diagnosis.
+For saved captures, use the offline reader in the RTT guide to verify integrity,
+preview bounded lines with chunk/byte references, or extract binary bytes before
+project-specific decoding. Truncated previews and incomplete tails cannot stand
+in for complete runtime assertions.
 
 1. Start with bounded, zero-transmit serial observation and read-only BLE
    evidence when those interfaces remain alive. When firmware exposes a

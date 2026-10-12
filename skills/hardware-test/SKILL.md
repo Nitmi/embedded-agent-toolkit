@@ -89,6 +89,9 @@ explicit per stage; default state-changing operations to zero retries.
    CLI, declare read-cursor consumption and attach effects, and preserve both
    summary and raw JSONL. Offline integrity checks do not replace a project's
    complete READY/build/heartbeat assertions or prove final core state.
+   Use the RTT guide's offline inspect/preview/extract commands for saved logs;
+   bind the derived payload hash and evaluate the full bytes for readiness,
+   not a bounded or truncated preview.
 5. Perform only the declared interactions. Serial transmissions, BLE writes,
    pairing changes, reset control lines, and debug target control retain their
    component gates. For `blea.pair` or `blea.unpair`, require an exact observed

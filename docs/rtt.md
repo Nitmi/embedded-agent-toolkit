@@ -93,6 +93,49 @@ exact READY/BUILD_ID and complete heartbeat assertions; preserve that separate
 report and parser/input hashes. A source build banner is not a final ELF hash or
 cryptographic runtime attestation.
 
+## Inspect saved logs without a device
+
+The source `0.20.0` candidate adds a file-only reader; published `0.19.0`
+provides the underlying integrity API but not these CLI subcommands:
+
+```powershell
+python scripts/rtt_evidence.py inspect capture-summary.json --json
+python scripts/rtt_evidence.py preview capture-summary.json --max-lines 40 --json
+python scripts/rtt_evidence.py extract capture-summary.json --output payload.bin --json
+```
+
+Each command verifies the unchanged native summary and its referenced JSONL
+before returning any payload. It binds the input paths, byte sizes and SHA-256
+hashes, reconstructs bytes from the same verified file read, and starts no
+component or hardware operation. `inspect` reports metadata only; `preview`
+returns bounded derived lines; `extract` writes exact binary bytes to one
+explicit, new file. It refuses existing destinations, including either native
+input. Parent directories must already exist. An output I/O failure may leave
+a partial derived file; an unsuccessful report is not a usable export.
+
+Preview decodes UTF-8 after reconstructing chunks, preserving characters and
+LF/CRLF lines split across chunks. A binary/invalid UTF-8 line has `text=null`
+and bounded `data_hex`; no replacement characters are inserted. `complete=false`
+marks a tail without LF. `truncated=true` means only a prefix is displayed, even
+when the source line is complete. The response limits are 1..100 lines,
+1..4096 bytes per line and a fixed 16384-byte content budget. Text output escapes
+terminal control sequences rather than replaying firmware ANSI commands.
+
+Each line carries capture byte `cursor`/`next_cursor` and first/last source
+chunk observations. These timestamps describe host chunk reads, not precise
+firmware event times. Use `--cursor <preview.next_cursor>` to request the next
+page. The cursor advances past the entire source line, including a truncated
+prefix's omitted bytes; use the binary export when those bytes matter. An
+arbitrary cursor can start mid-line or mid-character; `initial_fragment=true`
+makes that ambiguity explicit. It is a file offset, never a target resume token.
+
+The JSON format is [rtt-read.schema.json](../schemas/rtt-read.schema.json),
+`embedded-agent-toolkit.rtt-read.v1`. Success exits 0; rejected evidence, invalid
+preview limits, missing inputs or refused output exits 2. A verified preview is
+not READY/BUILD_ID/heartbeat acceptance or proof of current firmware identity.
+Partial or failed native captures remain incident evidence; these commands
+reject them instead of presenting an unchecked successful log.
+
 ## Associate RTT with serial or BLE
 
 For more than one interface/window, keep an

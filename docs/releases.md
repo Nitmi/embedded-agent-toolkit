@@ -2,6 +2,10 @@
 
 ## Contents and scope
 
+The source `0.20.0` candidate adds file-only RTT inspect/preview/extract commands;
+see [RTT saved-log inspection](rtt.md#inspect-saved-logs-without-a-device).
+This candidate has not been published or activated.
+
 The latest published Toolkit is `0.19.0`, which adds bounded RTT contract stages
 and offline summary/JSONL verification. The portable **plugin-only** release contains the four
 orchestration Skills, their references, host-only scripts, user documentation,
@@ -28,7 +32,7 @@ After tests and a cohesive commit, from this repository:
 
 ```powershell
 python scripts/release.py build --output-dir dist --json
-python scripts/release.py verify dist/embedded-agent-toolkit-0.19.0.zip --checksum dist/embedded-agent-toolkit-0.19.0.zip.sha256 --json
+python scripts/release.py verify dist/embedded-agent-toolkit-0.20.0.zip --checksum dist/embedded-agent-toolkit-0.20.0.zip.sha256 --json
 ```
 
 The builder requires a clean worktree and reads pinned Git blobs rather than

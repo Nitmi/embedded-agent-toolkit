@@ -6,9 +6,13 @@ access. Payload integrity is distinct from project-specific runtime acceptance.
 
 from __future__ import annotations
 
+import argparse
+import codecs
 import hashlib
 import json
 import re
+import sys
+from bisect import bisect_right
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -16,6 +20,9 @@ from typing import Any
 MAX_ARTIFACT_BYTES = 16 * 1024 * 1024
 MAX_PAYLOAD_BYTES = 1024 * 1024
 MAX_CHUNKS = 4096
+MAX_SUMMARY_BYTES = 256 * 1024
+MAX_PREVIEW_BYTES = 16 * 1024
+READ_SCHEMA = "embedded-agent-toolkit.rtt-read.v1"
 HEX = re.compile(r"[0-9a-f]*")
 ADDRESS = re.compile(r"0x[0-9a-f]{8}")
 
@@ -143,7 +150,7 @@ def _nonfinite(value: str) -> None:
 
 
 def _timestamp(value: Any) -> None:
-    require(isinstance(value, str), "missing timestamp")
+    require(isinstance(value, str) and len(value) <= 40, "invalid timestamp length")
     try:
         stamp = datetime.fromisoformat(value.replace("Z", "+00:00"))
         require(
@@ -154,8 +161,8 @@ def _timestamp(value: Any) -> None:
         raise EvidenceError(f"invalid timestamp: {value}") from error
 
 
-def check_capture(value: Any, base: Path) -> dict[str, Any]:
-    """Return a bounded integrity result; never return or rewrite native payload."""
+def _check_capture(value: Any, base: Path, *, retain: bool = False) -> dict[str, Any]:
+    """Validate one artifact read; retain bytes privately only for offline views."""
     result: dict[str, Any] = {
         "ok": False,
         "path": None,
@@ -319,6 +326,7 @@ def check_capture(value: Any, base: Path) -> dict[str, Any]:
             "finish cleanup failed",
         )
         payload = hashlib.sha256()
+        retained = bytearray()
         cursor = 0
         chunks = records[2:-1]
         require(len(chunks) == count, "chunk count differs")
@@ -353,6 +361,8 @@ def check_capture(value: Any, base: Path) -> dict[str, Any]:
                 "invalid chunk next_cursor",
             )
             payload.update(decoded)
+            if retain:
+                retained.extend(decoded)
         require(cursor == total, "payload byte count differs")
         require(
             payload.hexdigest() == data.get("payload_sha256"), "payload SHA-256 differs"
@@ -363,6 +373,21 @@ def check_capture(value: Any, base: Path) -> dict[str, Any]:
             chunk_count=count,
             payload_sha256=payload.hexdigest(),
         )
+        if retain:
+            result["_payload"] = bytes(retained)
+            result["_chunks"] = [
+                {
+                    key: chunk[key]
+                    for key in (
+                        "sequence",
+                        "cursor",
+                        "next_cursor",
+                        "timestamp",
+                        "elapsed_ms",
+                    )
+                }
+                for chunk in chunks
+            ]
     except (
         EvidenceError,
         OSError,
@@ -373,3 +398,223 @@ def check_capture(value: Any, base: Path) -> dict[str, Any]:
     ) as error:
         result["error"] = str(error) or type(error).__name__
     return result
+
+
+def check_capture(value: Any, base: Path) -> dict[str, Any]:
+    """Return bounded integrity metadata without native payload or file writes."""
+    return _check_capture(value, base)
+
+
+def _read_summary(path: Path) -> tuple[dict, dict]:
+    resolved = path.resolve(strict=True)
+    require(resolved.is_file(), "summary must be a regular file")
+    with resolved.open("rb") as handle:
+        raw = handle.read(MAX_SUMMARY_BYTES + 1)
+    require(len(raw) <= MAX_SUMMARY_BYTES, "RTT summary too large")
+    value = obj(
+        json.loads(
+            raw.decode("utf-8"), object_pairs_hook=_unique, parse_constant=_nonfinite
+        ),
+        "summary",
+    )
+    return value, {
+        "path": str(resolved),
+        "size": len(raw),
+        "sha256": hashlib.sha256(raw).hexdigest(),
+    }
+
+
+def _preview(
+    payload: bytes, chunks: list[dict], cursor: int, max_lines: int, max_line_bytes: int
+) -> dict:
+    integer(cursor, "cursor", 0, len(payload))
+    integer(max_lines, "max_lines", 1, 100)
+    integer(max_line_bytes, "max_line_bytes", 1, 4096)
+    starts = [chunk["cursor"] for chunk in chunks]
+    lines = []
+    budget = MAX_PREVIEW_BYTES
+    start = cursor
+    while start < len(payload) and len(lines) < max_lines and budget > 0:
+        newline = payload.find(b"\n", start)
+        end = newline + 1 if newline >= 0 else len(payload)
+        content_end = end - 1 if newline >= 0 else end
+        crlf = newline >= 0 and content_end > start and payload[content_end - 1] == 13
+        if crlf:
+            content_end -= 1
+        content = payload[start:content_end]
+        prefix = content[: min(max_line_bytes, budget)]
+        budget -= len(prefix)
+        valid_utf8 = True
+        text = None
+        try:
+            content.decode("utf-8", errors="strict")
+            # The bounded prefix can end inside a valid multi-byte character.
+            text = codecs.getincrementaldecoder("utf-8")().decode(prefix, final=False)
+        except UnicodeDecodeError:
+            valid_utf8 = False
+        first = chunks[bisect_right(starts, start) - 1]
+        last = chunks[bisect_right(starts, end - 1) - 1]
+        line = {
+            "cursor": start,
+            "next_cursor": end,
+            "content_bytes": len(content),
+            "complete": newline >= 0,
+            "terminator": "crlf" if crlf else "lf" if newline >= 0 else None,
+            "initial_fragment": start > 0 and payload[start - 1] != 10,
+            "utf8_valid": valid_utf8,
+            "text": text,
+            "preview_bytes": len(text.encode("utf-8")) if valid_utf8 else len(prefix),
+            "truncated": len(content)
+            > (len(text.encode("utf-8")) if valid_utf8 else len(prefix)),
+            "first_chunk": first,
+            "last_chunk": last,
+        }
+        if not valid_utf8:
+            line["data_hex"] = prefix.hex()
+        lines.append(line)
+        start = end
+    return {
+        "lines": lines,
+        "cursor": cursor,
+        "next_cursor": start,
+        "has_more": start < len(payload),
+        "max_lines": max_lines,
+        "max_line_bytes": max_line_bytes,
+        "preview_byte_budget": MAX_PREVIEW_BYTES,
+        "timestamps_are_chunk_observations": True,
+    }
+
+
+def read_report(
+    summary: Path,
+    operation: str = "inspect",
+    *,
+    cursor: int = 0,
+    max_lines: int = 40,
+    max_line_bytes: int = 1024,
+    output: Path | None = None,
+) -> dict[str, Any]:
+    """Inspect, preview or explicitly export one fully verified saved capture."""
+    report: dict[str, Any] = {
+        "schema_version": READ_SCHEMA,
+        "operation": operation,
+        "ok": False,
+        "scope": "host_only_rtt_evidence",
+        "hardware_access": False,
+        "executables_started": False,
+        "source_execution_not_performed": True,
+        "runtime_firmware_identity_verified": False,
+        "errors": [],
+    }
+    try:
+        require(operation in {"inspect", "preview", "extract"}, "unknown operation")
+        value, source = _read_summary(summary)
+        report["summary"] = source
+        result = _check_capture(value, Path(source["path"]).parent, retain=True)
+        require(result["ok"], result.get("error", "invalid RTT capture"))
+        payload = result.pop("_payload")
+        chunks = result.pop("_chunks")
+        report["integrity"] = result
+        data = value["data"]
+        report["capture"] = {
+            "capture_id": data["capture_id"],
+            "backend": data["plan"]["backend"],
+            "probe_id": data["plan"]["probe_id"],
+            "target": data["plan"]["target"],
+            "selection": data["plan"]["selection"],
+            "stop_reason": data["stop_reason"],
+            "channel_stopped": data["channel_stopped"],
+            "disconnected": data["disconnected"],
+        }
+        if operation == "preview":
+            report["preview"] = _preview(
+                payload, chunks, cursor, max_lines, max_line_bytes
+            )
+        elif operation == "extract":
+            require(output is not None, "extract requires an explicit output path")
+            destination = output.resolve()
+            require(
+                destination not in {Path(source["path"]), Path(result["path"])},
+                "output must not replace native evidence",
+            )
+            with destination.open("xb") as handle:
+                handle.write(payload)
+                handle.flush()
+            report["output"] = {
+                "path": str(destination),
+                "size": len(payload),
+                "sha256": result["payload_sha256"],
+                "encoding": "binary",
+                "derived_from_verified_capture": True,
+            }
+        report["ok"] = True
+    except (
+        EvidenceError,
+        OSError,
+        ValueError,
+        KeyError,
+        TypeError,
+        RecursionError,
+    ) as error:
+        report["errors"].append(str(error) or type(error).__name__)
+    return report
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Inspect saved RTT evidence without hardware access."
+    )
+    commands = parser.add_subparsers(dest="operation", required=True)
+    for name in ("inspect", "preview", "extract"):
+        command = commands.add_parser(name)
+        command.add_argument(
+            "summary", type=Path, help="unchanged native capture summary JSON"
+        )
+        command.add_argument("--json", action="store_true")
+        if name == "preview":
+            command.add_argument("--cursor", type=int, default=0)
+            command.add_argument("--max-lines", type=int, default=40)
+            command.add_argument("--max-line-bytes", type=int, default=1024)
+        if name == "extract":
+            command.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args(argv)
+    report = read_report(
+        args.summary,
+        args.operation,
+        cursor=getattr(args, "cursor", 0),
+        max_lines=getattr(args, "max_lines", 40),
+        max_line_bytes=getattr(args, "max_line_bytes", 1024),
+        output=getattr(args, "output", None),
+    )
+    if args.json:
+        print(json.dumps(report, indent=2, sort_keys=True))
+    elif not report["ok"]:
+        print("RTT evidence invalid: " + "; ".join(report["errors"]), file=sys.stderr)
+    else:
+        integrity = report["integrity"]
+        print(
+            f"RTT evidence verified: {integrity['bytes_captured']} bytes / {integrity['chunk_count']} chunks"
+        )
+        if args.operation == "preview":
+            for line in report["preview"]["lines"]:
+                # JSON string escaping keeps untrusted terminal control bytes inert.
+                text = json.dumps(
+                    line.get("text") if line["utf8_valid"] else line["data_hex"],
+                    ensure_ascii=True,
+                )
+                flags = (" truncated" if line["truncated"] else "") + (
+                    " incomplete" if not line["complete"] else ""
+                )
+                print(f"[{line['cursor']}:{line['next_cursor']}){flags} {text}")
+            print(
+                f"Next cursor: {report['preview']['next_cursor']}; more: {report['preview']['has_more']}"
+            )
+        elif args.operation == "extract":
+            print(
+                f"Payload: {report['output']['path']}\nSHA-256: {report['output']['sha256']}"
+            )
+    return 0 if report["ok"] else 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

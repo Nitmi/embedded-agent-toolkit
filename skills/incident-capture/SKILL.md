@@ -44,6 +44,10 @@ RTT consumes the selected RAM read cursor and attachment may perturb the target.
 Preserve the native summary and raw JSONL, including partial evidence and cleanup
 failures. Treat cursor offsets as positions in one capture, not target addresses
 or continuity across captures. Stop/disconnect does not prove the core is running.
+The RTT guide's offline reader can derive a bounded preview or lossless binary
+export from a complete, verified capture. Keep native inputs unchanged and link
+derived files to their input/payload hashes. Partial failed captures are retained
+as failures; an integrity-rejected reader result is not an empty successful log.
 
 Keep raw structured component outputs and include a small index containing:
 

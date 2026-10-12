@@ -47,6 +47,7 @@ class InstalledScriptTests(unittest.TestCase):
                 [sys.executable, str(scripts / "release.py"), "--help"],
                 [sys.executable, str(scripts / "station_config.py"), "--help"],
                 [sys.executable, str(scripts / "test_contract.py"), "--help"],
+                [sys.executable, str(scripts / "rtt_evidence.py"), "--help"],
                 [sys.executable, str(scripts / "toolkit_doctor.py"), "--help"],
             )
             for command in commands:
