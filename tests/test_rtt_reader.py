@@ -231,11 +231,12 @@ class RttReaderTests(unittest.TestCase):
     def test_export_uses_verified_snapshot_not_a_second_artifact_read(self) -> None:
         summary = self.prepare(b"original\n")
         snapshot = self.artifact.read_bytes()
+        resolved_artifact = self.artifact.resolve(strict=True)
         original_open = Path.open
         reads = []
 
         def open_file(path, mode="r", *args, **kwargs):
-            if path == self.artifact and mode == "rb":
+            if path == resolved_artifact and mode == "rb":
                 reads.append(path)
                 with original_open(path, "wb") as handle:
                     handle.write(b"changed after snapshot")
@@ -247,6 +248,7 @@ class RttReaderTests(unittest.TestCase):
             result = rtt_evidence.read_report(summary, "extract", output=output)
         self.assertTrue(result["ok"], result["errors"])
         self.assertEqual(len(reads), 1)
+        self.assertEqual(self.artifact.read_bytes(), b"changed after snapshot")
         self.assertEqual(output.read_bytes(), b"original\n")
         self.assertEqual(
             result["integrity"]["sha256"], hashlib.sha256(snapshot).hexdigest()
