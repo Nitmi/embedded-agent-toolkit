@@ -2,7 +2,9 @@
 
 ## Contents and scope
 
-The latest published Toolkit is `0.20.0`, with file-only RTT inspect/preview/extract commands;
+The latest published Toolkit is [0.21.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.21.0),
+adding firmware-inspect 0.2.0 exact ELF symbol lookup and RTT address guidance.
+It also includes file-only RTT inspect/preview/extract commands;
 see [RTT saved-log inspection](rtt.md#inspect-saved-logs-without-a-device).
 It also includes bounded RTT contract stages and offline summary/JSONL
 verification. The portable **plugin-only** release contains the four
@@ -13,7 +15,7 @@ Use Python 3.11 or newer for the release commands; only the standard library is
 required. The bundled v2 catalog pins attested standalone Windows x86_64 releases
 of all three core component CLIs, including `embedded-debugger 0.2.4`, and the
 optional offline `board-registry 0.2.3` resolver and selection-contract generator,
-plus `firmware-inspect 0.1.0` for local ELF/HEX/BIN analysis. Optional tools require
+plus `firmware-inspect 0.2.0` for local ELF/HEX/BIN analysis and exact ELF symbols. Optional tools require
 explicit `--include-optional` selections; defaults remain unchanged.
 
 The archive has a single `embedded-agent-toolkit` root. Its
@@ -30,7 +32,7 @@ After tests and a cohesive commit, from this repository:
 
 ```powershell
 python scripts/release.py build --output-dir dist --json
-python scripts/release.py verify dist/embedded-agent-toolkit-0.20.0.zip --checksum dist/embedded-agent-toolkit-0.20.0.zip.sha256 --json
+python scripts/release.py verify dist/embedded-agent-toolkit-0.21.0.zip --checksum dist/embedded-agent-toolkit-0.21.0.zip.sha256 --json
 ```
 
 The builder requires a clean worktree and reads pinned Git blobs rather than
@@ -41,16 +43,16 @@ push commits, or publish a remote release.
 
 ## Bootstrap without cloning
 
-The latest published Toolkit release is `0.20.0`; its immutable tagged release
+The latest published Toolkit release is `0.21.0`; its immutable tagged release
 publishes `bootstrap.py` as a separately attested asset.
 Download and authenticate the script before executing it:
 
 ```powershell
-gh release download v0.20.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.21.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.20.0 `
+  --source-ref refs/tags/v0.21.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -109,8 +111,8 @@ Use the release script from a trusted source checkout. Obtain the ZIP and its
 checksum from a trusted channel, then install into a directory you own:
 
 ```powershell
-python scripts/release.py install dist/embedded-agent-toolkit-0.20.0.zip `
-  --checksum dist/embedded-agent-toolkit-0.20.0.zip.sha256 `
+python scripts/release.py install dist/embedded-agent-toolkit-0.21.0.zip `
+  --checksum dist/embedded-agent-toolkit-0.21.0.zip.sha256 `
   --install-root C:\Tools\embedded-agent-toolkit `
   --lock-output C:\Tools\embedded-agent-toolkit\component-locks\workstation.json `
   --baud C:\Users\you\.local\bin\baud.exe `
@@ -119,7 +121,7 @@ python scripts/release.py install dist/embedded-agent-toolkit-0.20.0.zip `
   --json
 ```
 
-This creates `C:\Tools\embedded-agent-toolkit\0.20.0\embedded-agent-toolkit`,
+This creates `C:\Tools\embedded-agent-toolkit\0.21.0\embedded-agent-toolkit`,
 then creates the requested component lock and runs strict doctor against the
 installed plugin. The three component executables are invoked only with
 `--version`; no hardware command is run. All four setup options (`--lock-output`,
