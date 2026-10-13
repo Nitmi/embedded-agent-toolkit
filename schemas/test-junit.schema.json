@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Nitmi/embedded-agent-toolkit/schemas/test-junit.schema.json",
+  "title": "Embedded Agent Toolkit JUnit Export Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "operation", "ok", "status", "complete", "scope", "authorization_granted", "execution_supported", "source_execution_not_performed", "hardware_access", "executables_started", "errors"],
+  "properties": {
+    "schema_version": {"const": "embedded-agent-toolkit.test-junit.v1"},
+    "operation": {"const": "junit"},
+    "ok": {"type": "boolean"},
+    "status": {"enum": ["passed", "failed", "invalid"]},
+    "complete": {"type": "boolean"},
+    "scope": {"const": "host_only_evidence_evaluation"},
+    "contract": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256", "current"],
+      "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"$ref": "#/$defs/sha256"}, "current": {"type": "boolean"}}
+    },
+    "run": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"$ref": "#/$defs/sha256"}}
+    },
+    "board_id": {"type": "string", "minLength": 1},
+    "junit": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes", "tests", "failures", "errors", "skipped"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1}, "sha256": {"$ref": "#/$defs/sha256"},
+        "size_bytes": {"type": "integer", "minimum": 1, "maximum": 4194304},
+        "tests": {"type": "integer", "minimum": 1, "maximum": 263},
+        "failures": {"type": "integer", "minimum": 0, "maximum": 263},
+        "errors": {"type": "integer", "minimum": 0, "maximum": 263},
+        "skipped": {"const": 0}
+      }
+    },
+    "evaluation_summary": {
+      "type": "object", "additionalProperties": false,
+      "required": ["stages_total", "stage_evidence_current", "assertions_total", "assertions_passed", "cleanup_total", "cleanup_passed"],
+      "properties": {
+        "stages_total": {"type": "integer", "minimum": 1, "maximum": 64},
+        "stage_evidence_current": {"type": "integer", "minimum": 0, "maximum": 64},
+        "assertions_total": {"type": "integer", "minimum": 0, "maximum": 128},
+        "assertions_passed": {"type": "integer", "minimum": 0, "maximum": 128},
+        "cleanup_total": {"type": "integer", "minimum": 0, "maximum": 4},
+        "cleanup_passed": {"type": "integer", "minimum": 0, "maximum": 4}
+      }
+    },
+    "authorization_granted": {"const": false},
+    "execution_supported": {"const": false},
+    "source_execution_not_performed": {"const": true},
+    "hardware_access": {"const": false},
+    "executables_started": {"const": false},
+    "errors": {"type": "array", "items": {"type": "string", "minLength": 1}}
+  },
+  "oneOf": [
+    {"required": ["contract", "run", "board_id", "junit", "evaluation_summary"], "properties": {"status": {"const": "passed"}, "ok": {"const": true}, "complete": {"const": true}, "errors": {"maxItems": 0}, "junit": {"properties": {"failures": {"const": 0}, "errors": {"const": 0}}}}},
+    {"required": ["contract", "run", "board_id", "junit", "evaluation_summary"], "properties": {"status": {"const": "failed"}, "ok": {"const": false}, "errors": {"minItems": 1}, "junit": {"anyOf": [{"properties": {"failures": {"minimum": 1}}}, {"properties": {"errors": {"minimum": 1}}}]}}},
+    {"properties": {"status": {"const": "invalid"}, "ok": {"const": false}, "complete": {"const": false}, "errors": {"minItems": 1}, "contract": false, "run": false, "board_id": false, "junit": false, "evaluation_summary": false}}
+  ],
+  "$defs": {"sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}
+}

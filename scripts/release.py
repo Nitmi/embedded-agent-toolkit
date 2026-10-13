@@ -44,12 +44,14 @@ REQUIRED_FILES = {
     "scripts/component_lock.py",
     "scripts/station_config.py",
     "scripts/test_contract.py",
+    "scripts/junit_report.py",
     "scripts/rtt_evidence.py",
     "scripts/toolkit_doctor.py",
     "schemas/test-spec.schema.json",
     "schemas/test-contract.schema.json",
     "schemas/test-run.schema.json",
     "schemas/test-report.schema.json",
+    "schemas/test-junit.schema.json",
     *(
         f"skills/{name}/SKILL.md"
         for name in (

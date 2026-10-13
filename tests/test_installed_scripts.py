@@ -23,6 +23,7 @@ class InstalledScriptTests(unittest.TestCase):
                 "release.py",
                 "station_config.py",
                 "test_contract.py",
+                "junit_report.py",
                 "rtt_evidence.py",
                 "toolkit_doctor.py",
             ):

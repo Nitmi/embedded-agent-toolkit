@@ -25,6 +25,8 @@ BLE, and debug transports. Each component remains independently usable.
 
 The latest published release is [0.22.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.22.0),
 adding firmware-inspect 0.3.0 offline PC/LR-to-function/source-line guidance.
+The current 0.23.0 source candidate adds JUnit XML export from fresh offline
+test-contract evaluation, pending formal Toolkit publication.
 Existing workstation locks are preserved. It also includes offline RTT inspection, bounded
 line previews and lossless payload export, alongside bounded RTT guidance and
 native JSONL verification; see [RTT workflows](docs/rtt.md). It provides a
@@ -105,6 +107,9 @@ retries, structured assertions, and cleanup without starting a component or
 authorizing execution. After the separately gated component operations produce
 their native JSON evidence, the same script can verify its paths and hashes,
 evaluate RFC 6901 assertions and cleanup states, and emit one offline report.
+The 0.23.0 source also exports that evaluation as bounded JUnit XML using
+`test_contract.py junit`, with nonzero exit status for failed/incomplete evidence
+and no component execution. See [JUnit CI reporting](docs/test-contract.md#junit-xml-for-ci).
 Contracts can now begin with observation-only `baud.list`, `blea.doctor`, and
 `embedded-debugger.probes-list` stages, making fresh serial, adapter, and probe
 identity checks part of the same hash-bound test evidence.

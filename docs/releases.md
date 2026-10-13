@@ -5,6 +5,8 @@
 The latest published Toolkit is [0.22.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.22.0),
 adding firmware-inspect 0.3.0 code-address and DWARF source-line lookup with
 offline PC/LR guidance alongside exact ELF symbol and RTT address workflows.
+The current 0.23.0 source candidate adds offline test-contract JUnit export;
+it is pending formal publication and does not upgrade an installed plugin.
 It also includes file-only RTT inspect/preview/extract commands;
 see [RTT saved-log inspection](rtt.md#inspect-saved-logs-without-a-device).
 It also includes bounded RTT contract stages and offline summary/JSONL

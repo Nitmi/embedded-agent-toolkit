@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compile, inspect, and evaluate non-authorizing hardware-test contracts."""
+"""Compile, inspect, evaluate and export non-authorizing test evidence."""
 
 from __future__ import annotations
 
@@ -18,8 +18,9 @@ from typing import Any
 sys.dont_write_bytecode = True
 
 if __package__:
-    from . import rtt_evidence
+    from . import junit_report, rtt_evidence
 else:
+    import junit_report
     import rtt_evidence
 
 SPEC_SCHEMA = "embedded-agent-toolkit.test-spec.v1"
@@ -1911,6 +1912,12 @@ def evaluate_report(contract: Path, run: Path, output: Path) -> dict[str, Any]:
     return report
 
 
+def junit_export(contract: Path, run: Path, output: Path) -> dict[str, Any]:
+    destination = junit_report.new_output(output)
+    evaluation = evaluate_contract(contract, run)
+    return junit_report.export(evaluation, destination)
+
+
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="operation", required=True)
@@ -1933,6 +1940,13 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     evaluate_parser.add_argument("--run", type=Path, required=True)
     evaluate_parser.add_argument("--output", type=Path, required=True)
     evaluate_parser.add_argument("--json", action="store_true")
+    junit_parser = subparsers.add_parser(
+        "junit", help="evaluate saved evidence and export CI JUnit XML, without hardware"
+    )
+    junit_parser.add_argument("contract", type=Path)
+    junit_parser.add_argument("--run", type=Path, required=True)
+    junit_parser.add_argument("--output", type=Path, required=True)
+    junit_parser.add_argument("--json", action="store_true")
     return parser.parse_args(argv)
 
 
@@ -1949,6 +1963,11 @@ def _render(report: dict[str, Any]) -> str:
                 f"Test evidence passed for board: {report['board_id']}\n"
                 "All assertions and cleanup states passed; no component was executed."
             )
+        if report["operation"] == "junit":
+            return (
+                f"Test evidence passed; JUnit XML: {report['junit']['path']}\n"
+                f"Tests: {report['junit']['tests']}; no component was executed."
+            )
         return (
             f"Test contract valid: {report['contract']}\n"
             f"SHA-256: {report['contract_sha256']}\n"
@@ -1956,7 +1975,7 @@ def _render(report: dict[str, Any]) -> str:
         )
     noun = (
         "Test evidence failed"
-        if report["operation"] == "evaluate"
+        if report["operation"] in {"evaluate", "junit"}
         else "Test contract invalid"
     )
     return noun + "\n" + "\n".join(f"- {error}" for error in report["errors"])
@@ -1969,9 +1988,11 @@ def main(argv: Sequence[str] | None = None) -> int:
             report = compile_report(args.spec, args.output)
         elif args.operation == "inspect":
             report = inspect_contract(args.contract)
+        elif args.operation == "junit":
+            report = junit_export(args.contract, args.run, args.output)
         else:
             report = evaluate_report(args.contract, args.run, args.output)
-    except ContractError as error:
+    except (ContractError, junit_report.JunitError) as error:
         report = {
             "schema_version": REPORT_SCHEMA,
             "operation": args.operation,
@@ -1983,6 +2004,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             "executables_started": False,
             "errors": [str(error)],
         }
+        if args.operation == "junit":
+            report.update(
+                {"schema_version": junit_report.SCHEMA,
+                 "scope": "host_only_evidence_evaluation", "complete": False,
+                 "source_execution_not_performed": True}
+            )
     if args.json:
         print(json.dumps(report, indent=2, sort_keys=True))
     else:

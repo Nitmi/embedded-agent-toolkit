@@ -63,6 +63,13 @@ their own gates. After separately gated component operations, bind the unchanged
 native JSON evidence in a non-authorizing run manifest and evaluate assertions
 and cleanup offline.
 
+For CI reporting, Toolkit 0.23.0+ adds `test_contract.py junit <contract> --run
+<run> --output <new.xml> --json`; read the test-contract guide's JUnit section.
+It reevaluates the hash-bound saved evidence and exports assertions, input/stage
+checks and cleanup as distinct CI cases without rerunning hardware. Preserve
+nonzero exit status and upload XML on failure; missing or unevaluable evidence
+is an error, never a skip. Keep native JSON for details truncated in XML.
+
 Friendly names and discovery order are not exact selection rules. Make retries
 explicit per stage; default state-changing operations to zero retries.
 
