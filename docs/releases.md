@@ -2,12 +2,10 @@
 
 ## Contents and scope
 
-The source `0.20.0` candidate adds file-only RTT inspect/preview/extract commands;
+The latest published Toolkit is `0.20.0`, with file-only RTT inspect/preview/extract commands;
 see [RTT saved-log inspection](rtt.md#inspect-saved-logs-without-a-device).
-This candidate has not been published or activated.
-
-The latest published Toolkit is `0.19.0`, which adds bounded RTT contract stages
-and offline summary/JSONL verification. The portable **plugin-only** release contains the four
+It also includes bounded RTT contract stages and offline summary/JSONL
+verification. The portable **plugin-only** release contains the four
 orchestration Skills, their references, host-only scripts, user documentation,
 license, the strict component catalog, and both plugin manifests. Component executables, component MCP servers,
 Git internals, tests, local hardware evidence, and build outputs are not bundled.
@@ -43,16 +41,16 @@ push commits, or publish a remote release.
 
 ## Bootstrap without cloning
 
-The latest published Toolkit release is `0.19.0`; its immutable tagged release
+The latest published Toolkit release is `0.20.0`; its immutable tagged release
 publishes `bootstrap.py` as a separately attested asset.
 Download and authenticate the script before executing it:
 
 ```powershell
-gh release download v0.19.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.20.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.19.0 `
+  --source-ref refs/tags/v0.20.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -111,8 +109,8 @@ Use the release script from a trusted source checkout. Obtain the ZIP and its
 checksum from a trusted channel, then install into a directory you own:
 
 ```powershell
-python scripts/release.py install dist/embedded-agent-toolkit-0.19.0.zip `
-  --checksum dist/embedded-agent-toolkit-0.19.0.zip.sha256 `
+python scripts/release.py install dist/embedded-agent-toolkit-0.20.0.zip `
+  --checksum dist/embedded-agent-toolkit-0.20.0.zip.sha256 `
   --install-root C:\Tools\embedded-agent-toolkit `
   --lock-output C:\Tools\embedded-agent-toolkit\component-locks\workstation.json `
   --baud C:\Users\you\.local\bin\baud.exe `
@@ -121,7 +119,7 @@ python scripts/release.py install dist/embedded-agent-toolkit-0.19.0.zip `
   --json
 ```
 
-This creates `C:\Tools\embedded-agent-toolkit\0.19.0\embedded-agent-toolkit`,
+This creates `C:\Tools\embedded-agent-toolkit\0.20.0\embedded-agent-toolkit`,
 then creates the requested component lock and runs strict doctor against the
 installed plugin. The three component executables are invoked only with
 `--version`; no hardware command is run. All four setup options (`--lock-output`,

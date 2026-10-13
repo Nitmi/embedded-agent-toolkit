@@ -23,20 +23,18 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The source tree is a `0.20.0` candidate adding offline RTT inspection, bounded
-line previews and lossless payload export. It is not published or activated.
-
-The latest published release is `0.19.0`, with bounded RTT guidance and offline
+The latest published release is `0.20.0`, with offline RTT inspection, bounded
+line previews and lossless payload export, alongside bounded RTT guidance and
 native JSONL verification; see [RTT workflows](docs/rtt.md). It provides a
 standalone `bootstrap.py` alongside the plugin ZIP. Download the bootstrap with GitHub CLI,
 authenticate it before execution, and keep its exact filename:
 
 ```powershell
-gh release download v0.19.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.20.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.19.0 `
+  --source-ref refs/tags/v0.20.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json

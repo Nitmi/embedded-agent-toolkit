@@ -95,8 +95,7 @@ cryptographic runtime attestation.
 
 ## Inspect saved logs without a device
 
-The source `0.20.0` candidate adds a file-only reader; published `0.19.0`
-provides the underlying integrity API but not these CLI subcommands:
+Toolkit `0.20.0` provides a file-only reader using the existing integrity API:
 
 ```powershell
 python scripts/rtt_evidence.py inspect capture-summary.json --json
