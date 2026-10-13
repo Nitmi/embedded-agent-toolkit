@@ -15,7 +15,7 @@ tools behind another hardware abstraction:
 | [BLEA](https://github.com/Nitmi/blea) | Bluetooth Low Energy diagnostics and automation | CLI + Skill + MCP |
 | [embedded-debugger](https://github.com/Nitmi/embedded-debugger) | Probe discovery, flash, debug, evidence, and replay | CLI + Skill + MCP |
 | [board-registry](https://github.com/Nitmi/board-registry) (optional) | Offline fail-closed correlation and non-authorizing selection from saved discovery evidence | CLI |
-| [firmware-inspect](https://github.com/Nitmi/firmware-inspect) (optional) | Offline ELF/HEX/BIN identity, layout, exact ELF symbols and build comparison | CLI |
+| [firmware-inspect](https://github.com/Nitmi/firmware-inspect) (optional) | Offline ELF/HEX/BIN identity, layout, exact symbols, PC/LR source lookup and build comparison | CLI |
 
 The value of the toolkit is the cross-tool workflow: one identity ledger, one
 safety policy, correlated evidence, and deterministic cleanup across serial,
@@ -25,6 +25,8 @@ BLE, and debug transports. Each component remains independently usable.
 
 The latest published release is [0.21.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.21.0),
 adding firmware-inspect 0.2.0 exact ELF symbol and RTT address guidance.
+The current 0.22.0 source adds the verified firmware-inspect 0.3.0 release and
+offline PC/LR-to-function/source-line guidance; it is pending Toolkit publication.
 Existing workstation locks are preserved. It also includes offline RTT inspection, bounded
 line previews and lossless payload export, alongside bounded RTT guidance and
 native JSONL verification; see [RTT workflows](docs/rtt.md). It provides a
@@ -91,7 +93,8 @@ Toolkit `0.18.0` includes optional `firmware-inspect` for
 offline ELF/HEX/BIN identity, layout, footprint and build comparison. It can be
 explicitly checked and bound in a v2 lock without changing default component
 selection. The published Toolkit `0.21.0` catalog pins the published,
-provenance-verified `0.2.0` Windows release with exact ELF symbol queries;
+provenance-verified `0.2.0` Windows release with exact ELF symbol queries. The
+current `0.22.0` source pins `0.3.0`, adding code addresses and in-file DWARF lines;
 published Toolkit `0.18.0`–`0.20.0` catalogs still pin `0.1.0`. Opt in with
 `--include-optional firmware-inspect` when installing from
 Toolkit `0.18.0` or newer; earlier releases do not provide this integration. See
@@ -114,7 +117,7 @@ hashes, destinations, and availability without network or process execution.
 Its `install` mode is fail-closed. The current catalog
 pins attested Windows x86_64 releases of `baud 0.1.2`, `BLEA 0.7.0`, and
 `embedded-debugger 0.2.4`, plus opt-in `board-registry 0.2.3` and
-`firmware-inspect 0.2.0`, so its default
+`firmware-inspect 0.3.0`, so its default
 Windows plan is complete without falling back to ambient package-manager resolution.
 
 For a new workstation, the authenticated bootstrap can perform the complete

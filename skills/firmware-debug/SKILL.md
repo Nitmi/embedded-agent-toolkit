@@ -1,6 +1,6 @@
 ---
 name: firmware-debug
-description: Correlate bounded embedded target state with serial, RTT and BLE evidence during firmware diagnosis. Trigger for crashes, hangs, unexpected resets, missing output, bad peripheral behavior, register or stack inspection, breakpoint-driven diagnosis, and comparisons between target state and external observations.
+description: Diagnose firmware failures using bounded target state, serial/RTT/BLE evidence and offline PC/LR-to-source lookup. Trigger for crashes, hangs, resets, missing output, bad peripheral behavior, register or stack inspection, breakpoint diagnosis and comparisons between target state and external observations.
 ---
 
 # Firmware Debug
@@ -44,6 +44,15 @@ For an exact variable, function or `_SEGGER_RTT` request, use the guide's
 query's resolution status and original definition metadata; the largest-symbol
 list is incomplete for exact lookup. Preserve raw ELF values, including ABI
 bits, and distinguish TLS offsets and unresolved entries from target addresses.
+
+For PC/LR or code addresses already present in logs or a snapshot, use the guide's
+`addresses` workflow with selected firmware-inspect 0.3.0+. Bind the exact ELF
+hash and preserve input/lookup addresses, then read function and line statuses
+independently. Choose `arm-thumb` explicitly for ARM32 Thumb pointer inputs;
+do not silently adjust LR or relocation. Retain ambiguous results and unverified
+DWARF paths. A metadata line match does not establish a function's source, call
+stack, fault cause or running identity. No new target reads are needed for this
+offline annotation, and file-only requests can end with the native report.
 
 ## Build an identity ledger
 

@@ -4,6 +4,8 @@
 
 The latest published Toolkit is [0.21.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.21.0),
 adding firmware-inspect 0.2.0 exact ELF symbol lookup and RTT address guidance.
+The current `0.22.0` source adds the verified firmware-inspect `0.3.0` release
+and offline PC/LR function/source-line guidance, pending Toolkit publication.
 It also includes file-only RTT inspect/preview/extract commands;
 see [RTT saved-log inspection](rtt.md#inspect-saved-logs-without-a-device).
 It also includes bounded RTT contract stages and offline summary/JSONL
@@ -15,7 +17,8 @@ Use Python 3.11 or newer for the release commands; only the standard library is
 required. The bundled v2 catalog pins attested standalone Windows x86_64 releases
 of all three core component CLIs, including `embedded-debugger 0.2.4`, and the
 optional offline `board-registry 0.2.3` resolver and selection-contract generator,
-plus `firmware-inspect 0.2.0` for local ELF/HEX/BIN analysis and exact ELF symbols. Optional tools require
+plus `firmware-inspect 0.3.0` for local ELF/HEX/BIN analysis, exact ELF symbols
+and code-address/DWARF line queries. Optional tools require
 explicit `--include-optional` selections; defaults remain unchanged.
 
 The archive has a single `embedded-agent-toolkit` root. Its

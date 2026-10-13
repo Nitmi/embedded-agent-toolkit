@@ -1,10 +1,11 @@
 # Offline firmware inspection
 
 Toolkit `0.18.0` introduced `firmware-inspect` as an optional host-only
-component. Published Toolkit `0.21.0`'s v2 catalog pins the immutable,
-provenance-verified component Release `0.2.0` for Windows x86_64, adding exact
-ELF symbol lookup. Published Toolkit `0.18.0`–`0.20.0` catalogs still select
-`0.1.0`, and existing locks are not upgraded automatically. Default
+component. The current `0.22.0` source catalog pins the immutable,
+provenance-verified component Release `0.3.0` for Windows x86_64, adding offline
+code-address and DWARF source-line lookup. Published Toolkit `0.21.0` selects
+`0.2.0` with exact ELF symbols; `0.18.0`–`0.20.0` catalogs select `0.1.0`.
+Existing locks are not upgraded automatically. Default
 installation and doctor still select only baud, BLEA, and embedded-debugger.
 
 The component checks local ELF/HEX/BIN artifacts without reading a target,
@@ -54,10 +55,10 @@ present in the hash-verified archive. It does not extract arbitrary extra files
 or claim that a copied component manifest has independently been authenticated.
 
 The pinned asset is
-`embedded-firmware-inspect-0.2.0-windows-x86_64.zip`, SHA-256
-`44018887462bdc2fb88db8296a7f24711d0b1c06d46b1f863dcdce3c353e4b27`.
-Its Release source is `575b1cca7a21c17c16e0b3affabc5b1c7d0e1e87` and signer is
-`Nitmi/firmware-inspect/.github/workflows/binary-release.yml@refs/tags/v0.2.0`.
+`embedded-firmware-inspect-0.3.0-windows-x86_64.zip`, SHA-256
+`7441569224e830fbc1e7c59bf063da54970137246560d893c988d5c10ff88897`.
+Its Release source is `5487be08737d5ab80d90b9195b735c78beda85a2` and signer is
+`Nitmi/firmware-inspect/.github/workflows/binary-release.yml@refs/tags/v0.3.0`.
 The component's verification is separate from authenticating the enclosing
 Toolkit Release. An arbitrary external catalog is not publisher authority.
 
@@ -113,3 +114,46 @@ With an older selected component, keep using its supported inspection commands
 and report that exact queries require 0.2.0+. Do not install another tool or
 change locks during diagnosis, and do not replace a missing result with a guessed
 address or a symbol from another build.
+
+## PC/LR and code addresses
+
+With a selected firmware-inspect `0.3.0` or newer, annotate addresses already
+captured in a log or native debugger snapshot using the exact matching ELF:
+
+```powershell
+firmware-inspect addresses C:\project\build\app.elf `
+  --address 0x101 --address 0x120 --address-mode arm-thumb --json
+```
+
+Use the exact lock-bound executable, not an unverified PATH alternative. Supply
+1..32 distinct unsigned byte addresses in the ELF's link-time address context.
+The default `raw` mode keeps query values unchanged. Explicit `arm-thumb` requires
+ELF32 EM_ARM and clears only query bit 0; retain `address` and `lookup_address`.
+Function matches keep `raw_value` and separately record Thumb-bit code-range
+normalization. Exact-name `symbols` continues to preserve raw values unchanged.
+Neither mode subtracts from LR, guesses instruction width, relocates an image,
+unwinds a stack or rebuilds inline frames. An adjusted return address needs an
+explicit analyst rationale and a separate query value.
+
+Read each `address_queries` row's `function_status` and `line_status` independently:
+`unique`, `ambiguous` or `not_found`. Preserve all `functions` and `lines` with
+their table/section/CU/line-program metadata. Functions use declared STT_FUNC
+ranges in allocated executable sections; a zero-sized function matches only
+its exact code start. DWARF 2–5 lines use half-open intervals and sequence ends;
+gaps and line 0 supply no location. A successful CLI exit means a completed query,
+even when no metadata resolves. Use `--no-lines` for function-only lookup.
+
+Line paths remain unverified compiler metadata in `file_name`, `directory` and
+`compilation_directory`; the query never opens or rebases them. Functions and
+lines can disagree after optimization or discarded code. A unique line location
+is not verified against source contents or proof of the matching function's body.
+Do not merge the independent matches into a claimed call stack or root cause.
+External/split, compressed, VLIW and segmented DWARF are unsupported; malformed
+or oversized units return structured errors instead of partial successful data.
+
+`source.sha256` binds the bounded snapshot used for parsing. Preserve the native
+`embedded-firmware-inspect.addresses.v1` JSON alongside the original log/snapshot;
+record address adjustments separately. This is offline annotation, not renewed
+firmware attestation or permission to read target memory. With an older selected
+component, report the missing 0.3.0+ capability without installing or changing
+locks during diagnosis. File-only annotation does not require a hardware session.
