@@ -23,10 +23,8 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The latest published release is [0.21.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.21.0),
-adding firmware-inspect 0.2.0 exact ELF symbol and RTT address guidance.
-The current 0.22.0 source adds the verified firmware-inspect 0.3.0 release and
-offline PC/LR-to-function/source-line guidance; it is pending Toolkit publication.
+The latest published release is [0.22.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.22.0),
+adding firmware-inspect 0.3.0 offline PC/LR-to-function/source-line guidance.
 Existing workstation locks are preserved. It also includes offline RTT inspection, bounded
 line previews and lossless payload export, alongside bounded RTT guidance and
 native JSONL verification; see [RTT workflows](docs/rtt.md). It provides a
@@ -34,11 +32,11 @@ standalone `bootstrap.py` alongside the plugin ZIP. Download the bootstrap with 
 authenticate it before execution, and keep its exact filename:
 
 ```powershell
-gh release download v0.21.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.22.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.21.0 `
+  --source-ref refs/tags/v0.22.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -92,9 +90,9 @@ its exact path, version, and SHA-256 while existing v1 three-component locks rem
 Toolkit `0.18.0` includes optional `firmware-inspect` for
 offline ELF/HEX/BIN identity, layout, footprint and build comparison. It can be
 explicitly checked and bound in a v2 lock without changing default component
-selection. The published Toolkit `0.21.0` catalog pins the published,
-provenance-verified `0.2.0` Windows release with exact ELF symbol queries. The
-current `0.22.0` source pins `0.3.0`, adding code addresses and in-file DWARF lines;
+selection. The published Toolkit `0.22.0` catalog pins the published,
+provenance-verified `0.3.0` Windows release with exact ELF symbols, code addresses
+and in-file DWARF lines. Toolkit `0.21.0` pins `0.2.0`;
 published Toolkit `0.18.0`–`0.20.0` catalogs still pin `0.1.0`. Opt in with
 `--include-optional firmware-inspect` when installing from
 Toolkit `0.18.0` or newer; earlier releases do not provide this integration. See

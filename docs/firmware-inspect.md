@@ -1,7 +1,7 @@
 # Offline firmware inspection
 
 Toolkit `0.18.0` introduced `firmware-inspect` as an optional host-only
-component. The current `0.22.0` source catalog pins the immutable,
+component. Published Toolkit `0.22.0`'s catalog pins the immutable,
 provenance-verified component Release `0.3.0` for Windows x86_64, adding offline
 code-address and DWARF source-line lookup. Published Toolkit `0.21.0` selects
 `0.2.0` with exact ELF symbols; `0.18.0`–`0.20.0` catalogs select `0.1.0`.
