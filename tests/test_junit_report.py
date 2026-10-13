@@ -154,7 +154,9 @@ class JunitReportTests(unittest.TestCase):
         self.fixture.write_json(execute, evidence)
         run = json.loads(run_path.read_text())
         for row in run["stage_evidence"] + run["cleanup_evidence"]:
-            if Path(row["path"]) == execute:
+            if Path(row["path"]).resolve() == execute.resolve():
+                # Exercise equivalent spellings, including Windows short paths.
+                row["path"] = str(execute.parent / ".." / "evidence" / execute.name)
                 row["sha256"] = test_contract.sha256(execute)
         self.fixture.write_json(run_path, run)
         report = test_contract.junit_export(contract, run_path, self.output)
