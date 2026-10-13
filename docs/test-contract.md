@@ -2,7 +2,7 @@
 
 `scripts/test_contract.py` compiles one reviewed project test specification into
 a hash-bound, non-authorizing orchestration contract, inspects its bound inputs,
-and evaluates previously captured JSON evidence. The current 0.23.0 candidate
+and evaluates previously captured JSON evidence. Toolkit 0.23.0
 also exports fresh evaluation to CI JUnit XML. It does not run baud, BLEA,
 embedded-debugger, a shell, or any hardware operation.
 
@@ -138,7 +138,7 @@ Malformed contracts or run manifests are rejected before an output is created.
 
 ## JUnit XML for CI
 
-The local `0.23.0` candidate adds a one-command evaluation and export:
+Toolkit `0.23.0` adds a one-command evaluation and export:
 
 ```powershell
 python scripts/test_contract.py junit test-contract.json `

@@ -23,10 +23,9 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The latest published release is [0.22.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.22.0),
-adding firmware-inspect 0.3.0 offline PC/LR-to-function/source-line guidance.
-The current 0.23.0 source candidate adds JUnit XML export from fresh offline
-test-contract evaluation, pending formal Toolkit publication.
+The latest published release is [0.23.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.23.0),
+adding JUnit XML export from fresh offline test-contract evaluation. It retains
+firmware-inspect 0.3.0 offline PC/LR-to-function/source-line guidance.
 Existing workstation locks are preserved. It also includes offline RTT inspection, bounded
 line previews and lossless payload export, alongside bounded RTT guidance and
 native JSONL verification; see [RTT workflows](docs/rtt.md). It provides a
@@ -34,11 +33,11 @@ standalone `bootstrap.py` alongside the plugin ZIP. Download the bootstrap with 
 authenticate it before execution, and keep its exact filename:
 
 ```powershell
-gh release download v0.22.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.23.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.22.0 `
+  --source-ref refs/tags/v0.23.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -92,7 +91,7 @@ its exact path, version, and SHA-256 while existing v1 three-component locks rem
 Toolkit `0.18.0` includes optional `firmware-inspect` for
 offline ELF/HEX/BIN identity, layout, footprint and build comparison. It can be
 explicitly checked and bound in a v2 lock without changing default component
-selection. The published Toolkit `0.22.0` catalog pins the published,
+selection. The published Toolkit `0.22.0`–`0.23.0` catalogs pin the published,
 provenance-verified `0.3.0` Windows release with exact ELF symbols, code addresses
 and in-file DWARF lines. Toolkit `0.21.0` pins `0.2.0`;
 published Toolkit `0.18.0`–`0.20.0` catalogs still pin `0.1.0`. Opt in with
@@ -107,7 +106,7 @@ retries, structured assertions, and cleanup without starting a component or
 authorizing execution. After the separately gated component operations produce
 their native JSON evidence, the same script can verify its paths and hashes,
 evaluate RFC 6901 assertions and cleanup states, and emit one offline report.
-The 0.23.0 source also exports that evaluation as bounded JUnit XML using
+Toolkit 0.23.0 also exports that evaluation as bounded JUnit XML using
 `test_contract.py junit`, with nonzero exit status for failed/incomplete evidence
 and no component execution. See [JUnit CI reporting](docs/test-contract.md#junit-xml-for-ci).
 Contracts can now begin with observation-only `baud.list`, `blea.doctor`, and
