@@ -77,7 +77,7 @@ OPTIONAL_COMPONENTS = (
         environment_variable="EMBEDDED_AGENT_FIRMWARE_INSPECT",
         version_pattern=r"firmware-inspect\s+([^\s]+)",
         install_hint=(
-            "Install firmware-inspect 0.1.0 using the authenticated Toolkit catalog "
+            "Install firmware-inspect 0.2.0 using the authenticated Toolkit catalog "
             "with --include-optional firmware-inspect"
         ),
     ),

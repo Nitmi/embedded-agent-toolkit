@@ -542,15 +542,15 @@ class ComponentInstallTests(unittest.TestCase):
         catalog, _ = component_install.read_catalog(official)
         inspector = catalog["optional_components"]["firmware-inspect"]
         self.assertEqual(inspector["repository"], "Nitmi/firmware-inspect")
-        self.assertEqual(inspector["version"], "0.1.0")
+        self.assertEqual(inspector["version"], "0.2.0")
         artifact = inspector["artifacts"]["windows-x86_64"]
         self.assertEqual(artifact["sha256"],
-                         "4de53a107b3286c67fea86a36ef91779ca15e85fff682d2ff20374afca5c5c15")
+                         "44018887462bdc2fb88db8296a7f24711d0b1c06d46b1f863dcdce3c353e4b27")
         self.assertEqual(artifact["url"],
                          "https://github.com/Nitmi/firmware-inspect/releases/download/"
-                         "v0.1.0/embedded-firmware-inspect-0.1.0-windows-x86_64.zip")
+                         "v0.2.0/embedded-firmware-inspect-0.2.0-windows-x86_64.zip")
         self.assertEqual(artifact["executable"],
-                         "embedded-firmware-inspect-0.1.0-windows-x86_64/firmware-inspect.exe")
+                         "embedded-firmware-inspect-0.2.0-windows-x86_64/firmware-inspect.exe")
         for optional in ([], ["board-registry"], ["firmware-inspect"],
                          ["board-registry", "firmware-inspect"]):
             with self.subTest(optional=optional):

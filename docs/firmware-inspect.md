@@ -1,9 +1,10 @@
 # Offline firmware inspection
 
-Toolkit `0.18.0` includes `firmware-inspect` as an optional host-only
-component. Its published v2
-catalog pins the immutable, provenance-verified component Release `0.1.0` for
-Windows x86_64. Default
+Toolkit `0.18.0` introduced `firmware-inspect` as an optional host-only
+component. The source `0.21.0` candidate's v2 catalog pins the immutable,
+provenance-verified component Release `0.2.0` for Windows x86_64, adding exact
+ELF symbol lookup. Published Toolkit `0.18.0`–`0.20.0` catalogs still select
+`0.1.0`, and existing locks are not upgraded automatically. Default
 installation and doctor still select only baud, BLEA, and embedded-debugger.
 
 The component checks local ELF/HEX/BIN artifacts without reading a target,
@@ -53,10 +54,10 @@ present in the hash-verified archive. It does not extract arbitrary extra files
 or claim that a copied component manifest has independently been authenticated.
 
 The pinned asset is
-`embedded-firmware-inspect-0.1.0-windows-x86_64.zip`, SHA-256
-`4de53a107b3286c67fea86a36ef91779ca15e85fff682d2ff20374afca5c5c15`.
-Its Release source is `17f1fc24c53c9e31ca9169d9de277929545d7e11` and signer is
-`Nitmi/firmware-inspect/.github/workflows/binary-release.yml@refs/tags/v0.1.0`.
+`embedded-firmware-inspect-0.2.0-windows-x86_64.zip`, SHA-256
+`44018887462bdc2fb88db8296a7f24711d0b1c06d46b1f863dcdce3c353e4b27`.
+Its Release source is `575b1cca7a21c17c16e0b3affabc5b1c7d0e1e87` and signer is
+`Nitmi/firmware-inspect/.github/workflows/binary-release.yml@refs/tags/v0.2.0`.
 The component's verification is separate from authenticating the enclosing
 Toolkit Release. An arbitrary external catalog is not publisher authority.
 
@@ -83,3 +84,32 @@ the two files were analyzed, not that they fit a requested budget or are correct
 Inspection does not authorize flashing or replace the debugger's native plan,
 bounded flash-session scope, target identity checks or cleanup.
 No additional MCP server is registered by the Toolkit.
+
+## Exact ELF symbols
+
+With a selected firmware-inspect `0.2.0` or newer, query names directly:
+
+```powershell
+firmware-inspect symbols C:\project\build\app.elf --name _SEGGER_RTT --name main --json
+```
+
+Use its exact lock-bound executable path in actual commands. Supply up to 32
+distinct, case-sensitive names; this scans all symbol tables independently of
+`inspect`'s largest-symbol limit. `source.sha256` binds the parsed snapshot.
+Preserve `queries[].matches` with table, section, type, binding, visibility, raw
+`value`, `value_kind` and `size_bytes`. A completed query can return `not_found`,
+`undefined_only` or `no_definition`; successful exit is not successful resolution.
+`ambiguous` retains conflicting definitions without selecting one. Equivalent
+definition metadata can produce `unique` while preserving multiple table entries.
+
+The value is ELF `st_value`, not a validated live address. Do not clear ABI bits
+or interpret TLS offsets, COMMON alignment or relocated PIE values as ordinary
+target RAM. Zero-sized symbols provide no inferred extent. For RTT, require a
+unique section-defined object with an allocated writable section and a suitable
+declared size; bind the same ELF hash and pass the value through the debugger's
+native target RAM checks. No file query proves control-block initialization.
+
+With an older selected component, keep using its supported inspection commands
+and report that exact queries require 0.2.0+. Do not install another tool or
+change locks during diagnosis, and do not replace a missing result with a guessed
+address or a symbol from another build.

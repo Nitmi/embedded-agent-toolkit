@@ -39,6 +39,11 @@ analysis needs no target attach or hardware confirmation. Do not block an
 unrelated debug workflow or install a missing component during diagnosis.
 Its file hashes, Build IDs, section sums and load ranges are not proof of the
 running firmware, board memory capacity, or permission to flash.
+For an exact variable, function or `_SEGGER_RTT` request, use the guide's
+`symbols` workflow with a selected firmware-inspect 0.2.0+ executable. Check each
+query's resolution status and original definition metadata; the largest-symbol
+list is incomplete for exact lookup. Preserve raw ELF values, including ABI
+bits, and distinguish TLS offsets and unresolved entries from target addresses.
 
 ## Build an identity ledger
 

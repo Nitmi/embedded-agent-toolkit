@@ -19,8 +19,13 @@ native targets return `CAPABILITY_UNAVAILABLE`.
 Bind the exact probe, target, firmware ELF/hash, initialized `_SEGGER_RTT`
 address, core/channel, sampling duration and maximum bytes. Obtain the address
 from that build's symbols/linker output, never a sample or another board.
-Optional firmware-inspect can inspect the local ELF, but neither ELF identity
-nor an address establishes which firmware is running.
+Optional firmware-inspect 0.2.0+ can query `_SEGGER_RTT` directly using
+`symbols <exact-build.elf> --name _SEGGER_RTT --json`; read
+[exact ELF symbol guidance](firmware-inspect.md#exact-elf-symbols).
+Use a unique section-defined object with allocated writable storage and an
+appropriate declared size. Bind its ELF hash and raw value to the native plan's
+target RAM checks. Neither ELF identity nor an address establishes which
+firmware is running or whether the block is initialized.
 
 `rtt plan` is host-only: no enumeration, attachment or memory access. It binds
 the inputs and effects in a native confirmation digest. `rtt capture` enumerates
