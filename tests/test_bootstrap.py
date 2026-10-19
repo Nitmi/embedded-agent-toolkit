@@ -39,15 +39,25 @@ class BootstrapTests(unittest.TestCase):
             mock.patch.object(bootstrap, "bootstrap", return_value={}) as install,
             mock.patch("sys.stdout", stdout),
         ):
-            code = bootstrap.main([
-                "--install-root", "fixture-install",
-                "--component-install-root", "fixture-components",
-                "--lock-output", "fixture-lock.json", "--include-optional", "board-registry",
-                "--include-optional", "firmware-inspect", "--json",
-            ])
+            code = bootstrap.main(
+                [
+                    "--install-root",
+                    "fixture-install",
+                    "--component-install-root",
+                    "fixture-components",
+                    "--lock-output",
+                    "fixture-lock.json",
+                    "--include-optional",
+                    "board-registry",
+                    "--include-optional",
+                    "firmware-inspect",
+                    "--json",
+                ]
+            )
         self.assertEqual(code, 0)
         self.assertEqual(
-            install.call_args.args[2]["include_optional"], ["board-registry", "firmware-inspect"]
+            install.call_args.args[2]["include_optional"],
+            ["board-registry", "firmware-inspect"],
         )
 
     def setUp(self) -> None:
@@ -246,6 +256,188 @@ class BootstrapTests(unittest.TestCase):
         self.assertIn("--component-lock", command)
         self.assertIn(str(lock), command)
         self.assertNotIn("--lock-output", command)
+
+    def test_invalid_setup_is_rejected_before_github_or_network(self) -> None:
+        cases = (
+            (["--component-lock", "existing.json", "--timeout", "90"], "30 seconds"),
+            (
+                [
+                    "--lock-output",
+                    "new.json",
+                    "--baud",
+                    "baud",
+                    "--blea",
+                    "ble",
+                    "--debugger",
+                    "debugger",
+                    "--timeout",
+                    "90",
+                ],
+                "30 seconds",
+            ),
+            (["--lock-output", "new.json"], "required together"),
+            (
+                ["--component-lock", "existing.json", "--baud", "baud"],
+                "cannot be combined",
+            ),
+            (["--component-install-root", "components"], "requires --lock-output"),
+            (
+                ["--include-optional", "board-registry"],
+                "requires --component-install-root",
+            ),
+            (["--timeout", "nan"], "between 1 and 600"),
+            (["--timeout", "inf"], "between 1 and 600"),
+            (["--timeout", "0.5"], "between 1 and 600"),
+            (["--timeout", "601"], "between 1 and 600"),
+        )
+        for arguments, message in cases:
+            with self.subTest(arguments=arguments):
+                stdout = io.StringIO()
+                install_root = self.root / "not-created"
+                with (
+                    mock.patch.object(bootstrap, "gh_executable") as gh,
+                    mock.patch.object(bootstrap, "verify_attestation") as verify,
+                    mock.patch.object(bootstrap, "download") as download,
+                    mock.patch.object(bootstrap.subprocess, "run") as process,
+                    mock.patch("sys.stdout", stdout),
+                ):
+                    code = bootstrap.main(
+                        ["--install-root", str(install_root), *arguments, "--json"]
+                    )
+                self.assertEqual(code, 2)
+                report = json.loads(stdout.getvalue())
+                self.assertFalse(report["ok"])
+                self.assertFalse(report["hardware_access"])
+                self.assertIn(message, report["error"])
+                gh.assert_not_called()
+                verify.assert_not_called()
+                download.assert_not_called()
+                process.assert_not_called()
+                self.assertFalse(install_root.exists())
+
+    def test_direct_bootstrap_preflights_before_attestation(self) -> None:
+        with (
+            mock.patch.object(bootstrap, "verify_attestation") as verify,
+            mock.patch.object(bootstrap, "download") as download,
+            self.assertRaisesRegex(bootstrap.BootstrapError, "30 seconds"),
+        ):
+            bootstrap.bootstrap(
+                self.root / "not-created",
+                Path("gh.exe"),
+                {
+                    "component_lock": self.root / "lock",
+                    "lock_output": None,
+                    "baud": None,
+                    "blea": None,
+                    "debugger": None,
+                },
+                90,
+            )
+        verify.assert_not_called()
+        download.assert_not_called()
+        self.assertFalse((self.root / "not-created").exists())
+
+    def test_local_modes_forward_supported_timeout_and_full_process_budget(
+        self,
+    ) -> None:
+        for timeout in (1, 30):
+            for mode, budget in (
+                ("existing", timeout * 3 + 30),
+                ("explicit", timeout * 6 + 30),
+            ):
+                with self.subTest(mode=mode, timeout=timeout):
+                    setup = {
+                        "component_lock": None,
+                        "lock_output": None,
+                        "baud": None,
+                        "blea": None,
+                        "debugger": None,
+                    }
+                    if mode == "existing":
+                        setup["component_lock"] = self.root / "existing.json"
+                    else:
+                        setup.update(
+                            lock_output=self.root / "new.json",
+                            baud="baud",
+                            blea="ble",
+                            debugger="debugger",
+                        )
+                    with mock.patch.object(
+                        bootstrap.subprocess,
+                        "run",
+                        return_value=subprocess_result(
+                            json.dumps({"ok": True, "hardware_access": False})
+                        ),
+                    ) as run:
+                        bootstrap.run_installer(
+                            self.root / "release.py",
+                            self.root / "release.zip",
+                            self.root / "release.sha256",
+                            self.root / "install",
+                            setup,
+                            timeout,
+                        )
+                    command = run.call_args.args[0]
+                    self.assertEqual(
+                        float(command[command.index("--timeout") + 1]), timeout
+                    )
+                    self.assertEqual(run.call_args.kwargs["timeout"], budget)
+
+    def test_catalog_preserves_600_second_timeout_and_optional_process_budget(
+        self,
+    ) -> None:
+        with mock.patch.object(
+            bootstrap.subprocess,
+            "run",
+            return_value=subprocess_result(
+                json.dumps({"ok": True, "hardware_access": False})
+            ),
+        ) as run:
+            bootstrap.run_installer(
+                self.root / "release.py",
+                self.root / "release.zip",
+                self.root / "release.sha256",
+                self.root / "install",
+                {
+                    "component_lock": None,
+                    "component_install_root": self.root / "components",
+                    "lock_output": self.root / "new.json",
+                    "baud": None,
+                    "blea": None,
+                    "debugger": None,
+                    "include_optional": ["board-registry", "firmware-inspect"],
+                },
+                600,
+            )
+        command = run.call_args.args[0]
+        self.assertEqual(float(command[command.index("--timeout") + 1]), 600)
+        self.assertEqual(command.count("--include-optional"), 2)
+        self.assertEqual(run.call_args.kwargs["timeout"], 9030)
+
+    def test_plugin_only_does_not_forward_network_timeout_to_installer(self) -> None:
+        with mock.patch.object(
+            bootstrap.subprocess,
+            "run",
+            return_value=subprocess_result(
+                json.dumps({"ok": True, "hardware_access": False})
+            ),
+        ) as run:
+            bootstrap.run_installer(
+                self.root / "release.py",
+                self.root / "release.zip",
+                self.root / "release.sha256",
+                self.root / "install",
+                {
+                    "component_lock": None,
+                    "lock_output": None,
+                    "baud": None,
+                    "blea": None,
+                    "debugger": None,
+                },
+                600,
+            )
+        self.assertNotIn("--timeout", run.call_args.args[0])
+        self.assertEqual(run.call_args.kwargs["timeout"], 30)
 
     def test_installer_passes_catalog_component_install_mode(self) -> None:
         lock = self.root / "new-lock.json"

@@ -2,8 +2,9 @@
 
 ## Contents and scope
 
-The latest published Toolkit is [0.23.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.23.0),
-adding offline test-contract JUnit export. It retains firmware-inspect 0.3.0
+The latest published Toolkit is [0.24.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.24.0),
+adding an optional [HIL Runner workflow](hil-runner.md) and installed payload
+inspection. It retains offline test-contract JUnit export and firmware-inspect 0.3.0
 code-address and DWARF source-line lookup with offline PC/LR guidance alongside
 exact ELF symbol and RTT address workflows. Upgrading the plugin preserves
 existing workstation locks and does not require reinstalling components.
@@ -16,7 +17,7 @@ license, the strict component catalog, and both plugin manifests. Component exec
 Git internals, tests, local hardware evidence, and build outputs are not bundled.
 Use Python 3.11 or newer for the release commands; only the standard library is
 required. The bundled v2 catalog pins attested standalone Windows x86_64 releases
-of all three core component CLIs, including `embedded-debugger 0.2.4`, and the
+of all three core component CLIs, including `embedded-debugger 0.2.5`, and the
 optional offline `board-registry 0.2.3` resolver and selection-contract generator,
 plus `firmware-inspect 0.3.0` for local ELF/HEX/BIN analysis, exact ELF symbols
 and code-address/DWARF line queries. Optional tools require
@@ -36,7 +37,7 @@ After tests and a cohesive commit, from this repository:
 
 ```powershell
 python scripts/release.py build --output-dir dist --json
-python scripts/release.py verify dist/embedded-agent-toolkit-0.23.0.zip --checksum dist/embedded-agent-toolkit-0.23.0.zip.sha256 --json
+python scripts/release.py verify dist/embedded-agent-toolkit-0.24.1.zip --checksum dist/embedded-agent-toolkit-0.24.1.zip.sha256 --json
 ```
 
 The builder requires a clean worktree and reads pinned Git blobs rather than
@@ -47,16 +48,16 @@ push commits, or publish a remote release.
 
 ## Bootstrap without cloning
 
-The latest published Toolkit release is `0.23.0`; its immutable tagged release
+The latest published Toolkit release is `0.24.0`; its immutable tagged release
 publishes `bootstrap.py` as a separately attested asset.
 Download and authenticate the script before executing it:
 
 ```powershell
-gh release download v0.23.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.24.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.23.0 `
+  --source-ref refs/tags/v0.24.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -107,7 +108,17 @@ whole multi-component transaction. Bootstrap derives a finite outer deadline
 from the selected mode so all selected downloads and required version checks can
 each consume their declared bound without an early parent timeout. Catalog-backed
 installation accepts up to 600 seconds per operation; existing-lock and explicit
-local-executable modes retain their 30-second maximum.
+local-executable modes retain their 30-second maximum. Bootstrap accepts a minimum
+of 1 second and defaults to 30 seconds. Plugin-only mode permits 1–600 seconds for
+network operations and keeps a separate 30-second installer deadline.
+
+Starting with the 0.24.1 source, bootstrap validates the mode, mutually exclusive
+arguments, required companion options, and timeout before resolving GitHub CLI,
+authenticating or downloading anything. For example, `--component-lock lock.json
+--timeout 90` returns an error identifying the 30-second limit without starting
+an installer or component. Use the default timeout with an existing local lock;
+use longer timeouts only in plugin-only or catalog-download mode. This does not
+change version checks, trust verification, or hardware permissions.
 
 ## Install a downloaded version manually
 
@@ -115,8 +126,8 @@ Use the release script from a trusted source checkout. Obtain the ZIP and its
 checksum from a trusted channel, then install into a directory you own:
 
 ```powershell
-python scripts/release.py install dist/embedded-agent-toolkit-0.23.0.zip `
-  --checksum dist/embedded-agent-toolkit-0.23.0.zip.sha256 `
+python scripts/release.py install dist/embedded-agent-toolkit-0.24.0.zip `
+  --checksum dist/embedded-agent-toolkit-0.24.0.zip.sha256 `
   --install-root C:\Tools\embedded-agent-toolkit `
   --lock-output C:\Tools\embedded-agent-toolkit\component-locks\workstation.json `
   --baud C:\Users\you\.local\bin\baud.exe `
@@ -125,7 +136,7 @@ python scripts/release.py install dist/embedded-agent-toolkit-0.23.0.zip `
   --json
 ```
 
-This creates `C:\Tools\embedded-agent-toolkit\0.23.0\embedded-agent-toolkit`,
+This creates `C:\Tools\embedded-agent-toolkit\0.24.0\embedded-agent-toolkit`,
 then creates the requested component lock and runs strict doctor against the
 installed plugin. The three component executables are invoked only with
 `--version`; no hardware command is run. All four setup options (`--lock-output`,

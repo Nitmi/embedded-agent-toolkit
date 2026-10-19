@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import subprocess
@@ -12,6 +13,48 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class InstalledScriptTests(unittest.TestCase):
+    def test_standalone_bootstrap_rejects_setup_before_resolving_github_cli(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            script = root / "bootstrap.py"
+            shutil.copy2(ROOT / "scripts" / "bootstrap.py", script)
+            environment = os.environ.copy()
+            environment.pop("PYTHONDONTWRITEBYTECODE", None)
+            for arguments, error in (
+                (["--component-lock", "lock.json", "--timeout", "90"], "30 seconds"),
+                (["--lock-output", "new.json"], "required together"),
+                (["--component-install-root", "components"], "requires --lock-output"),
+            ):
+                with self.subTest(arguments=arguments):
+                    result = subprocess.run(
+                        [
+                            sys.executable,
+                            str(script),
+                            "--install-root",
+                            str(root / "install"),
+                            "--gh",
+                            str(root / "absent-gh"),
+                            *arguments,
+                            "--json",
+                        ],
+                        cwd=root,
+                        capture_output=True,
+                        encoding="utf-8",
+                        check=False,
+                        env=environment,
+                        timeout=15,
+                    )
+                    self.assertEqual(result.returncode, 2, result.stderr)
+                    report = json.loads(result.stdout)
+                    self.assertFalse(report["ok"])
+                    self.assertFalse(report["hardware_access"])
+                    self.assertIn(error, report["error"])
+                    self.assertEqual(
+                        {path.name for path in root.iterdir()}, {"bootstrap.py"}
+                    )
+
     def test_entry_points_do_not_create_bytecode_cache(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             install = Path(directory)

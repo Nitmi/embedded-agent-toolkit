@@ -18,7 +18,7 @@ from pathlib import Path
 
 PLUGIN = "embedded-agent-toolkit"
 REPOSITORY = "Nitmi/embedded-agent-toolkit"
-VERSION = "0.24.0"
+VERSION = "0.24.1"
 TAG = f"v{VERSION}"
 SOURCE_REF = f"refs/tags/{TAG}"
 SIGNER_WORKFLOW = f"{REPOSITORY}/.github/workflows/release-attestation.yml"
@@ -209,25 +209,13 @@ def extract_installer(archive: Path, destination: Path) -> Path:
     return destination / "release.py"
 
 
-def run_installer(
-    installer: Path,
-    archive: Path,
-    checksum: Path,
-    install_root: Path,
-    setup: dict[str, object],
-    timeout: float,
-) -> dict:
-    command = [
-        sys.executable,
-        str(installer),
-        "install",
-        str(archive),
-        "--checksum",
-        str(checksum),
-        "--install-root",
-        str(install_root),
-        "--json",
-    ]
+def installer_options(
+    setup: dict[str, object], timeout: float
+) -> tuple[list[str], float]:
+    """Validate mode and timeout without reading files or starting processes."""
+    if not 1.0 <= timeout <= 600.0:
+        raise BootstrapError("--timeout must be between 1 and 600 seconds")
+    options = []
     component_lock = setup["component_lock"]
     component_install_root = setup.get("component_install_root")
     lock_output = setup["lock_output"]
@@ -253,15 +241,19 @@ def run_installer(
             "or --debugger"
         )
     if component_lock is not None:
+        if timeout > 30:
+            raise BootstrapError(
+                "--timeout must be between 1 and 30 seconds with --component-lock"
+            )
         process_timeout = timeout * 3 + 30
-        command.extend(
+        options.extend(
             ["--component-lock", str(component_lock), "--timeout", str(timeout)]
         )
     elif component_install_root is not None:
         if lock_output is None:
             raise BootstrapError("--component-install-root requires --lock-output")
         process_timeout = timeout * 9 + 30
-        command.extend(
+        options.extend(
             [
                 "--component-install-root",
                 str(component_install_root),
@@ -272,7 +264,7 @@ def run_installer(
             ]
         )
         for name in include_optional:
-            command.extend(["--include-optional", str(name)])
+            options.extend(["--include-optional", str(name)])
         process_timeout += timeout * 3 * len(include_optional)
     elif lock_output is not None or any(
         value is not None for value in explicit_values.values()
@@ -283,8 +275,12 @@ def run_installer(
             raise BootstrapError(
                 "--lock-output, --baud, --blea, and --debugger are required together"
             )
+        if timeout > 30:
+            raise BootstrapError(
+                "--timeout must be between 1 and 30 seconds with explicit local executables"
+            )
         process_timeout = timeout * 6 + 30
-        command.extend(
+        options.extend(
             [
                 "--lock-output",
                 str(setup["lock_output"]),
@@ -302,6 +298,30 @@ def run_installer(
         if include_optional:
             raise BootstrapError("--include-optional requires --component-install-root")
         process_timeout = 30
+    return options, process_timeout
+
+
+def run_installer(
+    installer: Path,
+    archive: Path,
+    checksum: Path,
+    install_root: Path,
+    setup: dict[str, object],
+    timeout: float,
+) -> dict:
+    options, process_timeout = installer_options(setup, timeout)
+    command = [
+        sys.executable,
+        str(installer),
+        "install",
+        str(archive),
+        "--checksum",
+        str(checksum),
+        "--install-root",
+        str(install_root),
+        "--json",
+        *options,
+    ]
     process = subprocess.run(
         command,
         capture_output=True,
@@ -329,10 +349,11 @@ def run_installer(
 def bootstrap(
     install_root: Path,
     gh: Path,
-    setup: dict[str, str | Path | None],
+    setup: dict[str, object],
     timeout: float,
     script_path: Path | None = None,
 ) -> dict:
+    installer_options(setup, timeout)
     current_script = (script_path or Path(__file__)).resolve()
     script_attestation = verify_attestation(current_script, gh, timeout)
     archive_name = f"{PLUGIN}-{VERSION}.zip"
@@ -389,24 +410,32 @@ def main(argv: list[str] | None = None) -> int:
         default=[],
         choices=["board-registry", "firmware-inspect"],
     )
-    parser.add_argument("--timeout", type=float, default=30.0)
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=30.0,
+        help=(
+            "seconds per network operation/component process (default: 30); "
+            "1-600 for plugin-only/catalog setup, 1-30 for existing locks or local executables"
+        ),
+    )
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
     try:
-        if not 1.0 <= args.timeout <= 600.0:
-            raise BootstrapError("--timeout must be between 1 and 600 seconds")
+        setup = {
+            "component_lock": args.component_lock,
+            "component_install_root": args.component_install_root,
+            "lock_output": args.lock_output,
+            "baud": args.baud,
+            "blea": args.blea,
+            "debugger": args.debugger,
+            "include_optional": args.include_optional,
+        }
+        installer_options(setup, args.timeout)
         data = bootstrap(
             args.install_root,
             gh_executable(args.gh),
-            {
-                "component_lock": args.component_lock,
-                "component_install_root": args.component_install_root,
-                "lock_output": args.lock_output,
-                "baud": args.baud,
-                "blea": args.blea,
-                "debugger": args.debugger,
-                "include_optional": args.include_optional,
-            },
+            setup,
             args.timeout,
         )
         report = {
