@@ -24,9 +24,11 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The latest published release is [0.23.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.23.0),
-adding JUnit XML export from fresh offline test-contract evaluation. It retains
-firmware-inspect 0.3.0 offline PC/LR-to-function/source-line guidance.
+The latest published release is [0.24.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.24.0),
+adding an optional HIL Runner workflow for continuous firmware builds and an
+opt-in check of its installed Python distribution. The native catalog pins
+embedded-debugger 0.2.5; HIL Runner 0.2.0 is installed separately. It retains
+JUnit XML reporting and firmware-inspect 0.3.0 offline PC/LR source lookup.
 Existing workstation locks are preserved. It also includes offline RTT inspection, bounded
 line previews and lossless payload export, alongside bounded RTT guidance and
 native JSONL verification; see [RTT workflows](docs/rtt.md). It provides a
@@ -34,11 +36,11 @@ standalone `bootstrap.py` alongside the plugin ZIP. Download the bootstrap with 
 authenticate it before execution, and keep its exact filename:
 
 ```powershell
-gh release download v0.23.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.24.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.23.0 `
+  --source-ref refs/tags/v0.24.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -92,7 +94,7 @@ its exact path, version, and SHA-256 while existing v1 three-component locks rem
 Toolkit `0.18.0` includes optional `firmware-inspect` for
 offline ELF/HEX/BIN identity, layout, footprint and build comparison. It can be
 explicitly checked and bound in a v2 lock without changing default component
-selection. The published Toolkit `0.22.0`–`0.23.0` catalogs pin the published,
+selection. The published Toolkit `0.22.0`–`0.24.0` catalogs pin the published,
 provenance-verified `0.3.0` Windows release with exact ELF symbols, code addresses
 and in-file DWARF lines. Toolkit `0.21.0` pins `0.2.0`;
 published Toolkit `0.18.0`–`0.20.0` catalogs still pin `0.1.0`. Opt in with
@@ -114,7 +116,7 @@ Contracts can now begin with observation-only `baud.list`, `blea.doctor`, and
 `embedded-debugger.probes-list` stages, making fresh serial, adapter, and probe
 identity checks part of the same hash-bound test evidence.
 
-The 0.24.0 source adds an optional [HIL Runner workflow](docs/hil-runner.md) for
+Toolkit 0.24.0 adds an optional [HIL Runner workflow](docs/hil-runner.md) for
 continuous build/flash/observe loops without per-build confirmation. Its Python
 environment is checked separately with `hil_runtime.py inspect` and the explicit
 doctor `--hil-environment` option. The pin binds 19 actual installed files;
