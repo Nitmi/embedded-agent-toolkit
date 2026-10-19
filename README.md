@@ -16,6 +16,7 @@ tools behind another hardware abstraction:
 | [embedded-debugger](https://github.com/Nitmi/embedded-debugger) | Probe discovery, flash, debug, evidence, and replay | CLI + Skill + MCP |
 | [board-registry](https://github.com/Nitmi/board-registry) (optional) | Offline fail-closed correlation and non-authorizing selection from saved discovery evidence | CLI |
 | [firmware-inspect](https://github.com/Nitmi/firmware-inspect) (optional) | Offline ELF/HEX/BIN identity, layout, exact symbols, PC/LR source lookup and build comparison | CLI |
+| [HIL Runner](https://github.com/Nitmi/hil-runner) (optional) | Cooperative ownership and one native bounded scope across successive firmware builds | Python CLI |
 
 The value of the toolkit is the cross-tool workflow: one identity ledger, one
 safety policy, correlated evidence, and deterministic cleanup across serial,
@@ -113,12 +114,19 @@ Contracts can now begin with observation-only `baud.list`, `blea.doctor`, and
 `embedded-debugger.probes-list` stages, making fresh serial, adapter, and probe
 identity checks part of the same hash-bound test evidence.
 
+The 0.24.0 source adds an optional [HIL Runner workflow](docs/hil-runner.md) for
+continuous build/flash/observe loops without per-build confirmation. Its Python
+environment is checked separately with `hil_runtime.py inspect` and the explicit
+doctor `--hil-environment` option. The pin binds 19 actual installed files;
+hashing a Python console launcher alone would not identify its imported code.
+Default doctor and native component-lock formats stay unchanged.
+
 The Toolkit also includes `component_install.py`. Its offline `plan`
 validates the release-bound component catalog and reports exact sources,
 hashes, destinations, and availability without network or process execution.
 Its `install` mode is fail-closed. The current catalog
 pins attested Windows x86_64 releases of `baud 0.1.2`, `BLEA 0.7.0`, and
-`embedded-debugger 0.2.4`, plus opt-in `board-registry 0.2.3` and
+`embedded-debugger 0.2.5`, plus opt-in `board-registry 0.2.3` and
 `firmware-inspect 0.3.0`, so its default
 Windows plan is complete without falling back to ambient package-manager resolution.
 

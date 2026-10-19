@@ -18,9 +18,10 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 
 if __package__:
-    from . import component_lock, station_config
+    from . import component_lock, hil_runtime, station_config
 else:
     import component_lock
+    import hil_runtime
     import station_config
 
 SCHEMA_VERSION = "embedded-agent-toolkit.doctor.v3"
@@ -273,6 +274,7 @@ def build_report(
     component_lock_source: str | None = None,
     component_lock_path: Path | None = None,
     component_lock_sha256: str | None = None,
+    hil_environment: Path | None = None,
 ) -> dict[str, object]:
     component_results = []
     for component in selected_components:
@@ -302,6 +304,38 @@ def build_report(
                 locked_components.get(component.name) if locked_components else None,
             )
         )
+    hil_result = None
+    if hil_environment is not None:
+        hil_result = hil_runtime.inspect_environment(hil_environment)
+        if hil_result["ok"]:
+            debugger = next(
+                (
+                    item
+                    for item in component_results
+                    if item["name"] == "embedded-debugger"
+                ),
+                None,
+            )
+            expected = hil_result["managed_debugger"]
+            try:
+                qualified = bool(
+                    platform.system() == "Windows"
+                    and debugger
+                    and debugger["ok"]
+                    and debugger["version"] == expected["version"]
+                    and component_lock.sha256(Path(debugger["executable"]))
+                    == expected["sha256"]
+                )
+            except OSError:
+                qualified = False
+            hil_result["native_debugger_verified"] = qualified
+            if not qualified:
+                hil_result["ok"] = False
+                hil_result["status"] = "managed_debugger_not_qualified"
+                hil_result["errors"] = [
+                    "Select the qualified Windows debugger in the native component lock; "
+                    "HIL payload inspection does not replace that selection."
+                ]
     layout = check_plugin_layout(plugin_root)
     warnings = [
         f"{result['name']}: {result['status']}"
@@ -314,7 +348,13 @@ def build_report(
         if not result["ok"] and result["status"] not in WARNING_STATUSES
     ]
     errors.extend(layout["errors"])
-    complete = layout["ok"] and all(result["ok"] for result in component_results)
+    if hil_result is not None and not hil_result["ok"]:
+        errors.append(f"hil-runner: {hil_result['status']}")
+    complete = (
+        layout["ok"]
+        and all(result["ok"] for result in component_results)
+        and (hil_result is None or hil_result["ok"])
+    )
     ok = layout["ok"] and not errors
     if not ok:
         status = "error"
@@ -348,6 +388,7 @@ def build_report(
         },
         "components": component_results,
         "plugin": layout,
+        **({"hil_runner": hil_result} if hil_result is not None else {}),
     }
 
 
@@ -371,6 +412,12 @@ def render_human(report: dict[str, object]) -> str:
     lines.append(f"[{marker}] plugin layout")
     for error in plugin["errors"]:  # type: ignore[index,union-attr]
         lines.append(f"       {error}")
+    if "hil_runner" in report:
+        hil = report["hil_runner"]
+        marker = "OK" if hil["ok"] else "FAIL"
+        lines.append(f"[{marker}] HIL Runner: {hil['status']}")
+        for error in hil["errors"]:
+            lines.append(f"       {error}")
     if not report["ok"]:
         lines.append("Not ready")
     elif report["complete"]:
@@ -383,6 +430,11 @@ def render_human(report: dict[str, object]) -> str:
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--json", action="store_true", help="emit one JSON result")
+    parser.add_argument(
+        "--hil-environment",
+        type=Path,
+        help="opt in to Windows HIL installed-payload and qualified-debugger checks; never starts HIL",
+    )
     parser.add_argument(
         "--component-lock",
         type=Path,
@@ -469,6 +521,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         lock_source,
         lock_path,
         lock_hash,
+        args.hil_environment,
     )
     if args.json:
         print(json.dumps(report, indent=2, sort_keys=True))

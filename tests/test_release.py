@@ -15,6 +15,7 @@ from scripts import component_install, component_lock, release, toolkit_doctor
 
 def source_files(version: str = "0.2.0") -> dict[str, bytes]:
     files = {name: b"fixture\n" for name in release.REQUIRED_FILES}
+    files["hil-runtime.json"] = (Path(__file__).resolve().parents[1] / "hil-runtime.json").read_bytes()
     manifest = {"name": release.PLUGIN, "version": version, "skills": "./skills/"}
     for name in ("plugin.json", ".codex-plugin/plugin.json"):
         files[name] = release.json_bytes(manifest)
@@ -44,6 +45,12 @@ def source_files(version: str = "0.2.0") -> dict[str, bytes]:
 
 
 class ReleaseTests(unittest.TestCase):
+    def test_invalid_hil_pin_is_rejected_before_packaging(self) -> None:
+        files = source_files()
+        files["hil-runtime.json"] = b'{"schema_version":"invalid"}'
+        with self.assertRaises(release.ReleaseError):
+            release.make_archive("1" * 40, files)
+
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)

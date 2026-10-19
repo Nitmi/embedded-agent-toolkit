@@ -1,6 +1,6 @@
 ---
 name: hardware-test
-description: Design or run repeatable embedded hardware tests that coordinate flashing, serial, RTT or BLE readiness, guarded interactions, assertions, evidence, and cleanup. Trigger for hardware-in-the-loop checks, manufacturing checks, firmware smoke tests, regression reproduction, or CI workflows involving real boards.
+description: Design or run repeatable embedded hardware tests that coordinate flashing, serial, RTT or BLE readiness, guarded interactions, assertions, evidence, and cleanup. Trigger for hardware-in-the-loop checks, continuous build/flash/observe loops, firmware smoke tests, manufacturing checks, or board regressions.
 ---
 
 # Hardware Test
@@ -90,6 +90,11 @@ explicit per stage; default state-changing operations to zero retries.
    session can reuse one user-approved scope for bounded code-Flash builds
    only while its executor remains alive. Do not turn a test contract into
    authorization or auto-forward per-build digests through the old CLI path.
+   For continuous build/flash/observe loops or shared-board ownership, read
+   [optional HIL Runner](../../docs/hil-runner.md). Use its native managed owner
+   with the inspected runtime and qualified debugger, including the additional
+   per-build runtime reset in the agreed scope. Reuse valid task authorization;
+   do not add a confirmation before each build or require HIL for a single flash.
 4. Wait for a bounded ready assertion through zero-transmit serial observation,
    RTT when supported by the debugger, or read-only BLE evidence.
    For RTT, read [bounded RTT workflows](../../docs/rtt.md). Use the native

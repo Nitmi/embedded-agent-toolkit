@@ -19,10 +19,11 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 
 if __package__:
-    from . import component_install, component_lock, toolkit_doctor
+    from . import component_install, component_lock, hil_runtime, toolkit_doctor
 else:
     import component_install
     import component_lock
+    import hil_runtime
     import toolkit_doctor
 
 PLUGIN = "embedded-agent-toolkit"
@@ -36,6 +37,8 @@ REQUIRED_FILES = {
     "plugin.json",
     ".codex-plugin/plugin.json",
     "component-catalog.json",
+    "hil-runtime.json",
+    "docs/hil-runner.md",
     "LICENSE",
     "README.md",
     "scripts/bootstrap.py",
@@ -47,6 +50,7 @@ REQUIRED_FILES = {
     "scripts/junit_report.py",
     "scripts/rtt_evidence.py",
     "scripts/toolkit_doctor.py",
+    "scripts/hil_runtime.py",
     "schemas/test-spec.schema.json",
     "schemas/test-contract.schema.json",
     "schemas/test-run.schema.json",
@@ -154,6 +158,10 @@ def release_version(files: dict[str, bytes]) -> str:
         component_install.parse_catalog(files["component-catalog.json"])
     except component_install.InstallError as error:
         raise ReleaseError(f"Invalid component catalog: {error}") from error
+    try:
+        hil_runtime.parse_pin(files["hil-runtime.json"])
+    except (ValueError, TypeError, KeyError, RecursionError) as error:
+        raise ReleaseError(f"Invalid HIL runtime pin: {error}") from error
     if any(
         path.casefold() in {".mcp.json", "mcp.json", ".app.json", "hooks.json"}
         for path in files
@@ -169,6 +177,7 @@ def included(path: str) -> bool:
             "plugin.json",
             ".codex-plugin/plugin.json",
             "component-catalog.json",
+            "hil-runtime.json",
             "LICENSE",
             "README.md",
         }

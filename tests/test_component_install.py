@@ -593,19 +593,19 @@ class ComponentInstallTests(unittest.TestCase):
         catalog, _ = component_install.read_catalog(official)
         debugger = catalog["components"]["embedded-debugger"]
         artifact = debugger["artifacts"]["windows-x86_64"]
-        self.assertEqual(debugger["version"], "0.2.4")
+        self.assertEqual(debugger["version"], "0.2.5")
         self.assertEqual(
             artifact["url"],
             "https://github.com/Nitmi/embedded-debugger/releases/download/"
-            "v0.2.4/embedded-debugger-0.2.4-x86_64-pc-windows-msvc.zip",
+            "v0.2.5/embedded-debugger-0.2.5-x86_64-pc-windows-msvc.zip",
         )
         self.assertEqual(
             artifact["sha256"],
-            "f46287d2b981afaa67578e4204ba584c1e29b0a0e788b04a9641d0531995b92c",
+            "835bb47a5b1c536395a7ca1382873fea460f5c035069b6be9b3c928ee06fa17c",
         )
         self.assertEqual(
             artifact["executable"],
-            "embedded-debugger-0.2.4-x86_64-pc-windows-msvc/embedded-debugger.exe",
+            "embedded-debugger-0.2.5-x86_64-pc-windows-msvc/embedded-debugger.exe",
         )
 
     def test_current_catalog_pins_blea_pairing_release(self) -> None:

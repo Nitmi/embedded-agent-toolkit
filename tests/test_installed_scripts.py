@@ -26,6 +26,7 @@ class InstalledScriptTests(unittest.TestCase):
                 "junit_report.py",
                 "rtt_evidence.py",
                 "toolkit_doctor.py",
+                "hil_runtime.py",
             ):
                 shutil.copy2(ROOT / "scripts" / name, scripts / name)
             shutil.copy2(
