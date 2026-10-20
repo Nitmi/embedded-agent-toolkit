@@ -2,9 +2,10 @@
 
 ## Contents and scope
 
-The latest published Toolkit is [0.24.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.24.0),
-adding an optional [HIL Runner workflow](hil-runner.md) and installed payload
-inspection. It retains offline test-contract JUnit export and firmware-inspect 0.3.0
+The latest published Toolkit is [0.24.1](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.24.1),
+fixing bootstrap setup validation before network access. It retains the optional
+[HIL Runner workflow](hil-runner.md), installed payload inspection, offline
+test-contract JUnit export and firmware-inspect 0.3.0
 code-address and DWARF source-line lookup with offline PC/LR guidance alongside
 exact ELF symbol and RTT address workflows. Upgrading the plugin preserves
 existing workstation locks and does not require reinstalling components.
@@ -48,16 +49,16 @@ push commits, or publish a remote release.
 
 ## Bootstrap without cloning
 
-The latest published Toolkit release is `0.24.0`; its immutable tagged release
+The latest published Toolkit release is `0.24.1`; its immutable tagged release
 publishes `bootstrap.py` as a separately attested asset.
 Download and authenticate the script before executing it:
 
 ```powershell
-gh release download v0.24.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.24.1 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.24.0 `
+  --source-ref refs/tags/v0.24.1 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -112,7 +113,7 @@ local-executable modes retain their 30-second maximum. Bootstrap accepts a minim
 of 1 second and defaults to 30 seconds. Plugin-only mode permits 1–600 seconds for
 network operations and keeps a separate 30-second installer deadline.
 
-Starting with the 0.24.1 source, bootstrap validates the mode, mutually exclusive
+Starting with Toolkit 0.24.1, bootstrap validates the mode, mutually exclusive
 arguments, required companion options, and timeout before resolving GitHub CLI,
 authenticating or downloading anything. For example, `--component-lock lock.json
 --timeout 90` returns an error identifying the 30-second limit without starting
@@ -126,8 +127,8 @@ Use the release script from a trusted source checkout. Obtain the ZIP and its
 checksum from a trusted channel, then install into a directory you own:
 
 ```powershell
-python scripts/release.py install dist/embedded-agent-toolkit-0.24.0.zip `
-  --checksum dist/embedded-agent-toolkit-0.24.0.zip.sha256 `
+python scripts/release.py install dist/embedded-agent-toolkit-0.24.1.zip `
+  --checksum dist/embedded-agent-toolkit-0.24.1.zip.sha256 `
   --install-root C:\Tools\embedded-agent-toolkit `
   --lock-output C:\Tools\embedded-agent-toolkit\component-locks\workstation.json `
   --baud C:\Users\you\.local\bin\baud.exe `
@@ -136,7 +137,7 @@ python scripts/release.py install dist/embedded-agent-toolkit-0.24.0.zip `
   --json
 ```
 
-This creates `C:\Tools\embedded-agent-toolkit\0.24.0\embedded-agent-toolkit`,
+This creates `C:\Tools\embedded-agent-toolkit\0.24.1\embedded-agent-toolkit`,
 then creates the requested component lock and runs strict doctor against the
 installed plugin. The three component executables are invoked only with
 `--version`; no hardware command is run. All four setup options (`--lock-output`,
