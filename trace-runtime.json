@@ -1,0 +1,93 @@
+{
+  "schema_version": "embedded-agent-toolkit.trace-runtime.v1",
+  "repository": "Nitmi/embedded-trace",
+  "version": "0.1.0",
+  "source_revision": "ba5e88e4ef94bee15b3530f5274248fdb6c307d3",
+  "wheel": {
+    "name": "embedded_trace-0.1.0-py3-none-any.whl",
+    "url": "https://github.com/Nitmi/embedded-trace/releases/download/v0.1.0/embedded_trace-0.1.0-py3-none-any.whl",
+    "sha256": "2402564827084d91ac29823e8ae02a2f131d93cbaa2989450bf0e05be932f01c"
+  },
+  "files": [
+    {
+      "path": "embedded_trace-0.1.0.dist-info/METADATA",
+      "size": 4385,
+      "sha256": "b811db8ef20a20fbb059049f9c9f512155d5874c34f14a03d146e967299d4a54"
+    },
+    {
+      "path": "embedded_trace-0.1.0.dist-info/WHEEL",
+      "size": 87,
+      "sha256": "5b77e4a649bbfb07fdbc123967eeecd1e5a478cfaca6eefc23c35e6fdf037848"
+    },
+    {
+      "path": "embedded_trace-0.1.0.dist-info/entry_points.txt",
+      "size": 59,
+      "sha256": "e180a3647b9cfcfff5b791785e23468834bc0ddc426fbdd7c84fc51797e71dcd"
+    },
+    {
+      "path": "embedded_trace-0.1.0.dist-info/licenses/LICENSE",
+      "size": 1062,
+      "sha256": "cd24e7704a2b7505c01595eb602ad9be91edbb95650364fb428b2150c7044559"
+    },
+    {
+      "path": "embedded_trace/__init__.py",
+      "size": 65,
+      "sha256": "0529bf87aac2b9f57e201b0204677dadbdd9f23feb59d4861e5e1cac14bba416"
+    },
+    {
+      "path": "embedded_trace/__main__.py",
+      "size": 48,
+      "sha256": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d"
+    },
+    {
+      "path": "embedded_trace/adapters.py",
+      "size": 9483,
+      "sha256": "2d16e4d844383350327223ccbbd8cafe76baa54f3fbdff7703e5958879115d66"
+    },
+    {
+      "path": "embedded_trace/cli.py",
+      "size": 3458,
+      "sha256": "af979b10da1eedbbd4117245c146e23f7c44565ce4be82201095a38f0cade491"
+    },
+    {
+      "path": "embedded_trace/clock.py",
+      "size": 1681,
+      "sha256": "2def5a385cf22dd883ffc10ee7c45b2adabf10bc649f4ee630d32f57c7073871"
+    },
+    {
+      "path": "embedded_trace/common.py",
+      "size": 5965,
+      "sha256": "60c3ea7031768f14ebc0f80a989a6036d308368f9ea2af9501a0d16e93408f81"
+    },
+    {
+      "path": "embedded_trace/framing.py",
+      "size": 4782,
+      "sha256": "61fed107efdd72f19be6b1f16437c8e4de4517a076411e2b3e50c582d71dbde6"
+    },
+    {
+      "path": "embedded_trace/query.py",
+      "size": 14858,
+      "sha256": "c6468f1140cb6e812adf4615266105ee8874f417b6f2456cf77610730788bddc"
+    },
+    {
+      "path": "embedded_trace/schemas/input.v1.schema.json",
+      "size": 955,
+      "sha256": "78ba1997dea55bb4d9492ddeff3625887cbf142ba71bf8c515947287f8ebbfa5"
+    },
+    {
+      "path": "embedded_trace/schemas/result.v1.schema.json",
+      "size": 1415,
+      "sha256": "49725a813b0ba1dc97840f54e767717302d29fa1764c28a634a02b57f3de3863"
+    },
+    {
+      "path": "embedded_trace/schemas/timeline.v1.schema.json",
+      "size": 5937,
+      "sha256": "6fb2b6bdccb13e92ca2c566d1c560032cf76986ca7ea439d8c8ce17f8d20ab57"
+    },
+    {
+      "path": "embedded_trace/timeline.py",
+      "size": 4844,
+      "sha256": "991c4d1d972d2dd637792ecd06847a891d51f21c4441639162c4c89366f982c4"
+    }
+  ]
+}

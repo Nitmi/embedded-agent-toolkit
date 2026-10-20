@@ -17,6 +17,7 @@ tools behind another hardware abstraction:
 | [board-registry](https://github.com/Nitmi/board-registry) (optional) | Offline fail-closed correlation and non-authorizing selection from saved discovery evidence | CLI |
 | [firmware-inspect](https://github.com/Nitmi/firmware-inspect) (optional) | Offline ELF/HEX/BIN identity, layout, exact symbols, PC/LR source lookup and build comparison | CLI |
 | [HIL Runner](https://github.com/Nitmi/hil-runner) (optional) | Cooperative ownership and one native bounded scope across successive firmware builds | Python CLI |
+| [Embedded Trace](https://github.com/Nitmi/embedded-trace) (optional) | Offline serial/RTT line reconstruction and hash-bound timelines with explicit host clock domains | Python CLI |
 
 The value of the toolkit is the cross-tool workflow: one identity ledger, one
 safety policy, correlated evidence, and deterministic cleanup across serial,
@@ -123,6 +124,15 @@ environment is checked separately with `hil_runtime.py inspect` and the explicit
 doctor `--hil-environment` option. The pin binds 19 actual installed files;
 hashing a Python console launcher alone would not identify its imported code.
 Default doctor and native component-lock formats stay unchanged.
+
+The current 0.25.0 source adds optional
+[Embedded Trace timelines](docs/embedded-trace.md) for saved serial/RTT evidence.
+It pins the official 0.1.0 wheel and 16 installed payload files. Use
+`trace_runtime.py inspect` for file-only inspection, or explicitly add
+`--trace-environment` to doctor. Neither check starts Trace or its interpreter.
+The distribution is installed separately; it does not enter native component
+locks, default doctor selection or the hardware execution path. This source
+candidate has not yet been published as a Toolkit release.
 
 The Toolkit also includes `component_install.py`. Its offline `plan`
 validates the release-bound component catalog and reports exact sources,

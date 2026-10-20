@@ -19,12 +19,19 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 
 if __package__:
-    from . import component_install, component_lock, hil_runtime, toolkit_doctor
+    from . import (
+        component_install,
+        component_lock,
+        hil_runtime,
+        toolkit_doctor,
+        trace_runtime,
+    )
 else:
     import component_install
     import component_lock
     import hil_runtime
     import toolkit_doctor
+    import trace_runtime
 
 PLUGIN = "embedded-agent-toolkit"
 SCHEMA = "embedded-agent-toolkit.release.v1"
@@ -38,6 +45,8 @@ REQUIRED_FILES = {
     ".codex-plugin/plugin.json",
     "component-catalog.json",
     "hil-runtime.json",
+    "trace-runtime.json",
+    "docs/embedded-trace.md",
     "docs/hil-runner.md",
     "LICENSE",
     "README.md",
@@ -51,6 +60,7 @@ REQUIRED_FILES = {
     "scripts/rtt_evidence.py",
     "scripts/toolkit_doctor.py",
     "scripts/hil_runtime.py",
+    "scripts/trace_runtime.py",
     "schemas/test-spec.schema.json",
     "schemas/test-contract.schema.json",
     "schemas/test-run.schema.json",
@@ -162,6 +172,10 @@ def release_version(files: dict[str, bytes]) -> str:
         hil_runtime.parse_pin(files["hil-runtime.json"])
     except (ValueError, TypeError, KeyError, RecursionError) as error:
         raise ReleaseError(f"Invalid HIL runtime pin: {error}") from error
+    try:
+        trace_runtime.parse_pin(files["trace-runtime.json"])
+    except (ValueError, TypeError, KeyError, RecursionError) as error:
+        raise ReleaseError(f"Invalid Trace runtime pin: {error}") from error
     if any(
         path.casefold() in {".mcp.json", "mcp.json", ".app.json", "hooks.json"}
         for path in files
@@ -178,6 +192,7 @@ def included(path: str) -> bool:
             ".codex-plugin/plugin.json",
             "component-catalog.json",
             "hil-runtime.json",
+            "trace-runtime.json",
             "LICENSE",
             "README.md",
         }

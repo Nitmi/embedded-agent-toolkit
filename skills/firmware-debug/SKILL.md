@@ -54,6 +54,12 @@ DWARF paths. A metadata line match does not establish a function's source, call
 stack, fault cause or running identity. No new target reads are needed for this
 offline annotation, and file-only requests can end with the native report.
 
+For a question spanning saved serial/RTT logs, read
+[Embedded Trace timelines](../../docs/embedded-trace.md). Its hash-bound line
+spans and host-recorded envelopes can link observations without new target reads.
+Keep clock domains and capture failures explicit; a matching log line does not
+establish causality or firmware identity.
+
 ## Build an identity ledger
 
 When evidence spans multiple transports, operations, or observation windows,

@@ -1,0 +1,2 @@
+# Keep the hash-bound synthetic logs identical in Windows and POSIX checkouts.
+docs/examples/trace/*.jsonl text eol=lf

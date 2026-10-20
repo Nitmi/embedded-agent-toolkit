@@ -70,6 +70,7 @@ class InstalledScriptTests(unittest.TestCase):
                 "rtt_evidence.py",
                 "toolkit_doctor.py",
                 "hil_runtime.py",
+                "trace_runtime.py",
             ):
                 shutil.copy2(ROOT / "scripts" / name, scripts / name)
             shutil.copy2(

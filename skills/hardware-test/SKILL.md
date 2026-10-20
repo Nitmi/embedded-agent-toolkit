@@ -117,5 +117,11 @@ explicit per stage; default state-changing operations to zero retries.
    state is a failure, never an implicit pass.
 7. Close the exact sessions and report target, process, port, and adapter cleanup.
 
+For offline review across saved serial/RTT evidence, use optional
+[Embedded Trace timelines](../../docs/embedded-trace.md). Retain native evidence
+and full runtime assertions: a successful import or bounded READY query does not
+replace per-build native acceptance or Toolkit contract evaluation. This analysis
+adds no hardware action or per-flash confirmation.
+
 Stop at the first indeterminate state-changing result. Preserve all evidence and
 require an explicit recovery decision instead of retrying or switching devices.

@@ -49,6 +49,13 @@ export from a complete, verified capture. Keep native inputs unchanged and link
 derived files to their input/payload hashes. Partial failed captures are retained
 as failures; an integrity-rejected reader result is not an empty successful log.
 
+For offline correlation of saved serial/RTT logs, read
+[Embedded Trace timelines](../../docs/embedded-trace.md). Use its inspected
+environment and exact input hashes; preserve native files beside the derived
+timeline. Host clock domains, successful imports and matching text do not prove
+runtime identity, capture success or final target state. No new hardware access
+is needed for this optional analysis.
+
 Keep raw structured component outputs and include a small index containing:
 
 - incident and operation identifiers plus timestamps;
