@@ -26,14 +26,15 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-Current source is a **0.27.0 local candidate**, adding ESP-IDF Flash support to
-[simulation routing and payload checks](docs/simulation.md) for sim-runner 0.3.0,
-HIL Runner 0.4.0 and Trace 0.4.0 local candidates. These are not published releases.
-`simulation_runtime.py inspect <venv> --json` checks 61 selected installed files
+Current source is a **0.28.0 local candidate**, adding Renode GPIO/TIMER0 support to
+[simulation routing and payload checks](docs/simulation.md) for sim-runner 0.4.0,
+HIL Runner 0.5.0 and Trace 0.5.0 local candidates. These are not published releases.
+`simulation_runtime.py inspect <venv> --json` checks 63 selected installed files
 without starting their interpreters or emulators; doctor opts in with
 `--simulation-environment`. Default doctor, native locks and station selection
 are unchanged. Native `passed_with_model_limits` and model diagnostics remain
-visible through HIL and Trace. Simulation never establishes physical board acceptance.
+visible through HIL and Trace. GPIO samples, model snapshots and time semantics
+retain their native sources. Simulation never establishes physical board acceptance.
 
 The latest published release is [0.25.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.25.0),
 adding optional Embedded Trace timelines and static installed-payload checks

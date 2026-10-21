@@ -1,9 +1,9 @@
 # Optional simulation workflow (local candidate)
 
-Toolkit 0.27.0 source adds Flash-profile routing for the tested local candidates
-sim-runner 0.3.0, HIL Runner 0.4.0 and Embedded Trace 0.4.0. These versions have
+Toolkit 0.28.0 source adds GPIO/TIMER0 routing for the tested local candidates
+sim-runner 0.4.0, HIL Runner 0.5.0 and Embedded Trace 0.5.0. These versions have
 not been published or attested. `simulation-runtime.json` binds their source
-commits, wheel hashes and all 61 installed source/schema/metadata/license files.
+commits, wheel hashes and all 63 installed source/schema/metadata/license files.
 It contains no download URL or implicit install step. Use the selected local
 candidate wheels; do not substitute the older published HIL/Trace wheels.
 The existing `hil-runtime.json` and `trace-runtime.json` still describe their
@@ -73,6 +73,10 @@ bounded:
 
 - Renode 1.17.0: `nrf52840-uart-v1`, raw Cortex-M vector-table BIN, UART readiness;
   zero-initialized model state, a virtual execution budget and host deadline.
+- Renode 1.17.0: `nrf52840-gpio-timer-v1`, fixed 82 ms digital input / TIMER0 IRQ /
+  output-loopback scenario, 16 native UART samples and four paused model snapshots.
+  Guest timer captures and requested RunFor boundaries are not host/UART timestamps
+  or physical timing; no complete GPIO/timer, sense/latch or PPI coverage is claimed.
 - Espressif QEMU `esp-develop-9.2.2-20260417`: `esp32c3-ram-uart-v1`, RAM-loaded
   RV32IMC ELF and UART readiness. No ESP-IDF flash boot in this RAM profile, ESP32-S3, radio or enforced
   virtual-time budget. A host deadline is not a virtual-time measurement.
@@ -116,15 +120,21 @@ place of the ELF. Omitting the profile retains RAM behavior; do not pass a
 Flash image as an ELF. Use sim-runner's fixture builder or a compatible audited
 SDK build/merge flow; it builds host files without flashing a board.
 
+For GPIO/TIMER0, use `--backend renode --profile nrf52840-gpio-timer-v1`, the
+native `examples/nrf52840-gpio-timer` raw BIN fixture and its build-bound markers.
+`--min-heartbeats` defaults to/must be 16 IRQ samples and `--virtual-ms` to/must
+be 82 for that profile. Consult native `docs/nrf52840-gpio-timer.md`; unsupported
+pin schedules or timer modes require another audited profile.
+
 ## Coordinate a bounded suite
 
-Use HIL 0.4.0's `embedded-hil-runner.simulation-spec.v1` with 1..8 ordered cases:
+Use HIL 0.5.0's `embedded-hil-runner.simulation-spec.v1` with 1..8 ordered cases:
 
 ```json
 {
   "schema_version": "embedded-hil-runner.simulation-spec.v1",
   "python": {"path": "<trusted-absolute-python-path>", "sha256": "<python-sha256>"},
-  "sim_runner_wheel": {"path": "<selected-0.3.0-wheel>", "sha256": "<wheel-sha256>"},
+  "sim_runner_wheel": {"path": "<selected-0.4.0-wheel>", "sha256": "<wheel-sha256>"},
   "cases": [
     {"id": "a", "plan": {"path": "a.json", "sha256": "<native-plan-sha256>"}},
     {"id": "b", "plan": {"path": "b.json", "sha256": "<native-plan-sha256>"}}
@@ -173,7 +183,7 @@ partial evidence and must not be fabricated into a Trace source.
   --output '<new-report.md>' --json
 ```
 
-Trace 0.4.0's `sim-runner-report` adapter checks the selected report and adjacent
+Trace 0.5.0's `sim-runner-report` adapter checks the selected report and adjacent
 hash-bound artifacts offline. Keep the native reports, plans, locks, firmware,
 UART bytes, CLI outputs and suite journal. UART is labelled `simulation.uart`;
 line windows cover the host run, with no invented per-byte timestamps or measured
@@ -193,3 +203,19 @@ simulation-containing input a 96 MiB total; physical captures retain their
 8 MiB/source and 16 MiB combined limits. Native reports stay capped at 128 KiB.
 An incomplete attempt without a native report is retained by HIL and cannot
 be promoted into a Trace source.
+
+For GPIO/TIMER0, HIL cases and Trace source views retain the native
+`gpio_evidence.samples` and `gpio_evidence.model_observations`, coverage/time
+semantics and false `model_coverage_complete` / `physical_timing_verified` claims.
+Trace binds each paused register observation to `gpio_observation_spans` in
+raw `backend.stdout.bin`, retaining offsets, raw bytes and SHA-256. Those spans
+are model-state provenance, not UART/host event timing or an electrical waveform.
+Inspect/query/Markdown keep the context even when searching only SAMPLE lines.
+
+Native GPIO `passed` remains passed/succeeded within the fixed scenario. Trace
+also retains a `model_coverage_incomplete` warning; importing successfully is
+not complete peripheral or real-board acceptance. It never reruns native GPIO/
+IRQ readiness policy. Failed/unevaluated assertions remain null, partial native
+attempts without inspected reports remain HIL evidence, and no stage silently
+switches to physical hardware. Derived query/report checks do not reopen sources
+or authenticate a report; retain the raw artifacts for independent review.

@@ -23,7 +23,7 @@ SPECS = {
     "sim-runner": (
         "sim_runner",
         "embedded_sim_runner",
-        "0.3.0",
+        "0.4.0",
         {
             "__init__.py",
             "__main__.py",
@@ -36,17 +36,19 @@ SPECS = {
             "qemu.py",
             "qemu_flash.py",
             "flash_image.py",
+            "gpio_timer.py",
             "run.py",
             "winjob.py",
             "assets/esp32c3-uart.json",
             "assets/esp32c3-idf-flash.json",
             "assets/nrf52840-uart.repl",
+            "assets/nrf52840-gpio-timer.repl",
         },
     ),
     "hil-runner": (
         "hil_runner",
         "embedded_hil_runner",
-        "0.4.0",
+        "0.5.0",
         {
             "__init__.py",
             "__main__.py",
@@ -72,7 +74,7 @@ SPECS = {
     "embedded-trace": (
         "embedded_trace",
         "embedded_trace",
-        "0.4.0",
+        "0.5.0",
         {
             "__init__.py",
             "__main__.py",

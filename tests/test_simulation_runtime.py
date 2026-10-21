@@ -62,7 +62,7 @@ class SimulationRuntimeTests(unittest.TestCase):
                 self.assertTrue(report["ok"], report)
                 self.assertEqual(report["layout"], layout)
                 self.assertEqual(
-                    sum(x["verified_files"] for x in report["components"]), 61
+                    sum(x["verified_files"] for x in report["components"]), 63
                 )
                 for flag in (
                     "executables_started",
