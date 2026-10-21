@@ -11,6 +11,13 @@ use the corresponding component CLI with structured output. Preserve each
 component's capability and safety limits instead of translating a successful
 process exit into a hardware claim.
 
+For a failure reproduced in a supported Renode/QEMU model, read
+[optional simulation](../../docs/simulation.md). Use the selected candidate
+sim-runner/HIL native CLI, preserve failed or partial UART and process cleanup,
+and use Trace 0.3.0 for offline simulated evidence. A simulation-only diagnosis
+needs no hardware discovery or attach. Do not infer a physical fault, radio or
+electrical behavior from a simulated pass, or silently switch to a real board.
+
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only
 its hash-bound component paths. Do not let environment overrides mask that lock.

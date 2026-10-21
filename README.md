@@ -18,12 +18,21 @@ tools behind another hardware abstraction:
 | [firmware-inspect](https://github.com/Nitmi/firmware-inspect) (optional) | Offline ELF/HEX/BIN identity, layout, exact symbols, PC/LR source lookup and build comparison | CLI |
 | [HIL Runner](https://github.com/Nitmi/hil-runner) (optional) | Cooperative ownership and one native bounded scope across successive firmware builds | Python CLI |
 | [Embedded Trace](https://github.com/Nitmi/embedded-trace) (optional) | Offline serial/RTT line reconstruction and hash-bound timelines with explicit host clock domains | Python CLI |
+| sim-runner (optional local candidate) | Bounded Renode/nRF52840 and Espressif QEMU/ESP32-C3 firmware simulation | Python CLI |
 
 The value of the toolkit is the cross-tool workflow: one identity ledger, one
 safety policy, correlated evidence, and deterministic cleanup across serial,
 BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
+
+Current source is a **0.26.0 local candidate**, adding optional
+[simulation routing and payload checks](docs/simulation.md) for sim-runner 0.2.0,
+HIL Runner 0.3.0 and Trace 0.3.0 local candidates. These are not published releases.
+`simulation_runtime.py inspect <venv> --json` checks 58 selected installed files
+without starting their interpreters or emulators; doctor opts in with
+`--simulation-environment`. Default doctor, native locks and station selection
+are unchanged. Simulation never establishes physical board acceptance.
 
 The latest published release is [0.25.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.25.0),
 adding optional Embedded Trace timelines and static installed-payload checks

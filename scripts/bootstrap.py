@@ -18,7 +18,7 @@ from pathlib import Path
 
 PLUGIN = "embedded-agent-toolkit"
 REPOSITORY = "Nitmi/embedded-agent-toolkit"
-VERSION = "0.25.0"
+VERSION = "0.26.0"
 TAG = f"v{VERSION}"
 SOURCE_REF = f"refs/tags/{TAG}"
 SIGNER_WORKFLOW = f"{REPOSITORY}/.github/workflows/release-attestation.yml"
@@ -34,6 +34,7 @@ INSTALLER_SCRIPTS = (
     "scripts/toolkit_doctor.py",
     "scripts/hil_runtime.py",
     "scripts/trace_runtime.py",
+    "scripts/simulation_runtime.py",
 )
 ALLOWED_DOWNLOAD_HOSTS = {
     "github.com",

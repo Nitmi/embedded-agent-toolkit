@@ -1,6 +1,6 @@
 ---
 name: hardware-test
-description: Design or run repeatable embedded hardware tests that coordinate flashing, serial, RTT or BLE readiness, guarded interactions, assertions, evidence, and cleanup. Trigger for hardware-in-the-loop checks, continuous build/flash/observe loops, firmware smoke tests, manufacturing checks, or board regressions.
+description: Design or run repeatable embedded tests that coordinate flashing, serial, RTT or BLE readiness, assertions, evidence and cleanup, or optional Renode/QEMU simulation. Trigger for hardware-in-the-loop checks, continuous build/flash/observe loops, firmware smoke tests, manufacturing checks, board regressions or supported firmware simulation suites.
 ---
 
 # Hardware Test
@@ -9,6 +9,14 @@ Prefer the installed `$embedded-debugger`, `$baud`, and `$ble` integrations;
 otherwise use their own CLIs with structured output. Keep each component's
 native workflow format and evidence as the source of truth. Do not create a
 second untyped command runner in this plugin.
+
+For simulation-only regressions, read [optional simulation](../../docs/simulation.md)
+first. Inspect the selected candidate payloads with `simulation_runtime.py`, then
+use sim-runner or HIL's native `simulation` CLI and optional Trace 0.3.0 evidence
+views. Skip hardware doctor/discovery/selection for this domain. Reuse development
+task consent without per-run hash confirmation. Stop on unsupported models or
+failed/indeterminate cases; never fall back to physical hardware automatically.
+Simulation results remain distinct from physical-board acceptance.
 
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only

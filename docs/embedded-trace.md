@@ -6,6 +6,10 @@ Keep native inputs and their hashes alongside every derived timeline. A single
 native RTT preview can still use the [RTT reader](rtt.md); there is no need to
 create a combined timeline for an unrelated task.
 
+The separate Trace 0.3.0 local candidate adds simulated UART; select it using the
+[simulation workflow](simulation.md). The published 0.1.0 pin below does not cover
+that candidate or its simulation adapter.
+
 ## Select the installed distribution
 
 Toolkit 0.25.0 pins the authenticated

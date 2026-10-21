@@ -21,6 +21,9 @@ def source_files(version: str = "0.2.0") -> dict[str, bytes]:
     files["trace-runtime.json"] = (
         Path(__file__).resolve().parents[1] / "trace-runtime.json"
     ).read_bytes()
+    files["simulation-runtime.json"] = (
+        Path(__file__).resolve().parents[1] / "simulation-runtime.json"
+    ).read_bytes()
     manifest = {"name": release.PLUGIN, "version": version, "skills": "./skills/"}
     for name in ("plugin.json", ".codex-plugin/plugin.json"):
         files[name] = release.json_bytes(manifest)
@@ -50,6 +53,12 @@ def source_files(version: str = "0.2.0") -> dict[str, bytes]:
 
 
 class ReleaseTests(unittest.TestCase):
+    def test_invalid_simulation_pin_is_rejected_before_packaging(self) -> None:
+        files = source_files()
+        files["simulation-runtime.json"] = b'{"schema_version":"invalid"}'
+        with self.assertRaises(release.ReleaseError):
+            release.make_archive("1" * 40, files)
+
     def test_invalid_trace_pin_is_rejected_before_packaging(self) -> None:
         files = source_files()
         files["trace-runtime.json"] = b'{"schema_version":"invalid"}'

@@ -23,6 +23,7 @@ if __package__:
         component_install,
         component_lock,
         hil_runtime,
+        simulation_runtime,
         toolkit_doctor,
         trace_runtime,
     )
@@ -30,6 +31,7 @@ else:
     import component_install
     import component_lock
     import hil_runtime
+    import simulation_runtime
     import toolkit_doctor
     import trace_runtime
 
@@ -46,6 +48,8 @@ REQUIRED_FILES = {
     "component-catalog.json",
     "hil-runtime.json",
     "trace-runtime.json",
+    "simulation-runtime.json",
+    "docs/simulation.md",
     "docs/embedded-trace.md",
     "docs/hil-runner.md",
     "LICENSE",
@@ -61,6 +65,7 @@ REQUIRED_FILES = {
     "scripts/toolkit_doctor.py",
     "scripts/hil_runtime.py",
     "scripts/trace_runtime.py",
+    "scripts/simulation_runtime.py",
     "schemas/test-spec.schema.json",
     "schemas/test-contract.schema.json",
     "schemas/test-run.schema.json",
@@ -176,6 +181,10 @@ def release_version(files: dict[str, bytes]) -> str:
         trace_runtime.parse_pin(files["trace-runtime.json"])
     except (ValueError, TypeError, KeyError, RecursionError) as error:
         raise ReleaseError(f"Invalid Trace runtime pin: {error}") from error
+    try:
+        simulation_runtime.parse_pin(files["simulation-runtime.json"])
+    except (ValueError, TypeError, KeyError, RecursionError) as error:
+        raise ReleaseError(f"Invalid simulation runtime pin: {error}") from error
     if any(
         path.casefold() in {".mcp.json", "mcp.json", ".app.json", "hooks.json"}
         for path in files
@@ -193,6 +202,7 @@ def included(path: str) -> bool:
             "component-catalog.json",
             "hil-runtime.json",
             "trace-runtime.json",
+            "simulation-runtime.json",
             "LICENSE",
             "README.md",
         }

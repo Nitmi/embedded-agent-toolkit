@@ -18,10 +18,17 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 
 if __package__:
-    from . import component_lock, hil_runtime, station_config, trace_runtime
+    from . import (
+        component_lock,
+        hil_runtime,
+        simulation_runtime,
+        station_config,
+        trace_runtime,
+    )
 else:
     import component_lock
     import hil_runtime
+    import simulation_runtime
     import station_config
     import trace_runtime
 
@@ -277,6 +284,7 @@ def build_report(
     component_lock_sha256: str | None = None,
     hil_environment: Path | None = None,
     trace_environment: Path | None = None,
+    simulation_environment: Path | None = None,
 ) -> dict[str, object]:
     component_results = []
     for component in selected_components:
@@ -335,12 +343,19 @@ def build_report(
                 hil_result["ok"] = False
                 hil_result["status"] = "managed_debugger_not_qualified"
                 hil_result["errors"] = [
-                    "Select the qualified Windows debugger in the native component lock; "
-                    "HIL payload inspection does not replace that selection."
+                    (
+                        "Select the qualified Windows debugger in the native component lock; "
+                        "HIL payload inspection does not replace that selection."
+                    )
                 ]
     trace_result = (
         trace_runtime.inspect_environment(trace_environment)
         if trace_environment is not None
+        else None
+    )
+    simulation_result = (
+        simulation_runtime.inspect_environment(simulation_environment)
+        if simulation_environment is not None
         else None
     )
     layout = check_plugin_layout(plugin_root)
@@ -359,11 +374,14 @@ def build_report(
         errors.append(f"hil-runner: {hil_result['status']}")
     if trace_result is not None and not trace_result["ok"]:
         errors.append(f"embedded-trace: {trace_result['status']}")
+    if simulation_result is not None and not simulation_result["ok"]:
+        errors.append(f"simulation: {simulation_result['status']}")
     complete = (
         layout["ok"]
         and all(result["ok"] for result in component_results)
         and (hil_result is None or hil_result["ok"])
         and (trace_result is None or trace_result["ok"])
+        and (simulation_result is None or simulation_result["ok"])
     )
     ok = layout["ok"] and not errors
     if not ok:
@@ -400,6 +418,7 @@ def build_report(
         "plugin": layout,
         **({"hil_runner": hil_result} if hil_result is not None else {}),
         **({"embedded_trace": trace_result} if trace_result is not None else {}),
+        **({"simulation": simulation_result} if simulation_result is not None else {}),
     }
 
 
@@ -435,6 +454,12 @@ def render_human(report: dict[str, object]) -> str:
         lines.append(f"[{marker}] Embedded Trace: {trace['status']}")
         for error in trace["errors"]:
             lines.append(f"       {error}")
+    if "simulation" in report:
+        simulation = report["simulation"]
+        marker = "OK" if simulation["ok"] else "FAIL"
+        lines.append(f"[{marker}] Simulation payloads: {simulation['status']}")
+        for error in simulation["errors"]:
+            lines.append(f"       {error}")
     if not report["ok"]:
         lines.append("Not ready")
     elif report["complete"]:
@@ -456,6 +481,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         "--trace-environment",
         type=Path,
         help="opt in to Embedded Trace installed-payload checks; never starts Trace or its Python",
+    )
+    parser.add_argument(
+        "--simulation-environment",
+        type=Path,
+        help="opt in to three simulation candidate payload checks; never starts their interpreters or emulators",
     )
     parser.add_argument(
         "--component-lock",
@@ -545,6 +575,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         lock_hash,
         args.hil_environment,
         args.trace_environment,
+        args.simulation_environment,
     )
     if args.json:
         print(json.dumps(report, indent=2, sort_keys=True))

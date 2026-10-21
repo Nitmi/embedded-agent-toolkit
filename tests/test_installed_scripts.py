@@ -71,6 +71,7 @@ class InstalledScriptTests(unittest.TestCase):
                 "toolkit_doctor.py",
                 "hil_runtime.py",
                 "trace_runtime.py",
+                "simulation_runtime.py",
             ):
                 shutil.copy2(ROOT / "scripts" / name, scripts / name)
             shutil.copy2(
