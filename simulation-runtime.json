@@ -94,12 +94,14 @@
         }
       ],
       "repository": "Nitmi/embedded-trace",
+      "source_ref": "refs/tags/v0.6.0",
       "source_revision": "4dca2715a42e7b50c23002e28e8bbc7575bc80bc",
-      "status": "local_candidate",
+      "status": "published",
       "version": "0.6.0",
       "wheel": {
         "name": "embedded_trace-0.6.0-py3-none-any.whl",
-        "sha256": "1cd60a14ee640cf86a53b5e9a93dbb5ebd7e45c9b8634fea7db114dfb5d92fcf"
+        "sha256": "1cd60a14ee640cf86a53b5e9a93dbb5ebd7e45c9b8634fea7db114dfb5d92fcf",
+        "url": "https://github.com/Nitmi/embedded-trace/releases/download/v0.6.0/embedded_trace-0.6.0-py3-none-any.whl"
       }
     },
     "hil-runner": {
@@ -221,12 +223,14 @@
         }
       ],
       "repository": "Nitmi/hil-runner",
-      "source_revision": "a65a6908531b7ebe7e4a6928bbea1ad4d68fb83a",
-      "status": "local_candidate",
+      "source_ref": "refs/tags/v0.6.0",
+      "source_revision": "a21ae36e98d996b11fb3c1644d29bad4e9cd3247",
+      "status": "published",
       "version": "0.6.0",
       "wheel": {
         "name": "embedded_hil_runner-0.6.0-py3-none-any.whl",
-        "sha256": "6639567af25a8d7fae313987aa6164ba3ebffc564252f97a43db3cb817642a39"
+        "sha256": "6639567af25a8d7fae313987aa6164ba3ebffc564252f97a43db3cb817642a39",
+        "url": "https://github.com/Nitmi/hil-runner/releases/download/v0.6.0/embedded_hil_runner-0.6.0-py3-none-any.whl"
       }
     },
     "sim-runner": {
@@ -353,14 +357,16 @@
         }
       ],
       "repository": "Nitmi/sim-runner",
-      "source_revision": "b7f5e0a3b2409d8607c7850eb9246ae39a94c70d",
-      "status": "local_candidate",
+      "source_ref": "refs/tags/v0.5.0",
+      "source_revision": "b6e463df30c73e6cf5d81597bfda0c7af5c02baf",
+      "status": "published",
       "version": "0.5.0",
       "wheel": {
         "name": "embedded_sim_runner-0.5.0-py3-none-any.whl",
-        "sha256": "f12a986a59ba56416f49425c800040a25bc3c2a30fb231081b4461670cc9258b"
+        "sha256": "f12a986a59ba56416f49425c800040a25bc3c2a30fb231081b4461670cc9258b",
+        "url": "https://github.com/Nitmi/sim-runner/releases/download/v0.5.0/embedded_sim_runner-0.5.0-py3-none-any.whl"
       }
     }
   },
-  "schema_version": "embedded-agent-toolkit.simulation-runtime.v1"
+  "schema_version": "embedded-agent-toolkit.simulation-runtime.v2"
 }

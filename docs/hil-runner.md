@@ -2,7 +2,7 @@
 
 Use HIL Runner for a continuous build/flash/observe loop or cooperating clients
 sharing one board. Direct native commands remain suitable for a single operation.
-For the separate HIL 0.3.0 local simulation candidate, use the
+For the separate published HIL 0.6.0 simulation workflow, use the
 [simulation workflow](simulation.md); the 0.2.0 hardware pin below does not cover it.
 The runner owns debug/serial leases across one bounded native flash scope and
 per-build runtime acceptance; Toolkit does not implement another executor.

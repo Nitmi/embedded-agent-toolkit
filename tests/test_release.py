@@ -53,6 +53,19 @@ def source_files(version: str = "0.2.0") -> dict[str, bytes]:
 
 
 class ReleaseTests(unittest.TestCase):
+    def test_unbound_simulation_release_metadata_is_rejected_before_packaging(self):
+        for field, value in (
+            ("source_ref", "refs/heads/main"),
+            ("status", "local_candidate"),
+        ):
+            with self.subTest(field=field):
+                files = source_files()
+                pin = json.loads(files["simulation-runtime.json"])
+                pin["components"]["sim-runner"][field] = value
+                files["simulation-runtime.json"] = release.json_bytes(pin)
+                with self.assertRaises(release.ReleaseError):
+                    release.make_archive("1" * 40, files)
+
     def test_invalid_simulation_pin_is_rejected_before_packaging(self) -> None:
         files = source_files()
         files["simulation-runtime.json"] = b'{"schema_version":"invalid"}'

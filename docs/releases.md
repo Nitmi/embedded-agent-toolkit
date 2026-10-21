@@ -2,6 +2,14 @@
 
 ## Contents and scope
 
+The source-only 0.29.0 candidate adds optional S3/C3/nRF52840 simulation routing.
+Its `simulation-runtime.json` v2 pins published sim-runner 0.5.0, HIL Runner 0.6.0
+and Embedded Trace 0.6.0 by release tag, source commit, exact wheel URL/hash and
+65 installed payload files. See [simulation setup](simulation.md) for independent
+attestation verification. The inspector remains file-only and does not download,
+install or authenticate a remote release. The existing hardware/offline pins,
+native component catalog and default workstation selection remain unchanged.
+
 The latest published Toolkit is [0.25.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.25.0),
 adding optional [Embedded Trace timelines](embedded-trace.md) for saved serial/RTT
 evidence and explicit static Python environment checks. It retains the optional

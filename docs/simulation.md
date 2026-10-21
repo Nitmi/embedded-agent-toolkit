@@ -1,14 +1,16 @@
-# Optional simulation workflow (local candidate)
+# Optional simulation workflow
 
-Toolkit 0.29.0 source adds S3 routing for the tested local candidates
-sim-runner 0.5.0, HIL Runner 0.6.0 and Embedded Trace 0.6.0. These versions have
-not been published or attested. `simulation-runtime.json` binds their source
-commits, wheel hashes and all 65 installed source/schema/metadata/license files.
-It contains no download URL or implicit install step. Use the selected local
-candidate wheels; do not substitute the older published HIL/Trace wheels.
+Toolkit 0.29.0 source adds S3 routing for the published
+[sim-runner 0.5.0](https://github.com/Nitmi/sim-runner/releases/tag/v0.5.0),
+[HIL Runner 0.6.0](https://github.com/Nitmi/hil-runner/releases/tag/v0.6.0) and
+[Embedded Trace 0.6.0](https://github.com/Nitmi/embedded-trace/releases/tag/v0.6.0).
+Toolkit 0.29.0 itself remains an unpublished candidate. `simulation-runtime.json`
+v2 binds each component's official tag/ref and source commit, exact release wheel
+URL and hash, and all 65 installed source/schema/metadata/license files.
+Use those official wheels; there is no implicit download or install step.
 The existing `hil-runtime.json` and `trace-runtime.json` still describe their
-published hardware/offline workflows. Their inspectors do not accept these newer
-candidates. Native component locks and workstation selection remain independent.
+earlier published hardware/offline workflows. Their inspectors do not accept these
+newer releases. Native component locks and workstation selection remain independent.
 
 ## Choose the appropriate domain
 
@@ -27,7 +29,20 @@ bindings, not additional user approval steps.
 
 ## Select and inspect the software
 
-During requested host setup, install the three hash-checked candidate wheels
+During requested host setup, download the three exact release wheels named in the
+pin. Verify each wheel's SHA-256 and GitHub attestation against its repository,
+`source_ref`, `source_revision` and `.github/workflows/python-release.yml` signer at the
+same revision, with self-hosted runners denied. For example, substituting the
+selected component's exact pin values:
+
+```powershell
+gh attestation verify '<wheel>' --repo '<repository>' `
+  --source-ref '<source_ref>' --source-digest '<source_revision>' `
+  --signer-workflow '<repository>/.github/workflows/python-release.yml' `
+  --signer-digest '<source_revision>' --deny-self-hosted-runners
+```
+
+Install the three authenticated wheels with `--no-index --no-deps`
 into a dedicated Python 3.11+ environment. Do not update the active station,
 PATH or installed plugin to run an isolated simulation. Inspect all three:
 
@@ -43,7 +58,9 @@ version/layout, selected components, exact source/wheel identities and file coun
 It rejects extra package files except generated `.pyc` caches. Interpreter,
 stdlib, import hooks and bytecode authenticity are not checked. Use normal trusted
 host software and isolated module mode; this is a point-in-time payload check,
-not a sandbox or authenticated execution proof. `release_attestation_verified`,
+not a sandbox or authenticated execution proof. `distribution_status=published`
+and `resolution_source=pinned_releases` describe the bundled release records;
+the inspector does not contact GitHub or verify a signature. `release_attestation_verified`,
 `backend_runtime_verified` and `physical_board_verified` remain false.
 
 An explicit `toolkit_doctor.py --simulation-environment '<venv>' --strict --json`

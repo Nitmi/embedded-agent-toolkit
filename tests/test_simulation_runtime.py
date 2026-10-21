@@ -61,6 +61,7 @@ class SimulationRuntimeTests(unittest.TestCase):
                     report = self.inspect(root, pin)
                 self.assertTrue(report["ok"], report)
                 self.assertEqual(report["layout"], layout)
+                self.assertEqual(report["resolution_source"], "pinned_releases")
                 self.assertEqual(
                     sum(x["verified_files"] for x in report["components"]), 65
                 )
@@ -74,6 +75,11 @@ class SimulationRuntimeTests(unittest.TestCase):
                     "release_attestation_verified",
                 ):
                     self.assertIs(report[flag], False)
+                for component in report["components"]:
+                    selected = pin["components"][component["name"]]
+                    self.assertEqual(component["distribution_status"], "published")
+                    for key in ("repository", "source_ref", "source_revision", "wheel"):
+                        self.assertEqual(component[key], selected[key])
                 self.assertFalse(list(site.rglob("__pycache__")))
 
     def test_selected_missing_changed_or_extra_package_bytes_fail(self):
@@ -154,7 +160,14 @@ class SimulationRuntimeTests(unittest.TestCase):
             "bool-size",
             "version",
             "url",
-            "published",
+            "candidate",
+            "ref",
+            "revision",
+            "repository",
+            "wheel-name",
+            "wheel-hash",
+            "missing-ref",
+            "old-schema",
         ):
             with self.subTest(mode=mode):
                 pin = copy.deepcopy(original)
@@ -173,12 +186,48 @@ class SimulationRuntimeTests(unittest.TestCase):
                     item["version"] = "0.1.0"
                 elif mode == "url":
                     item["wheel"]["url"] = "https://example.invalid"
+                elif mode == "candidate":
+                    item["status"] = "local_candidate"
+                elif mode == "ref":
+                    item["source_ref"] = "refs/heads/main"
+                elif mode == "revision":
+                    item["source_revision"] = "not-a-commit"
+                elif mode == "repository":
+                    item["repository"] = "other/sim-runner"
+                elif mode == "wheel-name":
+                    item["wheel"]["name"] = "other.whl"
+                elif mode == "wheel-hash":
+                    item["wheel"]["sha256"] = "not-a-hash"
+                elif mode == "missing-ref":
+                    item.pop("source_ref")
                 else:
-                    item["status"] = "published"
+                    pin["schema_version"] = (
+                        "embedded-agent-toolkit.simulation-runtime.v1"
+                    )
                 with self.assertRaises(ValueError):
                     sim.parse_pin(json.dumps(pin).encode())
         with self.assertRaises(ValueError):
             sim.parse_pin(b'{"components":{},"components":{}}')
+
+    def test_release_urls_cannot_redirect_across_repository_version_or_asset(self):
+        for name in sim.SPECS:
+            for suffix in ("?download=1", "#other", "/extra"):
+                with self.subTest(name=name, suffix=suffix):
+                    pin = copy.deepcopy(sim.load_pin())
+                    pin["components"][name]["wheel"]["url"] += suffix
+                    with self.assertRaises(ValueError):
+                        sim.parse_pin(json.dumps(pin).encode())
+            for old, new in (
+                (f"Nitmi/{name}", "Nitmi/other"),
+                ("releases/download/v", "releases/download/other-v"),
+                ("https://", "http://"),
+            ):
+                with self.subTest(name=name, replacement=new):
+                    pin = copy.deepcopy(sim.load_pin())
+                    item = pin["components"][name]
+                    item["wheel"]["url"] = item["wheel"]["url"].replace(old, new)
+                    with self.assertRaises(ValueError):
+                        sim.parse_pin(json.dumps(pin).encode())
 
     def test_cli_failure_is_json_and_does_not_write_cache(self):
         with tempfile.TemporaryDirectory() as tmp:

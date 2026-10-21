@@ -485,7 +485,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--simulation-environment",
         type=Path,
-        help="opt in to three simulation candidate payload checks; never starts their interpreters or emulators",
+        help="opt in to three pinned simulation release payload checks; never starts their interpreters or emulators",
     )
     parser.add_argument(
         "--component-lock",

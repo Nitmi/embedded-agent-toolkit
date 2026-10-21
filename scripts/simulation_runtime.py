@@ -111,7 +111,7 @@ def parse_pin(data: bytes) -> dict:
     files.require(
         isinstance(pin, dict)
         and set(pin) == {"schema_version", "components"}
-        and pin["schema_version"] == "embedded-agent-toolkit.simulation-runtime.v1"
+        and pin["schema_version"] == "embedded-agent-toolkit.simulation-runtime.v2"
         and isinstance(pin["components"], dict)
         and set(pin["components"]) == set(SPECS),
         "Invalid simulation pin identity",
@@ -121,10 +121,19 @@ def parse_pin(data: bytes) -> dict:
         files.require(
             isinstance(item, dict)
             and set(item)
-            == {"repository", "version", "source_revision", "status", "wheel", "files"}
+            == {
+                "repository",
+                "version",
+                "source_ref",
+                "source_revision",
+                "status",
+                "wheel",
+                "files",
+            }
             and item["repository"] == f"Nitmi/{name}"
             and item["version"] == version
-            and item["status"] == "local_candidate"
+            and item["status"] == "published"
+            and item["source_ref"] == f"refs/tags/v{version}"
             and isinstance(item["source_revision"], str)
             and re.fullmatch(r"[0-9a-f]{40}", item["source_revision"]) is not None,
             "Invalid simulation component identity",
@@ -132,8 +141,10 @@ def parse_pin(data: bytes) -> dict:
         wheel = item["wheel"]
         files.require(
             isinstance(wheel, dict)
-            and set(wheel) == {"name", "sha256"}
+            and set(wheel) == {"name", "sha256", "url"}
             and wheel["name"] == f"{distribution}-{version}-py3-none-any.whl"
+            and wheel["url"]
+            == f"https://github.com/Nitmi/{name}/releases/download/v{version}/{wheel['name']}"
             and isinstance(wheel["sha256"], str)
             and files.HASH.fullmatch(wheel["sha256"]) is not None,
             "Invalid simulation wheel identity",
@@ -225,6 +236,8 @@ def inspect_package(site: Path, root: Path, name: str, pin: dict) -> dict:
         "name": name,
         "version": pin["version"],
         "status": "payload_verified",
+        "repository": pin["repository"],
+        "source_ref": pin["source_ref"],
         "source_revision": pin["source_revision"],
         "wheel": pin["wheel"],
         "distribution_status": pin["status"],
@@ -308,7 +321,7 @@ def inspect_environment(environment: Path, selected: list[str] | None = None) ->
             "layout": layout,
             "python": str(python),
             "python_version_claim": ".".join(versions[0]),
-            "resolution_source": "pinned_local_candidates",
+            "resolution_source": "pinned_releases",
         }
     except (OSError, ValueError, TypeError, KeyError, RecursionError) as error:
         return {

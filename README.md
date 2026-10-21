@@ -18,7 +18,7 @@ tools behind another hardware abstraction:
 | [firmware-inspect](https://github.com/Nitmi/firmware-inspect) (optional) | Offline ELF/HEX/BIN identity, layout, exact symbols, PC/LR source lookup and build comparison | CLI |
 | [HIL Runner](https://github.com/Nitmi/hil-runner) (optional) | Cooperative ownership and one native bounded scope across successive firmware builds | Python CLI |
 | [Embedded Trace](https://github.com/Nitmi/embedded-trace) (optional) | Offline serial/RTT line reconstruction and hash-bound timelines with explicit host clock domains | Python CLI |
-| sim-runner (optional local candidate) | Bounded Renode/nRF52840 and Espressif QEMU/ESP32-C3 firmware simulation | Python CLI |
+| [sim-runner](https://github.com/Nitmi/sim-runner) (optional) | Bounded Renode/nRF52840 and Espressif QEMU/ESP32-C3/S3 firmware simulation | Python CLI |
 
 The value of the toolkit is the cross-tool workflow: one identity ledger, one
 safety policy, correlated evidence, and deterministic cleanup across serial,
@@ -28,7 +28,9 @@ BLE, and debug transports. Each component remains independently usable.
 
 Current source is a **0.29.0 local candidate**, adding Xtensa ESP32-S3 Flash support to
 [simulation routing and payload checks](docs/simulation.md) for sim-runner 0.5.0,
-HIL Runner 0.6.0 and Trace 0.6.0 local candidates. These are not published releases.
+HIL Runner 0.6.0 and Trace 0.6.0. All three components are published and attested;
+Toolkit 0.29.0 itself remains an unpublished candidate. The v2 simulation pin binds
+their official tag commits, exact release wheel URLs and installed payload hashes.
 `simulation_runtime.py inspect <venv> --json` checks 65 selected installed files
 without starting their interpreters or emulators; doctor opts in with
 `--simulation-environment`. Default doctor, native locks and station selection
