@@ -385,12 +385,18 @@ def files_from_zip(data: bytes, asset_path: str) -> dict[str, bytes]:
                 mode = stat.S_IFMT(entry.external_attr >> 16)
                 if entry.is_dir() or mode not in {0, stat.S_IFREG}:
                     raise InstallError(f"component file is not a regular file: {name}")
-                limit = MAX_EXECUTABLE_BYTES if name == executable_name else MAX_COMPANION_BYTES
+                limit = (
+                    MAX_EXECUTABLE_BYTES
+                    if name == executable_name
+                    else MAX_COMPANION_BYTES
+                )
                 if entry.file_size <= 0 or entry.file_size > limit:
                     raise InstallError(f"component file size is invalid: {name}")
                 contents = archive.read(entry)
                 if len(contents) != entry.file_size:
-                    raise InstallError(f"component file extraction is incomplete: {name}")
+                    raise InstallError(
+                        f"component file extraction is incomplete: {name}"
+                    )
                 files[name] = contents
     except zipfile.BadZipFile as error:
         raise InstallError("invalid component ZIP") from error
@@ -484,13 +490,15 @@ def install(
                 continue
             companion_path = destination.with_name(filename)
             companion_status = install_file(companion_path, contents, executable=False)
-            companions.append({
-                "name": filename,
-                "path": str(companion_path),
-                "sha256": sha256(contents),
-                "bytes": len(contents),
-                "status": companion_status,
-            })
+            companions.append(
+                {
+                    "name": filename,
+                    "path": str(companion_path),
+                    "sha256": sha256(contents),
+                    "bytes": len(contents),
+                    "status": companion_status,
+                }
+            )
         identity = component_lock.identify(name, str(destination), timeout)
         if identity["version"] != record["version"]:
             raise InstallError(f"component version differs: {name}")

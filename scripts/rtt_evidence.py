@@ -152,7 +152,7 @@ def _nonfinite(value: str) -> None:
 def _timestamp(value: Any) -> None:
     require(isinstance(value, str) and len(value) <= 40, "invalid timestamp length")
     try:
-        stamp = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        stamp = datetime.fromisoformat(value)
         require(
             stamp.utcoffset() is not None and stamp.utcoffset().total_seconds() == 0,
             "timestamp must be UTC",

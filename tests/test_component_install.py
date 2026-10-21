@@ -108,10 +108,14 @@ class ComponentInstallTests(unittest.TestCase):
         }
         self.write_catalog()
 
-    def test_two_optional_components_are_explicit_and_install_a_five_component_lock(self) -> None:
+    def test_two_optional_components_are_explicit_and_install_a_five_component_lock(
+        self,
+    ) -> None:
         self.add_optional_board_registry()
         self.add_optional_component("firmware-inspect")
-        defaults = component_install.plan(self.catalog, self.root / "defaults", "windows-x86_64")
+        defaults = component_install.plan(
+            self.catalog, self.root / "defaults", "windows-x86_64"
+        )
         self.assertEqual(
             {item["name"] for item in defaults["components"]},
             set(component_install.component_lock.SPECS),
@@ -128,11 +132,17 @@ class ComponentInstallTests(unittest.TestCase):
                 component_install, "download", side_effect=lambda url, _: by_url[url]
             ),
             mock.patch.object(
-                component_install.component_lock.subprocess, "run", side_effect=self.completed
+                component_install.component_lock.subprocess,
+                "run",
+                side_effect=self.completed,
             ),
         ):
             report = component_install.install(
-                self.catalog, self.root / "installed-five", output, "windows-x86_64", 1.0,
+                self.catalog,
+                self.root / "installed-five",
+                output,
+                "windows-x86_64",
+                1.0,
                 ["board-registry", "firmware-inspect"],
             )
         self.assertEqual(
@@ -148,10 +158,17 @@ class ComponentInstallTests(unittest.TestCase):
             mock.patch.object(
                 component_install, "download", side_effect=AssertionError("no network")
             ),
-            self.assertRaisesRegex(component_install.InstallError, "absent from catalog"),
+            self.assertRaisesRegex(
+                component_install.InstallError, "absent from catalog"
+            ),
         ):
             component_install.install(
-                self.catalog, destination, lock, "windows-x86_64", 1.0, ["firmware-inspect"]
+                self.catalog,
+                destination,
+                lock,
+                "windows-x86_64",
+                1.0,
+                ["firmware-inspect"],
             )
         self.assertFalse(destination.exists())
         self.assertFalse(lock.exists())
@@ -189,24 +206,35 @@ class ComponentInstallTests(unittest.TestCase):
                 component_install, "download", side_effect=lambda url, _: by_url[url]
             ),
             mock.patch.object(
-                component_install.component_lock.subprocess, "run", side_effect=self.completed
+                component_install.component_lock.subprocess,
+                "run",
+                side_effect=self.completed,
             ) as run,
         ):
             report = component_install.install(
-                self.catalog, install_root, self.root / "lock.json", "windows-x86_64", 1.0,
+                self.catalog,
+                install_root,
+                self.root / "lock.json",
+                "windows-x86_64",
+                1.0,
                 ["firmware-inspect"],
             )
         installed = install_root / "firmware-inspect" / "0.1.0"
         self.assertEqual(
-            {path.name for path in installed.iterdir()}, set(companions) | {"firmware-inspect.exe"}
+            {path.name for path in installed.iterdir()},
+            set(companions) | {"firmware-inspect.exe"},
         )
         for name, contents in companions.items():
             self.assertEqual((installed / name).read_bytes(), contents)
         inspector = next(
             item for item in report["components"] if item["name"] == "firmware-inspect"
         )
-        self.assertEqual({item["name"] for item in inspector["companion_files"]}, set(companions))
-        self.assertTrue(all(call.args[0][1:] == ["--version"] for call in run.call_args_list))
+        self.assertEqual(
+            {item["name"] for item in inspector["companion_files"]}, set(companions)
+        )
+        self.assertTrue(
+            all(call.args[0][1:] == ["--version"] for call in run.call_args_list)
+        )
         self.assertFalse((self.root / "escape.txt").exists())
         (installed / "LICENSE").write_bytes(b"user changes")
         with (
@@ -214,12 +242,20 @@ class ComponentInstallTests(unittest.TestCase):
                 component_install, "download", side_effect=lambda url, _: by_url[url]
             ),
             mock.patch.object(
-                component_install.component_lock.subprocess, "run", side_effect=self.completed
+                component_install.component_lock.subprocess,
+                "run",
+                side_effect=self.completed,
             ),
-            self.assertRaisesRegex(component_install.InstallError, "destination differs"),
+            self.assertRaisesRegex(
+                component_install.InstallError, "destination differs"
+            ),
         ):
             component_install.install(
-                self.catalog, install_root, self.root / "second-lock.json", "windows-x86_64", 1.0,
+                self.catalog,
+                install_root,
+                self.root / "second-lock.json",
+                "windows-x86_64",
+                1.0,
                 ["firmware-inspect"],
             )
         self.assertEqual((installed / "LICENSE").read_bytes(), b"user changes")
@@ -479,8 +515,12 @@ class ComponentInstallTests(unittest.TestCase):
                     entry = zipfile.ZipInfo("bundle/LICENSE")
                     entry.external_attr = (kind | 0o644) << 16
                     archive.writestr(entry, b"not regular")
-                with self.assertRaisesRegex(component_install.InstallError, "not a regular file"):
-                    component_install.files_from_zip(buffer.getvalue(), "bundle/Tool.exe")
+                with self.assertRaisesRegex(
+                    component_install.InstallError, "not a regular file"
+                ):
+                    component_install.files_from_zip(
+                        buffer.getvalue(), "bundle/Tool.exe"
+                    )
         buffer = io.BytesIO()
         with zipfile.ZipFile(buffer, "w") as archive:
             archive.writestr("bundle/Tool.exe", b"executable")
@@ -532,27 +572,41 @@ class ComponentInstallTests(unittest.TestCase):
             },
         )
         self.assertEqual(
-            report["available_optional_components"], ["board-registry", "firmware-inspect"]
+            report["available_optional_components"],
+            ["board-registry", "firmware-inspect"],
         )
 
-    def test_current_catalog_pins_authenticated_firmware_release_and_all_opt_in_plans(self) -> None:
+    def test_current_catalog_pins_authenticated_firmware_release_and_all_opt_in_plans(
+        self,
+    ) -> None:
         official = (
-            Path(component_install.__file__).resolve().parents[1] / "component-catalog.json"
+            Path(component_install.__file__).resolve().parents[1]
+            / "component-catalog.json"
         )
         catalog, _ = component_install.read_catalog(official)
         inspector = catalog["optional_components"]["firmware-inspect"]
         self.assertEqual(inspector["repository"], "Nitmi/firmware-inspect")
         self.assertEqual(inspector["version"], "0.3.0")
         artifact = inspector["artifacts"]["windows-x86_64"]
-        self.assertEqual(artifact["sha256"],
-                         "7441569224e830fbc1e7c59bf063da54970137246560d893c988d5c10ff88897")
-        self.assertEqual(artifact["url"],
-                         "https://github.com/Nitmi/firmware-inspect/releases/download/"
-                         "v0.3.0/embedded-firmware-inspect-0.3.0-windows-x86_64.zip")
-        self.assertEqual(artifact["executable"],
-                         "embedded-firmware-inspect-0.3.0-windows-x86_64/firmware-inspect.exe")
-        for optional in ([], ["board-registry"], ["firmware-inspect"],
-                         ["board-registry", "firmware-inspect"]):
+        self.assertEqual(
+            artifact["sha256"],
+            "7441569224e830fbc1e7c59bf063da54970137246560d893c988d5c10ff88897",
+        )
+        self.assertEqual(
+            artifact["url"],
+            "https://github.com/Nitmi/firmware-inspect/releases/download/"
+            "v0.3.0/embedded-firmware-inspect-0.3.0-windows-x86_64.zip",
+        )
+        self.assertEqual(
+            artifact["executable"],
+            "embedded-firmware-inspect-0.3.0-windows-x86_64/firmware-inspect.exe",
+        )
+        for optional in (
+            [],
+            ["board-registry"],
+            ["firmware-inspect"],
+            ["board-registry", "firmware-inspect"],
+        ):
             with self.subTest(optional=optional):
                 report = component_install.plan(
                     official, self.root / "candidate", "windows-x86_64", optional
@@ -626,9 +680,7 @@ class ComponentInstallTests(unittest.TestCase):
             artifact["sha256"],
             "e26001160916e5350d5074a3036e0b9a13e53126e1b75b6c64f4fc2688d8e054",
         )
-        self.assertEqual(
-            artifact["executable"], "blea-0.7.0-windows-x86_64/ble.exe"
-        )
+        self.assertEqual(artifact["executable"], "blea-0.7.0-windows-x86_64/ble.exe")
 
 
 if __name__ == "__main__":

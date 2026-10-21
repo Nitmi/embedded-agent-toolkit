@@ -127,6 +127,8 @@ class RuntimeInspectionTests(unittest.TestCase):
                 doctor, "check_plugin_layout", return_value={"ok": True, "errors": []}
             ),
             mock.patch.object(doctor.platform, "system", return_value=platform),
+            mock.patch.object(doctor.platform, "release", return_value="10"),
+            mock.patch.object(doctor.platform, "machine", return_value="AMD64"),
             mock.patch.object(
                 subprocess, "run", side_effect=AssertionError("no HIL process")
             ),

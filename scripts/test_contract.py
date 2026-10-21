@@ -1941,7 +1941,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     evaluate_parser.add_argument("--output", type=Path, required=True)
     evaluate_parser.add_argument("--json", action="store_true")
     junit_parser = subparsers.add_parser(
-        "junit", help="evaluate saved evidence and export CI JUnit XML, without hardware"
+        "junit",
+        help="evaluate saved evidence and export CI JUnit XML, without hardware",
     )
     junit_parser.add_argument("contract", type=Path)
     junit_parser.add_argument("--run", type=Path, required=True)
@@ -2006,9 +2007,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         }
         if args.operation == "junit":
             report.update(
-                {"schema_version": junit_report.SCHEMA,
-                 "scope": "host_only_evidence_evaluation", "complete": False,
-                 "source_execution_not_performed": True}
+                {
+                    "schema_version": junit_report.SCHEMA,
+                    "scope": "host_only_evidence_evaluation",
+                    "complete": False,
+                    "source_execution_not_performed": True,
+                }
             )
     if args.json:
         print(json.dumps(report, indent=2, sort_keys=True))

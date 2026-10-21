@@ -297,7 +297,12 @@ class JunitReportTests(unittest.TestCase):
             "--json",
         ]
         result = subprocess.run(
-            command, cwd=self.root, capture_output=True, timeout=15, text=True
+            command,
+            cwd=self.root,
+            capture_output=True,
+            timeout=15,
+            text=True,
+            check=False,
         )
         self.assertEqual(result.returncode, 2, result.stderr)
         self.assertEqual(json.loads(result.stdout)["junit"]["failures"], 1)

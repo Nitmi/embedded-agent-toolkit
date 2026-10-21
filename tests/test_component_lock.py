@@ -86,7 +86,9 @@ class ComponentLockTests(unittest.TestCase):
             component_lock.create(output, self.executables, 1.0)
         self.assertEqual(output.read_bytes(), before)
 
-    def test_v2_lock_can_bind_five_components_and_compare_only_new_presence(self) -> None:
+    def test_v2_lock_can_bind_five_components_and_compare_only_new_presence(
+        self,
+    ) -> None:
         base = self.create()
         selections = dict(self.executables)
         for name in ("board-registry", "firmware-inspect"):
@@ -94,7 +96,9 @@ class ComponentLockTests(unittest.TestCase):
             executable.write_bytes(f"fixture {name}".encode())
             selections[name] = str(executable)
         candidate = self.root / "five-components.json"
-        with mock.patch.object(component_lock.subprocess, "run", side_effect=self.completed):
+        with mock.patch.object(
+            component_lock.subprocess, "run", side_effect=self.completed
+        ):
             component_lock.create(candidate, selections, 1.0)
         with mock.patch.object(
             component_lock.subprocess, "run", side_effect=AssertionError("must not run")
@@ -114,13 +118,24 @@ class ComponentLockTests(unittest.TestCase):
         executable.write_bytes(b"fixture firmware-inspect")
         output = self.root / "firmware-lock.json"
         arguments = [
-            "create", "--output", str(output), "--baud", self.executables["baud"],
-            "--blea", self.executables["blea"], "--debugger", self.executables["embedded-debugger"],
-            "--firmware-inspect", str(executable), "--json",
+            "create",
+            "--output",
+            str(output),
+            "--baud",
+            self.executables["baud"],
+            "--blea",
+            self.executables["blea"],
+            "--debugger",
+            self.executables["embedded-debugger"],
+            "--firmware-inspect",
+            str(executable),
+            "--json",
         ]
         stdout = io.StringIO()
         with (
-            mock.patch.object(component_lock.subprocess, "run", side_effect=self.completed),
+            mock.patch.object(
+                component_lock.subprocess, "run", side_effect=self.completed
+            ),
             contextlib.redirect_stdout(stdout),
         ):
             self.assertEqual(component_lock.main(arguments), 0)
