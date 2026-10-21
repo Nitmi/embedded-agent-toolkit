@@ -14,7 +14,8 @@ process exit into a hardware claim.
 For a failure reproduced in a supported Renode/QEMU model, read
 [optional simulation](../../docs/simulation.md). Use the selected candidate
 sim-runner/HIL native CLI, preserve failed or partial UART and process cleanup,
-and use Trace 0.3.0 for offline simulated evidence. A simulation-only diagnosis
+and use Trace 0.4.0 for offline simulated evidence. Retain model diagnostics and
+`passed_with_model_limits` instead of flattening a qualified pass. A simulation-only diagnosis
 needs no hardware discovery or attach. Do not infer a physical fault, radio or
 electrical behavior from a simulated pass, or silently switch to a real board.
 

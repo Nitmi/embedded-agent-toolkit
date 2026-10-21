@@ -23,7 +23,7 @@ SPECS = {
     "sim-runner": (
         "sim_runner",
         "embedded_sim_runner",
-        "0.2.0",
+        "0.3.0",
         {
             "__init__.py",
             "__main__.py",
@@ -34,16 +34,19 @@ SPECS = {
             "plan.py",
             "process.py",
             "qemu.py",
+            "qemu_flash.py",
+            "flash_image.py",
             "run.py",
             "winjob.py",
             "assets/esp32c3-uart.json",
+            "assets/esp32c3-idf-flash.json",
             "assets/nrf52840-uart.repl",
         },
     ),
     "hil-runner": (
         "hil_runner",
         "embedded_hil_runner",
-        "0.3.0",
+        "0.4.0",
         {
             "__init__.py",
             "__main__.py",
@@ -69,7 +72,7 @@ SPECS = {
     "embedded-trace": (
         "embedded_trace",
         "embedded_trace",
-        "0.3.0",
+        "0.4.0",
         {
             "__init__.py",
             "__main__.py",

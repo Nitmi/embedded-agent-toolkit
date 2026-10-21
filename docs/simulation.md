@@ -1,9 +1,9 @@
 # Optional simulation workflow (local candidate)
 
-Toolkit 0.26.0 source adds simulation routing for the tested local candidates
-sim-runner 0.2.0, HIL Runner 0.3.0 and Embedded Trace 0.3.0. These versions have
+Toolkit 0.27.0 source adds Flash-profile routing for the tested local candidates
+sim-runner 0.3.0, HIL Runner 0.4.0 and Embedded Trace 0.4.0. These versions have
 not been published or attested. `simulation-runtime.json` binds their source
-commits, wheel hashes and all 58 installed source/schema/metadata/license files.
+commits, wheel hashes and all 61 installed source/schema/metadata/license files.
 It contains no download URL or implicit install step. Use the selected local
 candidate wheels; do not substitute the older published HIL/Trace wheels.
 The existing `hil-runtime.json` and `trace-runtime.json` still describe their
@@ -74,13 +74,19 @@ bounded:
 - Renode 1.17.0: `nrf52840-uart-v1`, raw Cortex-M vector-table BIN, UART readiness;
   zero-initialized model state, a virtual execution budget and host deadline.
 - Espressif QEMU `esp-develop-9.2.2-20260417`: `esp32c3-ram-uart-v1`, RAM-loaded
-  RV32IMC ELF and UART readiness. No ESP-IDF flash boot, ESP32-S3, radio or enforced
+  RV32IMC ELF and UART readiness. No ESP-IDF flash boot in this RAM profile, ESP32-S3, radio or enforced
   virtual-time budget. A host deadline is not a virtual-time measurement.
+- The same QEMU with `esp32c3-idf-flash-v1`: fixed 4 MiB DIO merged image,
+  ROM and ESP-IDF 5.5.2 bootloader/application UART startup, private Flash/eFuse
+  copies and revision-0.3 eFuse seed. No secure-boot/encryption verification,
+  radio/electrical coverage or enforced virtual time. Known native Flash/PMP model
+  diagnostics remain a qualified pass, never evidence of full-chip compatibility.
 
 These are not full-chip/electrical models. Unsupported requested behavior must
 remain unsupported; silent upstream peripheral stubs cannot always be detected.
 Consult the selected sim-runner source's `docs/profile.md` and
-`docs/esp32c3-qemu.md` for image layout, runtime inventory and assertion limits.
+`docs/esp32c3-qemu.md` and `docs/esp32c3-idf-flash.md` for image layout,
+runtime inventory and assertion limits.
 
 ```powershell
 & $python -I -m sim_runner doctor --backend espressif-qemu `
@@ -104,15 +110,21 @@ budgets, raw UART and descendant-process cleanup. Preserve nonzero exits,
 failed assertions, partial output and cleanup uncertainty. A valid file inspection
 is not a repeated execution or proof of a physical firmware identity.
 
+For ESP-IDF Flash boot, explicitly add `--profile esp32c3-idf-flash-v1` to the
+QEMU `plan` command and use the fixed-layout merged `flash.bin` and its hash in
+place of the ELF. Omitting the profile retains RAM behavior; do not pass a
+Flash image as an ELF. Use sim-runner's fixture builder or a compatible audited
+SDK build/merge flow; it builds host files without flashing a board.
+
 ## Coordinate a bounded suite
 
-Use HIL 0.3.0's `embedded-hil-runner.simulation-spec.v1` with 1..8 ordered cases:
+Use HIL 0.4.0's `embedded-hil-runner.simulation-spec.v1` with 1..8 ordered cases:
 
 ```json
 {
   "schema_version": "embedded-hil-runner.simulation-spec.v1",
   "python": {"path": "<trusted-absolute-python-path>", "sha256": "<python-sha256>"},
-  "sim_runner_wheel": {"path": "<selected-0.2.0-wheel>", "sha256": "<wheel-sha256>"},
+  "sim_runner_wheel": {"path": "<selected-0.3.0-wheel>", "sha256": "<wheel-sha256>"},
   "cases": [
     {"id": "a", "plan": {"path": "a.json", "sha256": "<native-plan-sha256>"}},
     {"id": "b", "plan": {"path": "b.json", "sha256": "<native-plan-sha256>"}}
@@ -139,6 +151,12 @@ stop subsequent cases; no automatic retries or recovery. Gate CI on the run's
 exit/verdict, retain artifacts even on failure, and inspect host-process cleanup
 separately. Simulation does not grant flash authorization or prove target cleanup.
 
+Successful Flash cases keep the exact native `passed_with_model_limits` status,
+`model_diagnostics` message/count/meaning and false `model_coverage_complete` /
+`security_features_verified`. They allow the next case to run and make a
+successful suite `passed_with_model_limits`. Failed/indeterminate cases still
+stop subsequent cases. Never turn exit zero into an unqualified model/physical pass.
+
 ## Review the recorded evidence
 
 For completed, natively inspected cases HIL emits `trace-input.json`, including
@@ -155,7 +173,7 @@ partial evidence and must not be fabricated into a Trace source.
   --output '<new-report.md>' --json
 ```
 
-Trace 0.3.0's `sim-runner-report` adapter checks the selected report and adjacent
+Trace 0.4.0's `sim-runner-report` adapter checks the selected report and adjacent
 hash-bound artifacts offline. Keep the native reports, plans, locks, firmware,
 UART bytes, CLI outputs and suite journal. UART is labelled `simulation.uart`;
 line windows cover the host run, with no invented per-byte timestamps or measured
@@ -164,3 +182,14 @@ Recorded native failures stay failed even if import/query/report exits zero.
 `native_summary_verified=false` and `native_assertions_reexecuted=false` distinguish
 offline import from native validation. A derived timeline cannot replace the
 native/HIL verdict or a compatible physical test-contract evaluation.
+
+A limited native pass stays `capture_outcome=succeeded_with_model_limits` with
+`recorded_status=passed_with_model_limits`, native model diagnostics and both
+false coverage/security fields. The timeline becomes `correlated_with_warnings`;
+inspect, query and Markdown retain that outcome. Import binds ROM, initial
+eFuse, input/work Flash and raw stderr diagnostic counts. It does not emulate
+the CPU or rerun native policy. Flash evidence has a 12 MiB/source budget and
+simulation-containing input a 96 MiB total; physical captures retain their
+8 MiB/source and 16 MiB combined limits. Native reports stay capped at 128 KiB.
+An incomplete attempt without a native report is retained by HIL and cannot
+be promoted into a Trace source.
