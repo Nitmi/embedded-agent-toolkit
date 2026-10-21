@@ -26,10 +26,10 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-Current source is a **0.29.0 local candidate**, adding Xtensa ESP32-S3 Flash support to
+The latest published release is [0.29.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.29.0), adding Xtensa ESP32-S3 Flash support to
 [simulation routing and payload checks](docs/simulation.md) for sim-runner 0.5.0,
 HIL Runner 0.6.0 and Trace 0.6.0. All three components are published and attested;
-Toolkit 0.29.0 itself remains an unpublished candidate. The v2 simulation pin binds
+The v2 simulation pin binds
 their official tag commits, exact release wheel URLs and installed payload hashes.
 `simulation_runtime.py inspect <venv> --json` checks 65 selected installed files
 without starting their interpreters or emulators; doctor opts in with
@@ -38,8 +38,7 @@ are unchanged. Native `passed_with_model_limits` and model diagnostics remain
 visible through HIL and Trace. GPIO samples, model snapshots and time semantics
 retain their native sources. Simulation never establishes physical board acceptance.
 
-The latest published release is [0.25.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.25.0),
-adding optional Embedded Trace timelines and static installed-payload checks
+It retains optional Embedded Trace timelines and static installed-payload checks
 for saved serial/RTT evidence. It retains bootstrap preflight before network access,
 the optional HIL Runner workflow for continuous firmware builds and an
 opt-in check of its installed Python distribution. The native catalog pins
@@ -52,11 +51,11 @@ standalone `bootstrap.py` alongside the plugin ZIP. Download the bootstrap with 
 authenticate it before execution, and keep its exact filename:
 
 ```powershell
-gh release download v0.25.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.29.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.25.0 `
+  --source-ref refs/tags/v0.29.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json

@@ -4,7 +4,7 @@ Toolkit 0.29.0 source adds S3 routing for the published
 [sim-runner 0.5.0](https://github.com/Nitmi/sim-runner/releases/tag/v0.5.0),
 [HIL Runner 0.6.0](https://github.com/Nitmi/hil-runner/releases/tag/v0.6.0) and
 [Embedded Trace 0.6.0](https://github.com/Nitmi/embedded-trace/releases/tag/v0.6.0).
-Toolkit 0.29.0 itself remains an unpublished candidate. `simulation-runtime.json`
+[Toolkit 0.29.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.29.0) is published. `simulation-runtime.json`
 v2 binds each component's official tag/ref and source commit, exact release wheel
 URL and hash, and all 65 installed source/schema/metadata/license files.
 Use those official wheels; there is no implicit download or install step.
