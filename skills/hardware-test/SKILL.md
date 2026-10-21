@@ -12,7 +12,7 @@ second untyped command runner in this plugin.
 
 For simulation-only regressions, read [optional simulation](../../docs/simulation.md)
 first. Inspect the selected candidate payloads with `simulation_runtime.py`, then
-use sim-runner or HIL's native `simulation` CLI and optional Trace 0.5.0 evidence
+use sim-runner or HIL's native `simulation` CLI and optional Trace 0.6.0 evidence
 views. Skip hardware doctor/discovery/selection for this domain. Reuse development
 task consent without per-run hash confirmation. Stop on unsupported models or
 failed/indeterminate cases; never fall back to physical hardware automatically.
@@ -21,6 +21,8 @@ claims; Trace retains `succeeded_with_model_limits`. Simulation results remain
 distinct from physical-board acceptance.
 For GPIO/TIMER0, keep guest samples, paused model snapshots and host run windows
 distinct; inspect/query/report retain the recorded context and false physical timing claim.
+For ESP32-S3, select the independent Xtensa runtime and keep its unmeasured
+device clock/core declarations and qualified outcome in filtered evidence views.
 
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only

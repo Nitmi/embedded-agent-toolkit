@@ -14,12 +14,14 @@ process exit into a hardware claim.
 For a failure reproduced in a supported Renode/QEMU model, read
 [optional simulation](../../docs/simulation.md). Use the selected candidate
 sim-runner/HIL native CLI, preserve failed or partial UART and process cleanup,
-and use Trace 0.5.0 for offline simulated evidence. Retain model diagnostics and
+and use Trace 0.6.0 for offline simulated evidence. Retain model diagnostics and
 `passed_with_model_limits` instead of flattening a qualified pass. A simulation-only diagnosis
 needs no hardware discovery or attach. Do not infer a physical fault, radio or
 electrical behavior from a simulated pass, or silently switch to a real board.
 GPIO RunFor boundaries and guest timer captures remain separate from UART/host
 event times; use the saved model observation spans when reviewing the raw source.
+S3 uses the separate Xtensa backend with an unmeasured device clock; keep its
+runtime/core declarations and native limitations when comparing it with C3/Renode.
 
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only

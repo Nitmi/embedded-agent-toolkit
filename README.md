@@ -26,10 +26,10 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-Current source is a **0.28.0 local candidate**, adding Renode GPIO/TIMER0 support to
-[simulation routing and payload checks](docs/simulation.md) for sim-runner 0.4.0,
-HIL Runner 0.5.0 and Trace 0.5.0 local candidates. These are not published releases.
-`simulation_runtime.py inspect <venv> --json` checks 63 selected installed files
+Current source is a **0.29.0 local candidate**, adding Xtensa ESP32-S3 Flash support to
+[simulation routing and payload checks](docs/simulation.md) for sim-runner 0.5.0,
+HIL Runner 0.6.0 and Trace 0.6.0 local candidates. These are not published releases.
+`simulation_runtime.py inspect <venv> --json` checks 65 selected installed files
 without starting their interpreters or emulators; doctor opts in with
 `--simulation-environment`. Default doctor, native locks and station selection
 are unchanged. Native `passed_with_model_limits` and model diagnostics remain

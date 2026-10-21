@@ -1,9 +1,9 @@
 # Optional simulation workflow (local candidate)
 
-Toolkit 0.28.0 source adds GPIO/TIMER0 routing for the tested local candidates
-sim-runner 0.4.0, HIL Runner 0.5.0 and Embedded Trace 0.5.0. These versions have
+Toolkit 0.29.0 source adds S3 routing for the tested local candidates
+sim-runner 0.5.0, HIL Runner 0.6.0 and Embedded Trace 0.6.0. These versions have
 not been published or attested. `simulation-runtime.json` binds their source
-commits, wheel hashes and all 63 installed source/schema/metadata/license files.
+commits, wheel hashes and all 65 installed source/schema/metadata/license files.
 It contains no download URL or implicit install step. Use the selected local
 candidate wheels; do not substitute the older published HIL/Trace wheels.
 The existing `hil-runtime.json` and `trace-runtime.json` still describe their
@@ -80,6 +80,9 @@ bounded:
 - Espressif QEMU `esp-develop-9.2.2-20260417`: `esp32c3-ram-uart-v1`, RAM-loaded
   RV32IMC ELF and UART readiness. No ESP-IDF flash boot in this RAM profile, ESP32-S3, radio or enforced
   virtual-time budget. A host deadline is not a virtual-time measurement.
+- Separate Xtensa QEMU of the same fixed release: `esp32s3-idf-flash-v1`, S3 ROM /
+  ESP-IDF5.5.2 4 MiB factory Flash / dual-core fixture UART. Device clock is
+  unmeasured; reviewed Flash/debug-query limitations remain qualified success.
 - The same QEMU with `esp32c3-idf-flash-v1`: fixed 4 MiB DIO merged image,
   ROM and ESP-IDF 5.5.2 bootloader/application UART startup, private Flash/eFuse
   copies and revision-0.3 eFuse seed. No secure-boot/encryption verification,
@@ -128,13 +131,13 @@ pin schedules or timer modes require another audited profile.
 
 ## Coordinate a bounded suite
 
-Use HIL 0.5.0's `embedded-hil-runner.simulation-spec.v1` with 1..8 ordered cases:
+Use HIL 0.6.0's `embedded-hil-runner.simulation-spec.v1` with 1..8 ordered cases:
 
 ```json
 {
   "schema_version": "embedded-hil-runner.simulation-spec.v1",
   "python": {"path": "<trusted-absolute-python-path>", "sha256": "<python-sha256>"},
-  "sim_runner_wheel": {"path": "<selected-0.4.0-wheel>", "sha256": "<wheel-sha256>"},
+  "sim_runner_wheel": {"path": "<selected-0.5.0-wheel>", "sha256": "<wheel-sha256>"},
   "cases": [
     {"id": "a", "plan": {"path": "a.json", "sha256": "<native-plan-sha256>"}},
     {"id": "b", "plan": {"path": "b.json", "sha256": "<native-plan-sha256>"}}
@@ -183,7 +186,7 @@ partial evidence and must not be fabricated into a Trace source.
   --output '<new-report.md>' --json
 ```
 
-Trace 0.5.0's `sim-runner-report` adapter checks the selected report and adjacent
+Trace 0.6.0's `sim-runner-report` adapter checks the selected report and adjacent
 hash-bound artifacts offline. Keep the native reports, plans, locks, firmware,
 UART bytes, CLI outputs and suite journal. UART is labelled `simulation.uart`;
 line windows cover the host run, with no invented per-byte timestamps or measured
@@ -219,3 +222,19 @@ IRQ readiness policy. Failed/unevaluated assertions remain null, partial native
 attempts without inspected reports remain HIL evidence, and no stage silently
 switches to physical hardware. Derived query/report checks do not reopen sources
 or authenticate a report; retain the raw artifacts for independent review.
+
+For ESP32-S3, select native backend `espressif-qemu-xtensa` and profile
+`esp32s3-idf-flash-v1`, the separately pinned Xtensa QEMU distribution and a
+native-compatible S3 ESP-IDF5.5.2 4 MiB factory Flash image. Consult the selected
+sim-runner's `docs/esp32s3-qemu.md`. C3 RISC-V runtime/ROM/image identities are
+not interchangeable. The native S3 fixture includes ordered CPU0/CPU1 markers,
+exact READY/BUILD and five heartbeats; their policy stays in sim-runner.
+
+HIL0.6 and Trace0.6 preserve `backend`, `backend_version`,
+`runtime_archive_sha256`, `app_core_markers` and `virtual_time` alongside model
+diagnostics and false coverage/security claims. S3 uses no C3 icount setting:
+its domain remains `qemu_device_clock_unmeasured`, elapsed=null, budget=false.
+Host timeouts, UART log ticks and core markers do not establish measured virtual
+time, complete SMP or physical behavior. Unevaluated core declarations stay null.
+Filtered inspect/query/Markdown retain the same context. A qualified pass can
+continue a suite; a failed/indeterminate native attempt stops later cases.
