@@ -2,17 +2,17 @@
 
 ## Contents and scope
 
-The local 0.30.0 candidate adds the [fault workflow](simulation-faults.md), with
+Toolkit [0.30.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.30.0) adds the [fault workflow](simulation-faults.md), with
 published sim 0.6.0 / HIL 0.7.0 / Trace 0.7.0 as the default simulation pin (66 files).
 The separate `simulation-candidates.json` retains exact historical local identities
 with no claimed tag or release URL and is selected only by explicit candidate flags.
 Both pins are checked during archive build/verify/install. Use each release's
 matching bundled `release.py`; its required layout is versioned.
 
-Toolkit [0.29.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.29.0) adds optional S3/C3/nRF52840 simulation routing.
-Its `simulation-runtime.json` v2 pins published sim-runner 0.5.0, HIL Runner 0.6.0
-and Embedded Trace 0.6.0 by release tag, source commit, exact wheel URL/hash and
-65 installed payload files. See [simulation setup](simulation.md) for independent
+It retains optional S3/C3/nRF52840 simulation routing.
+Its `simulation-runtime.json` v2 pins published sim-runner 0.6.0, HIL Runner 0.7.0
+and Embedded Trace 0.7.0 by release tag, source commit, exact wheel URL/hash and
+66 installed payload files. See [simulation setup](simulation.md) for independent
 attestation verification. The inspector remains file-only and does not download,
 install or authenticate a remote release. The existing hardware/offline pins,
 native component catalog and default workstation selection remain unchanged.
@@ -53,7 +53,7 @@ After tests and a cohesive commit, from this repository:
 
 ```powershell
 python scripts/release.py build --output-dir dist --json
-python scripts/release.py verify dist/embedded-agent-toolkit-0.29.0.zip --checksum dist/embedded-agent-toolkit-0.29.0.zip.sha256 --json
+python scripts/release.py verify dist/embedded-agent-toolkit-0.30.0.zip --checksum dist/embedded-agent-toolkit-0.30.0.zip.sha256 --json
 ```
 
 The builder requires a clean worktree and reads pinned Git blobs rather than
@@ -64,16 +64,16 @@ push commits, or publish a remote release.
 
 ## Bootstrap without cloning
 
-The latest published Toolkit release is `0.29.0`; its immutable tagged release
+The latest published Toolkit release is `0.30.0`; its immutable tagged release
 publishes `bootstrap.py` as a separately attested asset.
 Download and authenticate the script before executing it:
 
 ```powershell
-gh release download v0.29.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.30.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.29.0 `
+  --source-ref refs/tags/v0.30.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -142,8 +142,8 @@ Use the release script from a trusted source checkout. Obtain the ZIP and its
 checksum from a trusted channel, then install into a directory you own:
 
 ```powershell
-python scripts/release.py install dist/embedded-agent-toolkit-0.29.0.zip `
-  --checksum dist/embedded-agent-toolkit-0.29.0.zip.sha256 `
+python scripts/release.py install dist/embedded-agent-toolkit-0.30.0.zip `
+  --checksum dist/embedded-agent-toolkit-0.30.0.zip.sha256 `
   --install-root C:\Tools\embedded-agent-toolkit `
   --lock-output C:\Tools\embedded-agent-toolkit\component-locks\workstation.json `
   --baud C:\Users\you\.local\bin\baud.exe `
@@ -152,7 +152,7 @@ python scripts/release.py install dist/embedded-agent-toolkit-0.29.0.zip `
   --json
 ```
 
-This creates `C:\Tools\embedded-agent-toolkit\0.29.0\embedded-agent-toolkit`,
+This creates `C:\Tools\embedded-agent-toolkit\0.30.0\embedded-agent-toolkit`,
 then creates the requested component lock and runs strict doctor against the
 installed plugin. The three component executables are invoked only with
 `--version`; no hardware command is run. All four setup options (`--lock-output`,

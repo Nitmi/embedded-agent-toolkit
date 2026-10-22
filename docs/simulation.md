@@ -1,10 +1,10 @@
 # Optional simulation workflow
 
-Toolkit 0.30.0 is a local candidate routing the published
+[Toolkit 0.30.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.30.0) routes the published
 [sim-runner 0.6.0](https://github.com/Nitmi/sim-runner/releases/tag/v0.6.0),
 [HIL Runner 0.7.0](https://github.com/Nitmi/hil-runner/releases/tag/v0.7.0) and
 [Embedded Trace 0.7.0](https://github.com/Nitmi/embedded-trace/releases/tag/v0.7.0).
-Toolkit itself is not yet published. `simulation-runtime.json`
+`simulation-runtime.json`
 v2 binds each component's official tag/ref and source commit, exact release wheel
 URL and hash, and all 66 installed source/schema/metadata/license files.
 Use those official wheels; there is no implicit download or install step.

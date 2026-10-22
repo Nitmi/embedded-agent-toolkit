@@ -1,6 +1,6 @@
 # GPIO/TIMER0 model fault regressions
 
-Toolkit 0.30.0 is a local candidate for routing the published sim-runner
+Toolkit 0.30.0 routes the published sim-runner
 0.6.0, HIL Runner 0.7.0 and Embedded Trace 0.7.0 wheels. Their fixed profile is
 `nrf52840-gpio-timer-fault-v1` on Renode 1.17.0. It extends the nominal GPIO/TIMER0
 fixture with `none`, `gpio-stuck-low`, `gpio-stuck-high`, `timer-stop` and

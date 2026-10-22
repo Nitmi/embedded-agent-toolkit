@@ -26,19 +26,18 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The local 0.30.0 candidate adds [GPIO/TIMER0 fault routing](docs/simulation-faults.md)
+The published [0.30.0 release](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.30.0) adds [GPIO/TIMER0 fault routing](docs/simulation-faults.md)
 with published sim-runner 0.6.0 / HIL 0.7.0 / Trace 0.7.0 as the default optional
 simulation pin: 66 installed files, exact release URLs, tags and source commits.
 Use `simulation_runtime.py inspect <venv> --json`. Earlier local build identities
-remain available only with explicit candidate flags. Toolkit 0.30.0 itself is not
-published and does not select or install a new environment automatically.
+remain available only with explicit candidate flags. The plugin does not select
+or install a new environment automatically.
 
-The latest published release is [0.29.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.29.0), adding Xtensa ESP32-S3 Flash support to
-[simulation routing and payload checks](docs/simulation.md) for sim-runner 0.5.0,
-HIL Runner 0.6.0 and Trace 0.6.0. All three components are published and attested;
+It retains Xtensa ESP32-S3 Flash support in
+[simulation routing and payload checks](docs/simulation.md). All three components are published and attested;
 The v2 simulation pin binds
 their official tag commits, exact release wheel URLs and installed payload hashes.
-The inspector bundled in 0.29.0 checks 65 selected installed files
+The inspector checks 66 selected installed files
 without starting their interpreters or emulators; doctor opts in with
 `--simulation-environment`. Default doctor, native locks and station selection
 are unchanged. Native `passed_with_model_limits` and model diagnostics remain
@@ -58,11 +57,11 @@ standalone `bootstrap.py` alongside the plugin ZIP. Download the bootstrap with 
 authenticate it before execution, and keep its exact filename:
 
 ```powershell
-gh release download v0.29.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.30.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.29.0 `
+  --source-ref refs/tags/v0.30.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
