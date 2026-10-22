@@ -1,26 +1,27 @@
 # Optional simulation workflow
 
-Toolkit 0.29.0 source adds S3 routing for the published
-[sim-runner 0.5.0](https://github.com/Nitmi/sim-runner/releases/tag/v0.5.0),
-[HIL Runner 0.6.0](https://github.com/Nitmi/hil-runner/releases/tag/v0.6.0) and
-[Embedded Trace 0.6.0](https://github.com/Nitmi/embedded-trace/releases/tag/v0.6.0).
-[Toolkit 0.29.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.29.0) is published. `simulation-runtime.json`
+Toolkit 0.30.0 is a local candidate routing the published
+[sim-runner 0.6.0](https://github.com/Nitmi/sim-runner/releases/tag/v0.6.0),
+[HIL Runner 0.7.0](https://github.com/Nitmi/hil-runner/releases/tag/v0.7.0) and
+[Embedded Trace 0.7.0](https://github.com/Nitmi/embedded-trace/releases/tag/v0.7.0).
+Toolkit itself is not yet published. `simulation-runtime.json`
 v2 binds each component's official tag/ref and source commit, exact release wheel
-URL and hash, and all 65 installed source/schema/metadata/license files.
+URL and hash, and all 66 installed source/schema/metadata/license files.
 Use those official wheels; there is no implicit download or install step.
 The existing `hil-runtime.json` and `trace-runtime.json` still describe their
 earlier published hardware/offline workflows. Their inspectors do not accept these
 newer releases. Native component locks and workstation selection remain independent.
 
-Toolkit 0.30.0 is a local candidate adding a separate `simulation-candidates.json`
-v1 for sim-runner 0.6.0 / HIL 0.7.0 / Trace 0.7.0 and 66 payload files. For the
-new GPIO/TIMER0 fault profile, read [model fault evidence](simulation-faults.md).
-Choose its local environment explicitly with `simulation_runtime.py inspect <venv>
+For the new GPIO/TIMER0 fault profile, read [model fault evidence](simulation-faults.md).
+Default inspection now selects these published releases. The separate
+`simulation-candidates.json` v1 retains the earlier recorded local build identities.
+Only choose that history explicitly with `simulation_runtime.py inspect <venv>
 --candidate --json`, or add `--simulation-candidate` to an explicitly requested
 combined doctor `--simulation-environment <venv>`. Candidate source commits,
 wheel hashes and file inventories have no asserted release tag or download URL;
 results use `pinned_local_candidates` and `distribution_status=local_candidate`.
-The default remains the published pin above. A missing or changed selected
+Static inspection reports the selected pin's declarations, even when identical
+wheel bytes match both the historical candidate and published records. A missing or changed selected
 candidate fails; it never falls back to the published environment or a board.
 
 ## Choose the appropriate domain
@@ -105,6 +106,9 @@ bounded:
   output-loopback scenario, 16 native UART samples and four paused model snapshots.
   Guest timer captures and requested RunFor boundaries are not host/UART timestamps
   or physical timing; no complete GPIO/timer, sense/latch or PPI coverage is claimed.
+- Renode 1.17.0: `nrf52840-gpio-timer-fault-v1`, the same fixture with explicit
+  `none` or one fixed GPIO/TIMER0 fault. Native nominal failures remain failed
+  even when the injected effect is observed; timeout assertions stay unknown.
 - Espressif QEMU `esp-develop-9.2.2-20260417`: `esp32c3-ram-uart-v1`, RAM-loaded
   RV32IMC ELF and UART readiness. No ESP-IDF flash boot in this RAM profile, ESP32-S3, radio or enforced
   virtual-time budget. A host deadline is not a virtual-time measurement.
@@ -159,13 +163,13 @@ pin schedules or timer modes require another audited profile.
 
 ## Coordinate a bounded suite
 
-Use HIL 0.6.0's `embedded-hil-runner.simulation-spec.v1` with 1..8 ordered cases:
+Use HIL 0.7.0's `embedded-hil-runner.simulation-spec.v1` with 1..8 ordered cases:
 
 ```json
 {
   "schema_version": "embedded-hil-runner.simulation-spec.v1",
   "python": {"path": "<trusted-absolute-python-path>", "sha256": "<python-sha256>"},
-  "sim_runner_wheel": {"path": "<selected-0.5.0-wheel>", "sha256": "<wheel-sha256>"},
+  "sim_runner_wheel": {"path": "<selected-0.6.0-wheel>", "sha256": "<wheel-sha256>"},
   "cases": [
     {"id": "a", "plan": {"path": "a.json", "sha256": "<native-plan-sha256>"}},
     {"id": "b", "plan": {"path": "b.json", "sha256": "<native-plan-sha256>"}}
@@ -214,7 +218,7 @@ partial evidence and must not be fabricated into a Trace source.
   --output '<new-report.md>' --json
 ```
 
-Trace 0.6.0's `sim-runner-report` adapter checks the selected report and adjacent
+Trace 0.7.0's `sim-runner-report` adapter checks the selected report and adjacent
 hash-bound artifacts offline. Keep the native reports, plans, locks, firmware,
 UART bytes, CLI outputs and suite journal. UART is labelled `simulation.uart`;
 line windows cover the host run, with no invented per-byte timestamps or measured
@@ -258,7 +262,7 @@ sim-runner's `docs/esp32s3-qemu.md`. C3 RISC-V runtime/ROM/image identities are
 not interchangeable. The native S3 fixture includes ordered CPU0/CPU1 markers,
 exact READY/BUILD and five heartbeats; their policy stays in sim-runner.
 
-HIL0.6 and Trace0.6 preserve `backend`, `backend_version`,
+HIL0.7 and Trace0.7 preserve `backend`, `backend_version`,
 `runtime_archive_sha256`, `app_core_markers` and `virtual_time` alongside model
 diagnostics and false coverage/security claims. S3 uses no C3 icount setting:
 its domain remains `qemu_device_clock_unmeasured`, elapsed=null, budget=false.

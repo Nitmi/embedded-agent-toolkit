@@ -188,7 +188,7 @@ class SimulationRuntimeTests(unittest.TestCase):
                 self.assertEqual(report["layout"], layout)
                 self.assertEqual(report["resolution_source"], "pinned_releases")
                 self.assertEqual(
-                    sum(x["verified_files"] for x in report["components"]), 65
+                    sum(x["verified_files"] for x in report["components"]), 66
                 )
                 for flag in (
                     "executables_started",

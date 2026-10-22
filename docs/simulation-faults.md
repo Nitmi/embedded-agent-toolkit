@@ -1,35 +1,40 @@
 # GPIO/TIMER0 model fault regressions
 
-Toolkit 0.30.0 is a local candidate for routing the accepted local sim-runner
+Toolkit 0.30.0 is a local candidate for routing the published sim-runner
 0.6.0, HIL Runner 0.7.0 and Embedded Trace 0.7.0 wheels. Their fixed profile is
 `nrf52840-gpio-timer-fault-v1` on Renode 1.17.0. It extends the nominal GPIO/TIMER0
 fixture with `none`, `gpio-stuck-low`, `gpio-stuck-high`, `timer-stop` and
 `timer-irq-mask`. These are simulated inputs, not physical board tests.
 
-## Select the local candidate environment
+## Select the published component environment
 
-Use the exact existing local wheels recorded in `simulation-candidates.json`.
-Verify wheel hashes before a requested host setup and install with `--no-index
---no-deps` in an isolated Python 3.11+ environment. The pin does not contain a
-release URL or source tag; do not fabricate one, claim attestation or silently
-download a different version. Local computed hashes do not require new user approval.
+Use the exact released wheels recorded in `simulation-runtime.json`. Verify
+their hashes and GitHub attestation using the repository, source ref/digest and
+signer workflow/digest in [simulation setup](simulation.md). During requested
+host setup, install with `--no-index --no-deps` in an isolated Python 3.11+
+environment. Local computed hashes do not require new user approval.
 
 ```powershell
-python scripts/simulation_runtime.py inspect '<candidate-venv>' --candidate --json
+python scripts/simulation_runtime.py inspect '<simulation-venv>' --json
 ```
 
 This checks 66 source/schema/metadata/license files without importing or launching
-components. Expect `candidate_mode=true`, `resolution_source=pinned_local_candidates`,
-three `distribution_status=local_candidate` entries and `source_ref=null`.
+components. Expect `candidate_mode=false`, `resolution_source=pinned_releases`,
+three `distribution_status=published` entries and the exact release refs/commits.
 `executables_started`, `release_attestation_verified`, `backend_runtime_verified`
 and physical-board claims remain false. Interpreter/stdlib/bytecode authentication
-is outside this file check. Default inspection still selects the published
-sim 0.5 / HIL 0.6 / Trace 0.6 pin and rejects this newer environment.
+is outside this file check. A static payload check does not itself verify a
+signature, import code, run a backend or accept a physical board.
 
 Combined host readiness may explicitly use `toolkit_doctor.py --simulation-environment
-'<candidate-venv>' --simulation-candidate --strict --json`. Simulation-only tasks
+'<simulation-venv>' --strict --json`. Simulation-only tasks
 use the file inspector and skip hardware doctor, discovery, attach and selection.
 Neither route changes station configuration, PATH or the active plugin.
+
+The earlier local build identities remain in `simulation-candidates.json`,
+available only through explicit `--candidate` / `--simulation-candidate` flags.
+Those records retain local-candidate status and no release URL/ref, even when
+wheel bytes match a later release. Use the published default for normal use.
 
 ## Plan and run through the native components
 
@@ -37,7 +42,7 @@ Use the selected interpreter and native sim-runner GPIO/TIMER0 BIN fixture, exac
 firmware hash, Renode runtime lock/hash and build-bound markers. For example:
 
 ```powershell
-$python = '<candidate-venv>\Scripts\python.exe'
+$python = '<simulation-venv>\Scripts\python.exe'
 & $python -I -m sim_runner plan --backend renode `
   --profile nrf52840-gpio-timer-fault-v1 --fault timer-stop `
   --runtime-lock '<runtime-lock.json>' --runtime-sha256 '<runtime-lock-sha256>' `

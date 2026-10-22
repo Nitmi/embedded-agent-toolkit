@@ -24,7 +24,7 @@ SPECS = {
     "sim-runner": (
         "sim_runner",
         "embedded_sim_runner",
-        "0.5.0",
+        "0.6.0",
         {
             "__init__.py",
             "__main__.py",
@@ -39,6 +39,7 @@ SPECS = {
             "qemu_s3.py",
             "flash_image.py",
             "gpio_timer.py",
+            "gpio_fault.py",
             "run.py",
             "winjob.py",
             "assets/esp32c3-uart.json",
@@ -51,7 +52,7 @@ SPECS = {
     "hil-runner": (
         "hil_runner",
         "embedded_hil_runner",
-        "0.6.0",
+        "0.7.0",
         {
             "__init__.py",
             "__main__.py",
@@ -77,7 +78,7 @@ SPECS = {
     "embedded-trace": (
         "embedded_trace",
         "embedded_trace",
-        "0.6.0",
+        "0.7.0",
         {
             "__init__.py",
             "__main__.py",

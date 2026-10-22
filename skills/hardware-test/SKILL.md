@@ -24,8 +24,8 @@ distinct; inspect/query/report retain the recorded context and false physical ti
 For ESP32-S3, select the independent Xtensa runtime and keep its unmeasured
 device clock/core declarations and qualified outcome in filtered evidence views.
 For GPIO/TIMER0 fault regressions, read [model fault evidence](../../docs/simulation-faults.md).
-The separate candidate pin requires explicit `--candidate` selection; it does not
-change the published default. Keep the native nominal verdict, effect/null state,
+Use the published default for released fault components; select `--candidate`
+only for an explicitly chosen recorded local build. Keep the native nominal verdict, effect/null state,
 counter/IRQ raw spans and failure stop. Successful injection never makes a failed
 regression pass or allows a later case to run.
 

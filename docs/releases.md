@@ -2,11 +2,12 @@
 
 ## Contents and scope
 
-The local 0.30.0 candidate additionally packages `simulation-candidates.json` and
-the [fault workflow](simulation-faults.md). The separate candidate pin has exact
-local source/wheel/file identities and no claimed tag or release URL. It is
-checked during archive build/verify/install, and selected only by explicit
-simulation candidate flags. The default published pin below remains unchanged.
+The local 0.30.0 candidate adds the [fault workflow](simulation-faults.md), with
+published sim 0.6.0 / HIL 0.7.0 / Trace 0.7.0 as the default simulation pin (66 files).
+The separate `simulation-candidates.json` retains exact historical local identities
+with no claimed tag or release URL and is selected only by explicit candidate flags.
+Both pins are checked during archive build/verify/install. Use each release's
+matching bundled `release.py`; its required layout is versioned.
 
 Toolkit [0.29.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.29.0) adds optional S3/C3/nRF52840 simulation routing.
 Its `simulation-runtime.json` v2 pins published sim-runner 0.5.0, HIL Runner 0.6.0
