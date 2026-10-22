@@ -1,36 +1,38 @@
 # Experimental ESP-EMU WASM workflow
 
-Toolkit 0.31.0's local candidate pin selects sim-runner 0.7.0, HIL Runner 0.8.0
-and Embedded Trace 0.8.0: 69 source/asset/schema/metadata/license files. The three
-components are recorded local builds with exact source commits and wheel hashes;
-they have no asserted release tag, download URL or verified attestation.
-The default published sim 0.6 / HIL 0.7 / Trace 0.7 remains independent.
+Toolkit 0.31.0's published default pin selects sim-runner 0.7.0, HIL Runner 0.8.0
+and Embedded Trace 0.8.0: 69 source/asset/schema/metadata/license files. Each
+component is bound to its release tag/source commit, wheel URL/hash and payload
+inventory in `simulation-runtime.json`.
 
 Choose this workflow explicitly for the experimental `esp32c3-wasm-flash-v1`
-profile or these recorded builds. It does not change native locks or station.
+profile. It does not change native locks or station.
 
-## Select the candidate environment
+## Select the published environment
 
 During requested host setup, install the exact wheels from
-`simulation-candidates.json` in a separate trusted Python 3.11+ environment
+`simulation-runtime.json` in a separate trusted Python 3.11+ environment
 using `uv pip install --python <python> --no-index --no-deps <three-wheel-paths>`.
-Verify wheel hashes before installation. Local integrity is not authentication.
+Verify wheel hashes and GitHub attestations before installation as described in
+[simulation setup](simulation.md). Local integrity is not authentication.
 
 ```powershell
-python scripts/simulation_runtime.py inspect '<absolute-candidate-venv>' --candidate --json
+python scripts/simulation_runtime.py inspect '<absolute-simulation-venv>' --json
 ```
 
-Require `ok=true`, `candidate_mode=true`, `resolution_source=pinned_local_candidates`,
+Require `ok=true`, `candidate_mode=false`, `resolution_source=pinned_releases`,
 versions 0.7.0/0.8.0/0.8.0 and 69 verified files. Each distribution is
-`local_candidate`. Existing `--component` supports individual checks. A missing,
-changed or unexpected selected payload fails without fallback. Omitting
-`--candidate` selects the published pin, not the experimental environment.
+`published`. Existing `--component` supports individual checks. A missing,
+changed or unexpected selected payload fails without fallback.
+The preserved `simulation-candidates.json` records the earlier local builds;
+`--candidate` explicitly selects those declarations, even though their bytes
+match these releases. It is unnecessary for normal WASM use.
 
 For a requested combined host check:
 
 ```powershell
 python scripts/toolkit_doctor.py --strict --json `
-  --simulation-environment '<absolute-candidate-venv>' --simulation-candidate
+  --simulation-environment '<absolute-simulation-venv>'
 ```
 
 Combined doctor may run native version commands; simulation inspection only
@@ -48,7 +50,7 @@ Node or the emulator. S3, arbitrary JS, browser workers, network/radio/UART inpu
 and physical bridges are outside this fixed profile.
 
 ```powershell
-$python = '<candidate-venv>\Scripts\python.exe'
+$python = '<simulation-venv>\Scripts\python.exe'
 & $python -I -m sim_runner doctor --backend espressif-esp-emulator-wasm `
   --runtime-lock '<runtime-lock.json>' --runtime-sha256 '<lock-sha256>'
 & $python -I -m sim_runner plan --backend espressif-esp-emulator-wasm `

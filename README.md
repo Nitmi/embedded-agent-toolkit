@@ -1,9 +1,8 @@
 # Embedded Agent Toolkit
 
-Local 0.31.0 development adds explicit [ESP-EMU WASM candidate routing](docs/simulation-wasm.md)
-for sim 0.7 / HIL 0.8 / Trace 0.8 (69 files). These local builds require candidate
-flags; the published default remains sim 0.6 / HIL 0.7 / Trace 0.7 (66 files).
-The new Toolkit candidate is not published or activated.
+Toolkit 0.31.0 adds [ESP-EMU WASM routing](docs/simulation-wasm.md) with published
+sim 0.7 / HIL 0.8 / Trace 0.8 as its default optional simulation pin (69 files).
+Experimental model limits remain visible through native, HIL and Trace results.
 
 [![CI](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/ci.yml)
 [![Release provenance](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/release-attestation.yml/badge.svg)](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/release-attestation.yml)
@@ -31,9 +30,9 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The published [0.30.0 release](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.30.0) adds [GPIO/TIMER0 fault routing](docs/simulation-faults.md)
-with published sim-runner 0.6.0 / HIL 0.7.0 / Trace 0.7.0 as the default optional
-simulation pin: 66 installed files, exact release URLs, tags and source commits.
+The [0.31.0 release](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.31.0) adds [ESP-EMU WASM routing](docs/simulation-wasm.md)
+with published sim-runner 0.7.0 / HIL 0.8.0 / Trace 0.8.0 as the default optional
+simulation pin: 69 installed files, exact release URLs, tags and source commits.
 Use `simulation_runtime.py inspect <venv> --json`. Recorded local build identities
 are available only with explicit candidate flags. The plugin does not select
 or install a new environment automatically.
@@ -42,7 +41,7 @@ It retains Xtensa ESP32-S3 Flash support in
 [simulation routing and payload checks](docs/simulation.md). All three components are published and attested;
 The v2 simulation pin binds
 their official tag commits, exact release wheel URLs and installed payload hashes.
-The inspector checks 66 selected installed files
+The inspector checks 69 selected installed files
 without starting their interpreters or emulators; doctor opts in with
 `--simulation-environment`. Default doctor, native locks and station selection
 are unchanged. Native `passed_with_model_limits` and model diagnostics remain
@@ -62,11 +61,11 @@ standalone `bootstrap.py` alongside the plugin ZIP. Download the bootstrap with 
 authenticate it before execution, and keep its exact filename:
 
 ```powershell
-gh release download v0.30.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.31.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.30.0 `
+  --source-ref refs/tags/v0.31.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json

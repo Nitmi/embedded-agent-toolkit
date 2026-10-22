@@ -1,28 +1,30 @@
 # Optional simulation workflow
 
-[Toolkit 0.30.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.30.0) routes the published
-[sim-runner 0.6.0](https://github.com/Nitmi/sim-runner/releases/tag/v0.6.0),
-[HIL Runner 0.7.0](https://github.com/Nitmi/hil-runner/releases/tag/v0.7.0) and
-[Embedded Trace 0.7.0](https://github.com/Nitmi/embedded-trace/releases/tag/v0.7.0).
+[Toolkit 0.31.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.31.0) routes the published
+[sim-runner 0.7.0](https://github.com/Nitmi/sim-runner/releases/tag/v0.7.0),
+[HIL Runner 0.8.0](https://github.com/Nitmi/hil-runner/releases/tag/v0.8.0) and
+[Embedded Trace 0.8.0](https://github.com/Nitmi/embedded-trace/releases/tag/v0.8.0).
 `simulation-runtime.json`
 v2 binds each component's official tag/ref and source commit, exact release wheel
-URL and hash, and all 66 installed source/schema/metadata/license files.
+URL and hash, and all 69 installed source/schema/metadata/license files.
 Use those official wheels; there is no implicit download or install step.
 The existing `hil-runtime.json` and `trace-runtime.json` still describe their
 earlier published hardware/offline workflows. Their inspectors do not accept these
 newer releases. Native component locks and workstation selection remain independent.
 
 For the new GPIO/TIMER0 fault profile, read [model fault evidence](simulation-faults.md).
-Default inspection selects these published releases. Toolkit 0.31.0's separate
-`simulation-candidates.json` v1 records sim 0.7 / HIL 0.8 / Trace 0.8 local builds
-for the [experimental ESP-EMU WASM workflow](simulation-wasm.md).
+Default inspection selects these published releases, including the
+[experimental ESP-EMU WASM workflow](simulation-wasm.md). The separate
+`simulation-candidates.json` v1 preserves the recorded sim 0.7 / HIL 0.8 / Trace 0.8 local builds.
 Only choose those candidates explicitly with `simulation_runtime.py inspect <venv>
 --candidate --json`, or add `--simulation-candidate` to an explicitly requested
 combined doctor `--simulation-environment <venv>`. Candidate source commits,
 wheel hashes and file inventories have no asserted release tag or download URL;
 results use `pinned_local_candidates` and `distribution_status=local_candidate`.
-Static inspection reports the selected pin's declarations. A missing or changed
-selected candidate fails; it never falls back to a published environment or board.
+The recorded wheel bytes match the promoted releases. Static inspection reports
+the selected pin's declarations; matching bytes do not authenticate provenance
+or change a local record to published. A missing or changed selected payload
+fails without fallback to another pin or board.
 
 ## Choose the appropriate domain
 
@@ -120,6 +122,10 @@ bounded:
   copies and revision-0.3 eFuse seed. No secure-boot/encryption verification,
   radio/electrical coverage or enforced virtual time. Known native Flash/PMP model
   diagnostics remain a qualified pass, never evidence of full-chip compatibility.
+- Experimental ESP-EMU 0.50.0 WASM on hash-bound Node 24.15.0:
+  `esp32c3-wasm-flash-v1`, fixed ESP-IDF 5.5.2 C3 factory Flash, bounded
+  instructions and string output. See [WASM limits and setup](simulation-wasm.md)
+  for encoded UART provenance, opaque initial state and restart handling.
 
 These are not full-chip/electrical models. Unsupported requested behavior must
 remain unsupported; silent upstream peripheral stubs cannot always be detected.
@@ -163,13 +169,13 @@ pin schedules or timer modes require another audited profile.
 
 ## Coordinate a bounded suite
 
-Use HIL 0.7.0's `embedded-hil-runner.simulation-spec.v1` with 1..8 ordered cases:
+Use HIL 0.8.0's `embedded-hil-runner.simulation-spec.v1` with 1..8 ordered cases:
 
 ```json
 {
   "schema_version": "embedded-hil-runner.simulation-spec.v1",
   "python": {"path": "<trusted-absolute-python-path>", "sha256": "<python-sha256>"},
-  "sim_runner_wheel": {"path": "<selected-0.6.0-wheel>", "sha256": "<wheel-sha256>"},
+  "sim_runner_wheel": {"path": "<selected-0.7.0-wheel>", "sha256": "<wheel-sha256>"},
   "cases": [
     {"id": "a", "plan": {"path": "a.json", "sha256": "<native-plan-sha256>"}},
     {"id": "b", "plan": {"path": "b.json", "sha256": "<native-plan-sha256>"}}
@@ -218,7 +224,7 @@ partial evidence and must not be fabricated into a Trace source.
   --output '<new-report.md>' --json
 ```
 
-Trace 0.7.0's `sim-runner-report` adapter checks the selected report and adjacent
+Trace 0.8.0's `sim-runner-report` adapter checks the selected report and adjacent
 hash-bound artifacts offline. Keep the native reports, plans, locks, firmware,
 UART bytes, CLI outputs and suite journal. UART is labelled `simulation.uart`;
 line windows cover the host run, with no invented per-byte timestamps or measured

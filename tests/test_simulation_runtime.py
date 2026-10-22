@@ -127,9 +127,10 @@ class SimulationRuntimeTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     sim.parse_pin(json.dumps(pin).encode(), candidate=True)
 
-    def test_candidate_new_module_missing_drift_and_extra_bytes_are_rejected(self):
-        for change, leaf in (
-            (c, p)
+    def test_wasm_module_missing_drift_and_extra_bytes_are_rejected_in_both_modes(self):
+        for candidate, change, leaf in (
+            (candidate, c, p)
+            for candidate in (False, True)
             for c in ("missing", "drift", "extra")
             for p in (
                 "esp_wasm.py",
@@ -138,11 +139,11 @@ class SimulationRuntimeTests(unittest.TestCase):
             )
         ):
             with (
-                self.subTest(change=change, leaf=leaf),
+                self.subTest(candidate=candidate, change=change, leaf=leaf),
                 tempfile.TemporaryDirectory() as tmp,
             ):
                 root = Path(tmp)
-                site, pin = self.fixture(root, candidate=True)
+                site, pin = self.fixture(root, candidate=candidate)
                 target = site / "sim_runner" / leaf
                 if change == "missing":
                     target.unlink()
@@ -150,7 +151,7 @@ class SimulationRuntimeTests(unittest.TestCase):
                     target.write_bytes(b"changed")
                 else:
                     (target.parent / "extra_wasm.py").write_bytes(b"unexpected")
-                self.assertFalse(self.inspect(root, pin, candidate=True)["ok"])
+                self.assertFalse(self.inspect(root, pin, candidate=candidate)["ok"])
 
     def test_candidate_doctor_requires_environment_before_checking_components(self):
         with (
@@ -181,7 +182,7 @@ class SimulationRuntimeTests(unittest.TestCase):
         self.assertTrue(result["complete"])
         inspector.assert_called_once_with(ROOT, candidate=True)
 
-    def test_published_and_wasm_candidate_environments_do_not_fall_back(self):
+    def test_matching_bytes_preserve_explicit_pin_declarations_without_fallback(self):
         with tempfile.TemporaryDirectory() as tmp:
             published_root, candidate_root = (
                 Path(tmp) / "published",
@@ -189,10 +190,25 @@ class SimulationRuntimeTests(unittest.TestCase):
             )
             _, published = self.fixture(published_root)
             _, candidate = self.fixture(candidate_root, candidate=True)
-            self.assertFalse(self.inspect(candidate_root, published)["ok"])
-            self.assertFalse(
-                self.inspect(published_root, candidate, candidate=True)["ok"]
-            )
+            # A promoted release can contain the exact recorded candidate bytes.
+            # Matching bytes do not authenticate provenance or change the selected pin.
+            for root in (published_root, candidate_root):
+                release_result = self.inspect(root, published)
+                local_result = self.inspect(root, candidate, candidate=True)
+                self.assertTrue(release_result["ok"], release_result)
+                self.assertTrue(local_result["ok"], local_result)
+                self.assertEqual(release_result["resolution_source"], "pinned_releases")
+                self.assertEqual(
+                    local_result["resolution_source"], "pinned_local_candidates"
+                )
+                self.assertIs(release_result["release_attestation_verified"], False)
+                self.assertIs(local_result["release_attestation_verified"], False)
+                for item in local_result["components"]:
+                    self.assertEqual(item["distribution_status"], "local_candidate")
+                    self.assertIsNone(item["source_ref"])
+            selected = copy.deepcopy(published)
+            selected["components"]["sim-runner"]["files"][0]["sha256"] = "0" * 64
+            self.assertFalse(self.inspect(candidate_root, selected)["ok"])
             self.assertTrue(self.inspect(published_root, published)["ok"])
             self.assertTrue(
                 self.inspect(candidate_root, candidate, candidate=True)["ok"]
@@ -216,7 +232,7 @@ class SimulationRuntimeTests(unittest.TestCase):
                 self.assertEqual(report["layout"], layout)
                 self.assertEqual(report["resolution_source"], "pinned_releases")
                 self.assertEqual(
-                    sum(x["verified_files"] for x in report["components"]), 66
+                    sum(x["verified_files"] for x in report["components"]), 69
                 )
                 for flag in (
                     "executables_started",

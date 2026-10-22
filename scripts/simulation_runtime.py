@@ -24,7 +24,7 @@ SPECS = {
     "sim-runner": (
         "sim_runner",
         "embedded_sim_runner",
-        "0.6.0",
+        "0.7.0",
         {
             "__init__.py",
             "__main__.py",
@@ -40,11 +40,14 @@ SPECS = {
             "flash_image.py",
             "gpio_timer.py",
             "gpio_fault.py",
+            "esp_wasm.py",
             "run.py",
             "winjob.py",
             "assets/esp32c3-uart.json",
             "assets/esp32c3-idf-flash.json",
             "assets/esp32s3-idf-flash.json",
+            "assets/esp32c3-esp-wasm.json",
+            "assets/esp_wasm_runner.mjs",
             "assets/nrf52840-uart.repl",
             "assets/nrf52840-gpio-timer.repl",
         },
@@ -52,7 +55,7 @@ SPECS = {
     "hil-runner": (
         "hil_runner",
         "embedded_hil_runner",
-        "0.7.0",
+        "0.8.0",
         {
             "__init__.py",
             "__main__.py",
@@ -78,7 +81,7 @@ SPECS = {
     "embedded-trace": (
         "embedded_trace",
         "embedded_trace",
-        "0.7.0",
+        "0.8.0",
         {
             "__init__.py",
             "__main__.py",

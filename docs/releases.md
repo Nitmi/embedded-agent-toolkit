@@ -1,23 +1,24 @@
 # Versioned releases
 
-Local 0.31.0 adds [WASM simulation candidates](simulation-wasm.md): sim 0.7.0,
-HIL 0.8.0 and Trace 0.8.0, with 69 installed files. This candidate is unpublished.
-Its separate candidate record carries no release tag, URL or attestation claim;
-the published simulation pin and native station selection are unchanged.
+Toolkit 0.31.0 adds [WASM simulation routing](simulation-wasm.md) with published
+sim 0.7.0 / HIL 0.8.0 / Trace 0.8.0 as its default optional simulation pin
+(69 installed files). Native station selection remains independent.
 
 ## Contents and scope
 
-Toolkit [0.30.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.30.0) adds the [fault workflow](simulation-faults.md), with
-published sim 0.6.0 / HIL 0.7.0 / Trace 0.7.0 as the default simulation pin (66 files).
+Toolkit [0.31.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.31.0) retains the [fault workflow](simulation-faults.md), with
+published sim 0.7.0 / HIL 0.8.0 / Trace 0.8.0 as the default simulation pin (69 files).
 The separate `simulation-candidates.json` records exact selected local identities
 with no claimed tag or release URL and is selected only by explicit candidate flags.
 Both pins are checked during archive build/verify/install. Use each release's
 matching bundled `release.py`; its required layout is versioned.
 
 It retains optional S3/C3/nRF52840 simulation routing.
-Its `simulation-runtime.json` v2 pins published sim-runner 0.6.0, HIL Runner 0.7.0
-and Embedded Trace 0.7.0 by release tag, source commit, exact wheel URL/hash and
-66 installed payload files. See [simulation setup](simulation.md) for independent
+Its `simulation-runtime.json` v2 pins published sim-runner 0.7.0, HIL Runner 0.8.0
+and Embedded Trace 0.8.0 by release tag, source commit, exact wheel URL/hash and
+69 installed payload files. The earlier local candidate record preserves its
+declarations even when its wheel bytes match these releases; normal WASM use
+does not require candidate flags. See [simulation setup](simulation.md) for independent
 attestation verification. The inspector remains file-only and does not download,
 install or authenticate a remote release. The existing hardware/offline pins,
 native component catalog and default workstation selection remain unchanged.
@@ -58,7 +59,7 @@ After tests and a cohesive commit, from this repository:
 
 ```powershell
 python scripts/release.py build --output-dir dist --json
-python scripts/release.py verify dist/embedded-agent-toolkit-0.30.0.zip --checksum dist/embedded-agent-toolkit-0.30.0.zip.sha256 --json
+python scripts/release.py verify dist/embedded-agent-toolkit-0.31.0.zip --checksum dist/embedded-agent-toolkit-0.31.0.zip.sha256 --json
 ```
 
 The builder requires a clean worktree and reads pinned Git blobs rather than
@@ -69,16 +70,16 @@ push commits, or publish a remote release.
 
 ## Bootstrap without cloning
 
-The latest published Toolkit release is `0.30.0`; its immutable tagged release
+The Toolkit release is `0.31.0`; its tagged release
 publishes `bootstrap.py` as a separately attested asset.
 Download and authenticate the script before executing it:
 
 ```powershell
-gh release download v0.30.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.31.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.30.0 `
+  --source-ref refs/tags/v0.31.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json
@@ -147,8 +148,8 @@ Use the release script from a trusted source checkout. Obtain the ZIP and its
 checksum from a trusted channel, then install into a directory you own:
 
 ```powershell
-python scripts/release.py install dist/embedded-agent-toolkit-0.30.0.zip `
-  --checksum dist/embedded-agent-toolkit-0.30.0.zip.sha256 `
+python scripts/release.py install dist/embedded-agent-toolkit-0.31.0.zip `
+  --checksum dist/embedded-agent-toolkit-0.31.0.zip.sha256 `
   --install-root C:\Tools\embedded-agent-toolkit `
   --lock-output C:\Tools\embedded-agent-toolkit\component-locks\workstation.json `
   --baud C:\Users\you\.local\bin\baud.exe `
@@ -157,7 +158,7 @@ python scripts/release.py install dist/embedded-agent-toolkit-0.30.0.zip `
   --json
 ```
 
-This creates `C:\Tools\embedded-agent-toolkit\0.30.0\embedded-agent-toolkit`,
+This creates `C:\Tools\embedded-agent-toolkit\0.31.0\embedded-agent-toolkit`,
 then creates the requested component lock and runs strict doctor against the
 installed plugin. The three component executables are invoked only with
 `--version`; no hardware command is run. All four setup options (`--lock-output`,
