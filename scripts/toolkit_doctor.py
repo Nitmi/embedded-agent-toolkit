@@ -285,7 +285,10 @@ def build_report(
     hil_environment: Path | None = None,
     trace_environment: Path | None = None,
     simulation_environment: Path | None = None,
+    simulation_candidate: bool = False,
 ) -> dict[str, object]:
+    if simulation_candidate and simulation_environment is None:
+        raise ValueError("simulation_candidate requires simulation_environment")
     component_results = []
     for component in selected_components:
         if locked_components is not None and component.name not in locked_components:
@@ -354,7 +357,9 @@ def build_report(
         else None
     )
     simulation_result = (
-        simulation_runtime.inspect_environment(simulation_environment)
+        simulation_runtime.inspect_environment(
+            simulation_environment, candidate=simulation_candidate
+        )
         if simulation_environment is not None
         else None
     )
@@ -493,6 +498,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         help="authoritative exact component lock; environment overrides then fail",
     )
     parser.add_argument(
+        "--simulation-candidate",
+        action="store_true",
+        help="use bundled local candidate pins for the explicitly selected simulation environment",
+    )
+    parser.add_argument(
         "--no-auto-lock",
         action="store_true",
         help="disable project and workstation lock discovery and use ambient resolution",
@@ -514,7 +524,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="return exit code 2 unless every selected CLI is directly available",
     )
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    if args.simulation_candidate and args.simulation_environment is None:
+        parser.error("--simulation-candidate requires --simulation-environment")
+    return args
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -576,6 +589,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         args.hil_environment,
         args.trace_environment,
         args.simulation_environment,
+        args.simulation_candidate,
     )
     if args.json:
         print(json.dumps(report, indent=2, sort_keys=True))

@@ -49,7 +49,9 @@ REQUIRED_FILES = {
     "hil-runtime.json",
     "trace-runtime.json",
     "simulation-runtime.json",
+    "simulation-candidates.json",
     "docs/simulation.md",
+    "docs/simulation-faults.md",
     "docs/embedded-trace.md",
     "docs/hil-runner.md",
     "LICENSE",
@@ -183,6 +185,9 @@ def release_version(files: dict[str, bytes]) -> str:
         raise ReleaseError(f"Invalid Trace runtime pin: {error}") from error
     try:
         simulation_runtime.parse_pin(files["simulation-runtime.json"])
+        simulation_runtime.parse_pin(
+            files["simulation-candidates.json"], candidate=True
+        )
     except (ValueError, TypeError, KeyError, RecursionError) as error:
         raise ReleaseError(f"Invalid simulation runtime pin: {error}") from error
     if any(
@@ -203,6 +208,7 @@ def included(path: str) -> bool:
             "hil-runtime.json",
             "trace-runtime.json",
             "simulation-runtime.json",
+            "simulation-candidates.json",
             "LICENSE",
             "README.md",
         }

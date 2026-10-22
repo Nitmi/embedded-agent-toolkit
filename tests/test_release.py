@@ -24,6 +24,9 @@ def source_files(version: str = "0.2.0") -> dict[str, bytes]:
     files["simulation-runtime.json"] = (
         Path(__file__).resolve().parents[1] / "simulation-runtime.json"
     ).read_bytes()
+    files["simulation-candidates.json"] = (
+        Path(__file__).resolve().parents[1] / "simulation-candidates.json"
+    ).read_bytes()
     manifest = {"name": release.PLUGIN, "version": version, "skills": "./skills/"}
     for name in ("plugin.json", ".codex-plugin/plugin.json"):
         files[name] = release.json_bytes(manifest)
@@ -53,6 +56,25 @@ def source_files(version: str = "0.2.0") -> dict[str, bytes]:
 
 
 class ReleaseTests(unittest.TestCase):
+    def test_candidate_inventory_is_required_and_must_remain_a_candidate(self):
+        for mutation in ("missing", "published", "url", "ref"):
+            with self.subTest(mutation=mutation):
+                files = source_files()
+                if mutation == "missing":
+                    files.pop("simulation-candidates.json")
+                else:
+                    pin = json.loads(files["simulation-candidates.json"])
+                    item = pin["components"]["sim-runner"]
+                    if mutation == "published":
+                        item["status"] = "published"
+                    elif mutation == "url":
+                        item["wheel"]["url"] = "https://example.invalid"
+                    else:
+                        item["source_ref"] = "refs/tags/v0.6.0"
+                    files["simulation-candidates.json"] = release.json_bytes(pin)
+                with self.assertRaises(release.ReleaseError):
+                    release.make_archive("1" * 40, files)
+
     def test_unbound_simulation_release_metadata_is_rejected_before_packaging(self):
         for field, value in (
             ("source_ref", "refs/heads/main"),

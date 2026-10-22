@@ -18,6 +18,7 @@ else:
     import trace_runtime as files
 
 PIN_PATH = Path(__file__).resolve().parents[1] / "simulation-runtime.json"
+CANDIDATE_PIN_PATH = Path(__file__).resolve().parents[1] / "simulation-candidates.json"
 SCHEMA = "embedded-agent-toolkit.simulation-runtime-inspection.v1"
 SPECS = {
     "sim-runner": (
@@ -95,45 +96,66 @@ SPECS = {
         },
     ),
 }
+CANDIDATE_VERSIONS = {
+    "sim-runner": "0.6.0",
+    "hil-runner": "0.7.0",
+    "embedded-trace": "0.7.0",
+}
+CANDIDATE_SPECS = {
+    name: (
+        package,
+        distribution,
+        CANDIDATE_VERSIONS[name],
+        names | ({"gpio_fault.py"} if name == "sim-runner" else set()),
+    )
+    for name, (package, distribution, _, names) in SPECS.items()
+}
 
 
-def payload_paths(name: str) -> set[str]:
-    package, distribution, version, names = SPECS[name]
+def payload_paths(name: str, *, candidate: bool = False) -> set[str]:
+    package, distribution, version, names = (CANDIDATE_SPECS if candidate else SPECS)[
+        name
+    ]
     return {f"{package}/{leaf}" for leaf in names} | {
         f"{distribution}-{version}.dist-info/{leaf}"
         for leaf in ("METADATA", "WHEEL", "entry_points.txt", "licenses/LICENSE")
     }
 
 
-def parse_pin(data: bytes) -> dict:
+def parse_pin(data: bytes, *, candidate: bool = False) -> dict:
     files.require(len(data) <= 65536, "Simulation pin exceeds size limit")
     pin = json.loads(data, object_pairs_hook=files.unique)
     files.require(
         isinstance(pin, dict)
         and set(pin) == {"schema_version", "components"}
-        and pin["schema_version"] == "embedded-agent-toolkit.simulation-runtime.v2"
+        and pin["schema_version"]
+        == (
+            "embedded-agent-toolkit.simulation-candidates.v1"
+            if candidate
+            else "embedded-agent-toolkit.simulation-runtime.v2"
+        )
         and isinstance(pin["components"], dict)
         and set(pin["components"]) == set(SPECS),
         "Invalid simulation pin identity",
     )
     for name, item in pin["components"].items():
-        _, distribution, version, _ = SPECS[name]
+        _, distribution, version, _ = (CANDIDATE_SPECS if candidate else SPECS)[name]
         files.require(
             isinstance(item, dict)
             and set(item)
             == {
                 "repository",
                 "version",
-                "source_ref",
                 "source_revision",
                 "status",
                 "wheel",
                 "files",
             }
+            | (set() if candidate else {"source_ref"})
             and item["repository"] == f"Nitmi/{name}"
             and item["version"] == version
-            and item["status"] == "published"
-            and item["source_ref"] == f"refs/tags/v{version}"
+            and item["status"] == ("local_candidate" if candidate else "published")
+            and (candidate or item["source_ref"] == f"refs/tags/v{version}")
             and isinstance(item["source_revision"], str)
             and re.fullmatch(r"[0-9a-f]{40}", item["source_revision"]) is not None,
             "Invalid simulation component identity",
@@ -141,15 +163,18 @@ def parse_pin(data: bytes) -> dict:
         wheel = item["wheel"]
         files.require(
             isinstance(wheel, dict)
-            and set(wheel) == {"name", "sha256", "url"}
+            and set(wheel) == {"name", "sha256"} | (set() if candidate else {"url"})
             and wheel["name"] == f"{distribution}-{version}-py3-none-any.whl"
-            and wheel["url"]
-            == f"https://github.com/Nitmi/{name}/releases/download/v{version}/{wheel['name']}"
+            and (
+                candidate
+                or wheel["url"]
+                == f"https://github.com/Nitmi/{name}/releases/download/v{version}/{wheel['name']}"
+            )
             and isinstance(wheel["sha256"], str)
             and files.HASH.fullmatch(wheel["sha256"]) is not None,
             "Invalid simulation wheel identity",
         )
-        expected = payload_paths(name)
+        expected = payload_paths(name, candidate=candidate)
         inventory = item["files"]
         files.require(
             isinstance(inventory, list) and len(inventory) == len(expected),
@@ -181,11 +206,16 @@ def parse_pin(data: bytes) -> dict:
     return pin
 
 
-def load_pin() -> dict:
-    return parse_pin(files.read(PIN_PATH, 65536))
+def load_pin(*, candidate: bool = False) -> dict:
+    return parse_pin(
+        files.read(CANDIDATE_PIN_PATH if candidate else PIN_PATH, 65536),
+        candidate=candidate,
+    )
 
 
-def inspect_package(site: Path, root: Path, name: str, pin: dict) -> dict:
+def inspect_package(
+    site: Path, root: Path, name: str, pin: dict, *, candidate: bool = False
+) -> dict:
     package = SPECS[name][0]
     for item in pin["files"]:
         path = site / item["path"]
@@ -195,7 +225,7 @@ def inspect_package(site: Path, root: Path, name: str, pin: dict) -> dict:
             len(raw) == item["size"] and files.digest(raw) == item["sha256"],
             f"Installed payload differs: {item['path']}",
         )
-    expected = payload_paths(name)
+    expected = payload_paths(name, candidate=candidate)
     directories = {
         str(Path(path).parent).replace("\\", "/")
         for path in expected
@@ -237,7 +267,7 @@ def inspect_package(site: Path, root: Path, name: str, pin: dict) -> dict:
         "version": pin["version"],
         "status": "payload_verified",
         "repository": pin["repository"],
-        "source_ref": pin["source_ref"],
+        "source_ref": pin.get("source_ref"),
         "source_revision": pin["source_revision"],
         "wheel": pin["wheel"],
         "distribution_status": pin["status"],
@@ -245,7 +275,9 @@ def inspect_package(site: Path, root: Path, name: str, pin: dict) -> dict:
     }
 
 
-def inspect_environment(environment: Path, selected: list[str] | None = None) -> dict:
+def inspect_environment(
+    environment: Path, selected: list[str] | None = None, *, candidate: bool = False
+) -> dict:
     base = {
         "schema_version": SCHEMA,
         "environment": str(environment),
@@ -259,9 +291,10 @@ def inspect_environment(environment: Path, selected: list[str] | None = None) ->
         "interpreter_authenticated": False,
         "bytecode_verified": False,
         "release_attestation_verified": False,
+        "candidate_mode": candidate,
     }
     try:
-        pin = load_pin()
+        pin = load_pin(candidate=candidate)
         names = selected if selected is not None else list(SPECS)
         files.require(
             bool(names) and len(names) == len(set(names)) and set(names) <= set(SPECS),
@@ -309,7 +342,10 @@ def inspect_environment(environment: Path, selected: list[str] | None = None) ->
             "Missing interpreter entry",
         )
         results = [
-            inspect_package(site, root, name, pin["components"][name]) for name in names
+            inspect_package(
+                site, root, name, pin["components"][name], candidate=candidate
+            )
+            for name in names
         ]
         return {
             **base,
@@ -321,7 +357,9 @@ def inspect_environment(environment: Path, selected: list[str] | None = None) ->
             "layout": layout,
             "python": str(python),
             "python_version_claim": ".".join(versions[0]),
-            "resolution_source": "pinned_releases",
+            "resolution_source": "pinned_local_candidates"
+            if candidate
+            else "pinned_releases",
         }
     except (OSError, ValueError, TypeError, KeyError, RecursionError) as error:
         return {
@@ -338,8 +376,15 @@ def main() -> int:
     parser.add_argument("environment", type=Path)
     parser.add_argument("--component", action="append", choices=list(SPECS))
     parser.add_argument("--json", action="store_true")
+    parser.add_argument(
+        "--candidate",
+        action="store_true",
+        help="explicitly select bundled local candidate pins; no release/authenticity claim",
+    )
     args = parser.parse_args()
-    result = inspect_environment(args.environment, args.component)
+    result = inspect_environment(
+        args.environment, args.component, candidate=args.candidate
+    )
     print(
         json.dumps(result, indent=2)
         if args.json

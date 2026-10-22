@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import contextlib
 import copy
+import io
 import json
 import subprocess
 import sys
@@ -16,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class SimulationRuntimeTests(unittest.TestCase):
-    def fixture(self, root, layout="windows"):
+    def fixture(self, root, layout="windows", *, candidate=False):
         site = root / (
             "Lib/site-packages"
             if layout == "windows"
@@ -26,7 +28,7 @@ class SimulationRuntimeTests(unittest.TestCase):
         python.parent.mkdir(parents=True)
         python.write_bytes(b"DO NOT EXECUTE")
         (root / "pyvenv.cfg").write_text("version = 3.11.15\n")
-        pin = copy.deepcopy(sim.load_pin())
+        pin = copy.deepcopy(sim.load_pin(candidate=candidate))
         for component in pin["components"].values():
             for item in component["files"]:
                 path = site / item["path"]
@@ -36,14 +38,137 @@ class SimulationRuntimeTests(unittest.TestCase):
                 item.update(size=len(raw), sha256=sim.files.digest(raw))
         return site, pin
 
-    def inspect(self, root, pin, selected=None):
+    def inspect(self, root, pin, selected=None, *, candidate=False):
         with (
             mock.patch.object(sim, "load_pin", return_value=pin),
             mock.patch.object(
                 subprocess, "run", side_effect=AssertionError("must not execute")
             ),
+            mock.patch.object(
+                subprocess, "Popen", side_effect=AssertionError("must not execute")
+            ),
         ):
-            return sim.inspect_environment(root, selected)
+            return sim.inspect_environment(root, selected, candidate=candidate)
+
+    def test_candidate_requires_explicit_selection_and_has_no_release_identity(self):
+        candidate = sim.load_pin(candidate=True)
+        published = sim.load_pin()
+        with self.assertRaises(ValueError):
+            sim.parse_pin(json.dumps(candidate).encode())
+        with self.assertRaises(ValueError):
+            sim.parse_pin(json.dumps(published).encode(), candidate=True)
+        for layout in ("windows", "posix"):
+            with self.subTest(layout=layout), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                _, pin = self.fixture(root, layout, candidate=True)
+                result = self.inspect(root, pin, candidate=True)
+                self.assertTrue(result["ok"], result)
+                self.assertIs(result["candidate_mode"], True)
+                self.assertEqual(result["resolution_source"], "pinned_local_candidates")
+                self.assertEqual(
+                    sum(c["verified_files"] for c in result["components"]), 66
+                )
+                for component in result["components"]:
+                    self.assertEqual(
+                        component["version"], sim.CANDIDATE_VERSIONS[component["name"]]
+                    )
+                    self.assertEqual(
+                        component["distribution_status"], "local_candidate"
+                    )
+                    self.assertIsNone(component["source_ref"])
+                    self.assertNotIn("url", component["wheel"])
+                for flag in (
+                    "executables_started",
+                    "hardware_access",
+                    "release_attestation_verified",
+                    "backend_runtime_verified",
+                ):
+                    self.assertIs(result[flag], False)
+
+    def test_candidate_cannot_claim_published_status_tag_or_url_and_binds_full_inventory(
+        self,
+    ):
+        original = sim.load_pin(candidate=True)
+        for mutation in (
+            "status",
+            "ref",
+            "url",
+            "version",
+            "drop",
+            "duplicate",
+            "path",
+            "bool-size",
+            "revision",
+            "wheel",
+        ):
+            with self.subTest(mutation=mutation):
+                pin = copy.deepcopy(original)
+                item = pin["components"]["sim-runner"]
+                if mutation == "status":
+                    item["status"] = "published"
+                elif mutation == "ref":
+                    item["source_ref"] = "refs/tags/v0.6.0"
+                elif mutation == "url":
+                    item["wheel"]["url"] = "https://example.invalid/future.whl"
+                elif mutation == "version":
+                    item["version"] = "0.5.0"
+                elif mutation == "drop":
+                    item["files"].pop()
+                elif mutation == "duplicate":
+                    item["files"][-1] = item["files"][0]
+                elif mutation == "path":
+                    item["files"][0]["path"] = "../escape.py"
+                elif mutation == "bool-size":
+                    item["files"][0]["size"] = True
+                elif mutation == "revision":
+                    item["source_revision"] = "main"
+                else:
+                    item["wheel"]["sha256"] = "invalid"
+                with self.assertRaises(ValueError):
+                    sim.parse_pin(json.dumps(pin).encode(), candidate=True)
+
+    def test_candidate_new_module_missing_drift_and_extra_bytes_are_rejected(self):
+        for change in ("missing", "drift", "extra"):
+            with self.subTest(change=change), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                site, pin = self.fixture(root, candidate=True)
+                target = site / "sim_runner/gpio_fault.py"
+                if change == "missing":
+                    target.unlink()
+                elif change == "drift":
+                    target.write_bytes(b"changed")
+                else:
+                    (target.parent / "extra_fault.py").write_bytes(b"unexpected")
+                self.assertFalse(self.inspect(root, pin, candidate=True)["ok"])
+
+    def test_candidate_doctor_requires_environment_before_checking_components(self):
+        with (
+            mock.patch.object(
+                doctor, "check_component", side_effect=AssertionError("not selected")
+            ),
+            self.assertRaises(ValueError),
+        ):
+            doctor.build_report(doctor.COMPONENTS, 1, ROOT, simulation_candidate=True)
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            doctor.parse_args(["--simulation-candidate"])
+        self.assertTrue(
+            doctor.parse_args(
+                ["--simulation-candidate", "--simulation-environment", str(ROOT)]
+            ).simulation_candidate
+        )
+        with (
+            mock.patch.object(
+                doctor, "check_plugin_layout", return_value={"ok": True, "errors": []}
+            ),
+            mock.patch.object(
+                sim, "inspect_environment", return_value={"ok": True}
+            ) as inspector,
+        ):
+            result = doctor.build_report(
+                [], 1, ROOT, simulation_environment=ROOT, simulation_candidate=True
+            )
+        self.assertTrue(result["complete"])
+        inspector.assert_called_once_with(ROOT, candidate=True)
 
     def test_windows_and_posix_payloads_are_checked_without_starting_interpreter(self):
         for layout in ("windows", "posix"):

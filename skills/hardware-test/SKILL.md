@@ -1,6 +1,6 @@
 ---
 name: hardware-test
-description: Design or run repeatable embedded tests that coordinate flashing, serial, RTT or BLE readiness, assertions, evidence and cleanup, or optional Renode/QEMU simulation. Trigger for hardware-in-the-loop checks, continuous build/flash/observe loops, firmware smoke tests, manufacturing checks, board regressions or supported firmware simulation suites.
+description: Design or run repeatable embedded tests that coordinate flashing, serial, RTT or BLE readiness, assertions, evidence and cleanup, or optional Renode/QEMU simulation. Trigger for hardware-in-the-loop checks, continuous build/flash/observe loops, firmware smoke tests, manufacturing checks, board regressions or supported firmware simulation and model fault suites.
 ---
 
 # Hardware Test
@@ -11,8 +11,8 @@ native workflow format and evidence as the source of truth. Do not create a
 second untyped command runner in this plugin.
 
 For simulation-only regressions, read [optional simulation](../../docs/simulation.md)
-first. Inspect the selected candidate payloads with `simulation_runtime.py`, then
-use sim-runner or HIL's native `simulation` CLI and optional Trace 0.6.0 evidence
+first. Inspect the explicitly selected payloads with `simulation_runtime.py`, then
+use sim-runner or HIL's native `simulation` CLI and the matching Trace evidence
 views. Skip hardware doctor/discovery/selection for this domain. Reuse development
 task consent without per-run hash confirmation. Stop on unsupported models or
 failed/indeterminate cases; never fall back to physical hardware automatically.
@@ -23,6 +23,11 @@ For GPIO/TIMER0, keep guest samples, paused model snapshots and host run windows
 distinct; inspect/query/report retain the recorded context and false physical timing claim.
 For ESP32-S3, select the independent Xtensa runtime and keep its unmeasured
 device clock/core declarations and qualified outcome in filtered evidence views.
+For GPIO/TIMER0 fault regressions, read [model fault evidence](../../docs/simulation-faults.md).
+The separate candidate pin requires explicit `--candidate` selection; it does not
+change the published default. Keep the native nominal verdict, effect/null state,
+counter/IRQ raw spans and failure stop. Successful injection never makes a failed
+regression pass or allows a later case to run.
 
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only

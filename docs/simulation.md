@@ -12,6 +12,17 @@ The existing `hil-runtime.json` and `trace-runtime.json` still describe their
 earlier published hardware/offline workflows. Their inspectors do not accept these
 newer releases. Native component locks and workstation selection remain independent.
 
+Toolkit 0.30.0 is a local candidate adding a separate `simulation-candidates.json`
+v1 for sim-runner 0.6.0 / HIL 0.7.0 / Trace 0.7.0 and 66 payload files. For the
+new GPIO/TIMER0 fault profile, read [model fault evidence](simulation-faults.md).
+Choose its local environment explicitly with `simulation_runtime.py inspect <venv>
+--candidate --json`, or add `--simulation-candidate` to an explicitly requested
+combined doctor `--simulation-environment <venv>`. Candidate source commits,
+wheel hashes and file inventories have no asserted release tag or download URL;
+results use `pinned_local_candidates` and `distribution_status=local_candidate`.
+The default remains the published pin above. A missing or changed selected
+candidate fails; it never falls back to the published environment or a board.
+
 ## Choose the appropriate domain
 
 | Request | Native route | Result boundary |

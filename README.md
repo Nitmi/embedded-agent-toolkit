@@ -26,6 +26,13 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
+The local 0.30.0 candidate adds [GPIO/TIMER0 fault routing](docs/simulation-faults.md)
+for sim-runner 0.6.0 / HIL 0.7.0 / Trace 0.7.0. Its separate
+`simulation-candidates.json` binds 66 installed files and explicitly reports
+`local_candidate`; use `simulation_runtime.py inspect <venv> --candidate --json`.
+There is no assumed release URL or tag for these components. This Toolkit candidate
+is not published and does not select or install a new environment automatically.
+
 The latest published release is [0.29.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.29.0), adding Xtensa ESP32-S3 Flash support to
 [simulation routing and payload checks](docs/simulation.md) for sim-runner 0.5.0,
 HIL Runner 0.6.0 and Trace 0.6.0. All three components are published and attested;
