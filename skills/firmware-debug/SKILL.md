@@ -25,8 +25,9 @@ runtime/core declarations and native limitations when comparing it with C3/Renod
 For a saved or requested GPIO/TIMER0 fault experiment, read
 [model fault evidence](../../docs/simulation-faults.md). Keep injection requests,
 observed/unknown effects and native regression failures distinct; raw counter/IRQ
-spans describe the model, not a physical fault or confirmed root cause. Select
-local candidate payloads explicitly; do not replace the published environment.
+spans describe the model, not a physical fault or confirmed root cause. Use the
+published default for released components; select local candidate payloads only
+when that recorded build is explicitly requested.
 
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only
