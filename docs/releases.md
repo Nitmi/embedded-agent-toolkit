@@ -1,10 +1,15 @@
 # Versioned releases
 
+Local 0.31.0 adds [WASM simulation candidates](simulation-wasm.md): sim 0.7.0,
+HIL 0.8.0 and Trace 0.8.0, with 69 installed files. This candidate is unpublished.
+Its separate candidate record carries no release tag, URL or attestation claim;
+the published simulation pin and native station selection are unchanged.
+
 ## Contents and scope
 
 Toolkit [0.30.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.30.0) adds the [fault workflow](simulation-faults.md), with
 published sim 0.6.0 / HIL 0.7.0 / Trace 0.7.0 as the default simulation pin (66 files).
-The separate `simulation-candidates.json` retains exact historical local identities
+The separate `simulation-candidates.json` records exact selected local identities
 with no claimed tag or release URL and is selected only by explicit candidate flags.
 Both pins are checked during archive build/verify/install. Use each release's
 matching bundled `release.py`; its required layout is versioned.

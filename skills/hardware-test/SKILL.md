@@ -23,6 +23,10 @@ For GPIO/TIMER0, keep guest samples, paused model snapshots and host run windows
 distinct; inspect/query/report retain the recorded context and false physical timing claim.
 For ESP32-S3, select the independent Xtensa runtime and keep its unmeasured
 device clock/core declarations and qualified outcome in filtered evidence views.
+For experimental ESP-EMU WASM, read [WASM simulation](../../docs/simulation-wasm.md).
+Select the recorded local candidates explicitly. Keep string UART provenance,
+opaque ROM/eFuse state, model-clock claims, restart requests and native failures
+visible; encoded UART strings are not verified original UART bytes.
 For GPIO/TIMER0 fault regressions, read [model fault evidence](../../docs/simulation-faults.md).
 Use the published default for released fault components; select `--candidate`
 only for an explicitly chosen recorded local build. Keep the native nominal verdict, effect/null state,

@@ -31,8 +31,10 @@ Combined host readiness may explicitly use `toolkit_doctor.py --simulation-envir
 use the file inspector and skip hardware doctor, discovery, attach and selection.
 Neither route changes station configuration, PATH or the active plugin.
 
-The earlier local build identities remain in `simulation-candidates.json`,
-available only through explicit `--candidate` / `--simulation-candidate` flags.
+The separate `simulation-candidates.json` is available only through explicit
+`--candidate` / `--simulation-candidate` flags. In Toolkit 0.31.0 it selects the
+new [WASM-capable local builds](simulation-wasm.md); the fault workflow above
+continues to select the published default.
 Those records retain local-candidate status and no release URL/ref, even when
 wheel bytes match a later release. Use the published default for normal use.
 

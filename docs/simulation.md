@@ -13,16 +13,16 @@ earlier published hardware/offline workflows. Their inspectors do not accept the
 newer releases. Native component locks and workstation selection remain independent.
 
 For the new GPIO/TIMER0 fault profile, read [model fault evidence](simulation-faults.md).
-Default inspection now selects these published releases. The separate
-`simulation-candidates.json` v1 retains the earlier recorded local build identities.
-Only choose that history explicitly with `simulation_runtime.py inspect <venv>
+Default inspection selects these published releases. Toolkit 0.31.0's separate
+`simulation-candidates.json` v1 records sim 0.7 / HIL 0.8 / Trace 0.8 local builds
+for the [experimental ESP-EMU WASM workflow](simulation-wasm.md).
+Only choose those candidates explicitly with `simulation_runtime.py inspect <venv>
 --candidate --json`, or add `--simulation-candidate` to an explicitly requested
 combined doctor `--simulation-environment <venv>`. Candidate source commits,
 wheel hashes and file inventories have no asserted release tag or download URL;
 results use `pinned_local_candidates` and `distribution_status=local_candidate`.
-Static inspection reports the selected pin's declarations, even when identical
-wheel bytes match both the historical candidate and published records. A missing or changed selected
-candidate fails; it never falls back to the published environment or a board.
+Static inspection reports the selected pin's declarations. A missing or changed
+selected candidate fails; it never falls back to a published environment or board.
 
 ## Choose the appropriate domain
 

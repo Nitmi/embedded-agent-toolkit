@@ -98,16 +98,25 @@ SPECS = {
     ),
 }
 CANDIDATE_VERSIONS = {
-    "sim-runner": "0.6.0",
-    "hil-runner": "0.7.0",
-    "embedded-trace": "0.7.0",
+    "sim-runner": "0.7.0",
+    "hil-runner": "0.8.0",
+    "embedded-trace": "0.8.0",
 }
 CANDIDATE_SPECS = {
     name: (
         package,
         distribution,
         CANDIDATE_VERSIONS[name],
-        names | ({"gpio_fault.py"} if name == "sim-runner" else set()),
+        names
+        | (
+            {
+                "esp_wasm.py",
+                "assets/esp32c3-esp-wasm.json",
+                "assets/esp_wasm_runner.mjs",
+            }
+            if name == "sim-runner"
+            else set()
+        ),
     )
     for name, (package, distribution, _, names) in SPECS.items()
 }

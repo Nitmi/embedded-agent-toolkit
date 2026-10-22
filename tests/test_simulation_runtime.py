@@ -66,7 +66,7 @@ class SimulationRuntimeTests(unittest.TestCase):
                 self.assertIs(result["candidate_mode"], True)
                 self.assertEqual(result["resolution_source"], "pinned_local_candidates")
                 self.assertEqual(
-                    sum(c["verified_files"] for c in result["components"]), 66
+                    sum(c["verified_files"] for c in result["components"]), 69
                 )
                 for component in result["components"]:
                     self.assertEqual(
@@ -128,17 +128,28 @@ class SimulationRuntimeTests(unittest.TestCase):
                     sim.parse_pin(json.dumps(pin).encode(), candidate=True)
 
     def test_candidate_new_module_missing_drift_and_extra_bytes_are_rejected(self):
-        for change in ("missing", "drift", "extra"):
-            with self.subTest(change=change), tempfile.TemporaryDirectory() as tmp:
+        for change, leaf in (
+            (c, p)
+            for c in ("missing", "drift", "extra")
+            for p in (
+                "esp_wasm.py",
+                "assets/esp32c3-esp-wasm.json",
+                "assets/esp_wasm_runner.mjs",
+            )
+        ):
+            with (
+                self.subTest(change=change, leaf=leaf),
+                tempfile.TemporaryDirectory() as tmp,
+            ):
                 root = Path(tmp)
                 site, pin = self.fixture(root, candidate=True)
-                target = site / "sim_runner/gpio_fault.py"
+                target = site / "sim_runner" / leaf
                 if change == "missing":
                     target.unlink()
                 elif change == "drift":
                     target.write_bytes(b"changed")
                 else:
-                    (target.parent / "extra_fault.py").write_bytes(b"unexpected")
+                    (target.parent / "extra_wasm.py").write_bytes(b"unexpected")
                 self.assertFalse(self.inspect(root, pin, candidate=True)["ok"])
 
     def test_candidate_doctor_requires_environment_before_checking_components(self):
@@ -169,6 +180,23 @@ class SimulationRuntimeTests(unittest.TestCase):
             )
         self.assertTrue(result["complete"])
         inspector.assert_called_once_with(ROOT, candidate=True)
+
+    def test_published_and_wasm_candidate_environments_do_not_fall_back(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            published_root, candidate_root = (
+                Path(tmp) / "published",
+                Path(tmp) / "candidate",
+            )
+            _, published = self.fixture(published_root)
+            _, candidate = self.fixture(candidate_root, candidate=True)
+            self.assertFalse(self.inspect(candidate_root, published)["ok"])
+            self.assertFalse(
+                self.inspect(published_root, candidate, candidate=True)["ok"]
+            )
+            self.assertTrue(self.inspect(published_root, published)["ok"])
+            self.assertTrue(
+                self.inspect(candidate_root, candidate, candidate=True)["ok"]
+            )
 
     def test_windows_and_posix_payloads_are_checked_without_starting_interpreter(self):
         for layout in ("windows", "posix"):

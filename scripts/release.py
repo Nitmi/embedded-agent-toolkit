@@ -52,6 +52,7 @@ REQUIRED_FILES = {
     "simulation-candidates.json",
     "docs/simulation.md",
     "docs/simulation-faults.md",
+    "docs/simulation-wasm.md",
     "docs/embedded-trace.md",
     "docs/hil-runner.md",
     "LICENSE",

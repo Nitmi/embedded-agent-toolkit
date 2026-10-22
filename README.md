@@ -1,5 +1,10 @@
 # Embedded Agent Toolkit
 
+Local 0.31.0 development adds explicit [ESP-EMU WASM candidate routing](docs/simulation-wasm.md)
+for sim 0.7 / HIL 0.8 / Trace 0.8 (69 files). These local builds require candidate
+flags; the published default remains sim 0.6 / HIL 0.7 / Trace 0.7 (66 files).
+The new Toolkit candidate is not published or activated.
+
 [![CI](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/ci.yml)
 [![Release provenance](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/release-attestation.yml/badge.svg)](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/release-attestation.yml)
 [![Release](https://img.shields.io/github/v/release/Nitmi/embedded-agent-toolkit)](https://github.com/Nitmi/embedded-agent-toolkit/releases/latest)
@@ -29,8 +34,8 @@ BLE, and debug transports. Each component remains independently usable.
 The published [0.30.0 release](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.30.0) adds [GPIO/TIMER0 fault routing](docs/simulation-faults.md)
 with published sim-runner 0.6.0 / HIL 0.7.0 / Trace 0.7.0 as the default optional
 simulation pin: 66 installed files, exact release URLs, tags and source commits.
-Use `simulation_runtime.py inspect <venv> --json`. Earlier local build identities
-remain available only with explicit candidate flags. The plugin does not select
+Use `simulation_runtime.py inspect <venv> --json`. Recorded local build identities
+are available only with explicit candidate flags. The plugin does not select
 or install a new environment automatically.
 
 It retains Xtensa ESP32-S3 Flash support in
