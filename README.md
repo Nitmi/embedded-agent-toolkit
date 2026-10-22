@@ -1,5 +1,9 @@
 # Embedded Agent Toolkit
 
+Local **0.32.0** adds [offline instrument routing](docs/instruments.md): explicit
+lab 0.8 / HIL 0.9 / Trace 0.9 candidate payload checks and native evidence
+workflows. The default installed release and simulation selection remain 0.31.0.
+
 Toolkit 0.31.0 adds [ESP-EMU WASM routing](docs/simulation-wasm.md) with published
 sim 0.7 / HIL 0.8 / Trace 0.8 as its default optional simulation pin (69 files).
 Experimental model limits remain visible through native, HIL and Trace results.
@@ -23,6 +27,7 @@ tools behind another hardware abstraction:
 | [HIL Runner](https://github.com/Nitmi/hil-runner) (optional) | Cooperative ownership and one native bounded scope across successive firmware builds | Python CLI |
 | [Embedded Trace](https://github.com/Nitmi/embedded-trace) (optional) | Offline serial/RTT line reconstruction and hash-bound timelines with explicit host clock domains | Python CLI |
 | [sim-runner](https://github.com/Nitmi/sim-runner) (optional) | Bounded Renode/nRF52840 and Espressif QEMU/ESP32-C3/S3 firmware simulation | Python CLI |
+| lab-instruments (local candidate, optional) | Saved logic protocol/PWM assertions, report verification and JUnit; HIL/Trace evidence views | Python CLI |
 
 The value of the toolkit is the cross-tool workflow: one identity ledger, one
 safety policy, correlated evidence, and deterministic cleanup across serial,

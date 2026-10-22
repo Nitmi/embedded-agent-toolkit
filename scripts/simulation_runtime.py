@@ -229,8 +229,31 @@ def load_pin(*, candidate: bool = False) -> dict:
 def inspect_package(
     site: Path, root: Path, name: str, pin: dict, *, candidate: bool = False
 ) -> dict:
-    package = SPECS[name][0]
-    for item in pin["files"]:
+    verify_payload(
+        site,
+        root,
+        SPECS[name][0],
+        payload_paths(name, candidate=candidate),
+        pin["files"],
+    )
+    return {
+        "name": name,
+        "version": pin["version"],
+        "status": "payload_verified",
+        "repository": pin["repository"],
+        "source_ref": pin.get("source_ref"),
+        "source_revision": pin["source_revision"],
+        "wheel": pin["wheel"],
+        "distribution_status": pin["status"],
+        "verified_files": len(pin["files"]),
+    }
+
+
+def verify_payload(
+    site: Path, root: Path, package: str, expected: set[str], inventory: list
+) -> None:
+    """Shared bounded file checks; never import a selected installed package."""
+    for item in inventory:
         path = site / item["path"]
         files.contained(path, root)
         raw = files.read(path)
@@ -238,7 +261,6 @@ def inspect_package(
             len(raw) == item["size"] and files.digest(raw) == item["sha256"],
             f"Installed payload differs: {item['path']}",
         )
-    expected = payload_paths(name, candidate=candidate)
     directories = {
         str(Path(path).parent).replace("\\", "/")
         for path in expected
@@ -251,9 +273,7 @@ def inspect_package(
         with os.scandir(pending.pop()) as entries:
             for entry in entries:
                 count += 1
-                files.require(
-                    count <= 256, "Simulation package inventory exceeds limit"
-                )
+                files.require(count <= 256, "Package inventory exceeds limit")
                 path = Path(entry.path)
                 files.contained(path, root)
                 relative = path.relative_to(site).as_posix()
@@ -275,17 +295,50 @@ def inspect_package(
                         ),
                         f"Unexpected package file: {relative}",
                     )
-    return {
-        "name": name,
-        "version": pin["version"],
-        "status": "payload_verified",
-        "repository": pin["repository"],
-        "source_ref": pin.get("source_ref"),
-        "source_revision": pin["source_revision"],
-        "wheel": pin["wheel"],
-        "distribution_status": pin["status"],
-        "verified_files": len(pin["files"]),
-    }
+
+
+def environment_layout(environment: Path) -> tuple:
+    """Read a venv layout/declaration without following its interpreter entry."""
+    files.require(
+        environment.is_absolute() and not str(environment).startswith(("\\\\", "//")),
+        "Use an absolute local environment directory",
+    )
+    files.contained(environment, Path(environment.anchor))
+    root = environment.resolve()
+    cfg = root / "pyvenv.cfg"
+    files.contained(cfg, root)
+    configuration = files.read(cfg, 16384).decode("utf-8")
+    versions = re.findall(
+        r"(?m)^version(?:_info)?\s*=\s*([0-9]+)\.([0-9]+)\.([0-9]+)\s*$", configuration
+    )
+    files.require(
+        len(versions) == 1 and tuple(map(int, versions[0][:2])) >= (3, 11),
+        "Environment must declare Python 3.11+",
+    )
+    major, minor, _ = versions[0]
+    layouts = [
+        (root / "Lib/site-packages", root / "Scripts/python.exe", "windows"),
+        (
+            root / f"lib/python{major}.{minor}/site-packages",
+            root / "bin/python",
+            "posix",
+        ),
+    ]
+    available = [
+        (site, python, label)
+        for site, python, label in layouts
+        if site.exists() or site.is_symlink()
+    ]
+    files.require(len(available) == 1, "Expected one Windows or POSIX venv layout")
+    site, python, layout = available[0]
+    files.contained(site, root)
+    files.contained(python.parent, root)
+    mode = python.lstat().st_mode
+    files.require(
+        stat.S_ISREG(mode) or (layout == "posix" and stat.S_ISLNK(mode)),
+        "Missing interpreter entry",
+    )
+    return root, site, python, layout, versions[0]
 
 
 def inspect_environment(
@@ -313,47 +366,7 @@ def inspect_environment(
             bool(names) and len(names) == len(set(names)) and set(names) <= set(SPECS),
             "Invalid component selection",
         )
-        files.require(
-            environment.is_absolute()
-            and not str(environment).startswith(("\\\\", "//")),
-            "Use an absolute local environment directory",
-        )
-        files.contained(environment, Path(environment.anchor))
-        root = environment.resolve()
-        cfg = root / "pyvenv.cfg"
-        files.contained(cfg, root)
-        configuration = files.read(cfg, 16384).decode("utf-8")
-        versions = re.findall(
-            r"(?m)^version(?:_info)?\s*=\s*([0-9]+)\.([0-9]+)\.([0-9]+)\s*$",
-            configuration,
-        )
-        files.require(
-            len(versions) == 1 and tuple(map(int, versions[0][:2])) >= (3, 11),
-            "Environment must declare Python 3.11+",
-        )
-        major, minor, _ = versions[0]
-        layouts = [
-            (root / "Lib/site-packages", root / "Scripts/python.exe", "windows"),
-            (
-                root / f"lib/python{major}.{minor}/site-packages",
-                root / "bin/python",
-                "posix",
-            ),
-        ]
-        available = [
-            (site, python, label)
-            for site, python, label in layouts
-            if site.exists() or site.is_symlink()
-        ]
-        files.require(len(available) == 1, "Expected one Windows or POSIX venv layout")
-        site, python, layout = available[0]
-        files.contained(site, root)
-        files.contained(python.parent, root)
-        mode = python.lstat().st_mode
-        files.require(
-            stat.S_ISREG(mode) or (layout == "posix" and stat.S_ISLNK(mode)),
-            "Missing interpreter entry",
-        )
+        root, site, python, layout, version = environment_layout(environment)
         results = [
             inspect_package(
                 site, root, name, pin["components"][name], candidate=candidate
@@ -369,7 +382,7 @@ def inspect_environment(
             "environment": str(root),
             "layout": layout,
             "python": str(python),
-            "python_version_claim": ".".join(versions[0]),
+            "python_version_claim": ".".join(version),
             "resolution_source": "pinned_local_candidates"
             if candidate
             else "pinned_releases",

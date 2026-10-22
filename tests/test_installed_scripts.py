@@ -72,6 +72,7 @@ class InstalledScriptTests(unittest.TestCase):
                 "hil_runtime.py",
                 "trace_runtime.py",
                 "simulation_runtime.py",
+                "instrument_runtime.py",
             ):
                 shutil.copy2(ROOT / "scripts" / name, scripts / name)
             shutil.copy2(
@@ -96,6 +97,7 @@ class InstalledScriptTests(unittest.TestCase):
                 [sys.executable, str(scripts / "test_contract.py"), "--help"],
                 [sys.executable, str(scripts / "rtt_evidence.py"), "--help"],
                 [sys.executable, str(scripts / "toolkit_doctor.py"), "--help"],
+                [sys.executable, str(scripts / "instrument_runtime.py"), "--help"],
             )
             for command in commands:
                 result = subprocess.run(

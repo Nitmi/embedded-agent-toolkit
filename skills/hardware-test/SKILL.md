@@ -1,6 +1,6 @@
 ---
 name: hardware-test
-description: Design or run repeatable embedded tests that coordinate flashing, serial, RTT or BLE readiness, assertions, evidence and cleanup, or optional Renode/QEMU simulation. Trigger for hardware-in-the-loop checks, continuous build/flash/observe loops, firmware smoke tests, manufacturing checks, board regressions or supported firmware simulation and model fault suites.
+description: Design or run repeatable embedded tests across flashing, serial/RTT/BLE readiness, assertions, evidence and cleanup. Use for hardware-in-the-loop checks, firmware build/flash loops, board regressions, supported simulation or model fault suites, and offline instrument protocol/PWM checks.
 ---
 
 # Hardware Test
@@ -9,6 +9,13 @@ Prefer the installed `$embedded-debugger`, `$baud`, and `$ble` integrations;
 otherwise use their own CLIs with structured output. Keep each component's
 native workflow format and evidence as the source of truth. Do not create a
 second untyped command runner in this plugin.
+
+For saved instrument captures or logic assertion evidence, read
+[offline instrument workflows](../../docs/instruments.md). Use the explicitly
+selected candidate environment's native lab/HIL/Trace commands. The standalone
+payload inspector is sufficient for this file-only domain; board discovery and
+native hardware doctor are unnecessary. Preserve failed/invalid evidence and
+distinguish recorded native recomputation from current import/view success.
 
 For simulation-only regressions, read [optional simulation](../../docs/simulation.md)
 first. Inspect the explicitly selected payloads with `simulation_runtime.py`, then

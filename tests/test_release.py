@@ -27,6 +27,9 @@ def source_files(version: str = "0.2.0") -> dict[str, bytes]:
     files["simulation-candidates.json"] = (
         Path(__file__).resolve().parents[1] / "simulation-candidates.json"
     ).read_bytes()
+    files["instrument-candidates.json"] = (
+        Path(__file__).resolve().parents[1] / "instrument-candidates.json"
+    ).read_bytes()
     manifest = {"name": release.PLUGIN, "version": version, "skills": "./skills/"}
     for name in ("plugin.json", ".codex-plugin/plugin.json"):
         files[name] = release.json_bytes(manifest)
@@ -56,6 +59,27 @@ def source_files(version: str = "0.2.0") -> dict[str, bytes]:
 
 
 class ReleaseTests(unittest.TestCase):
+    def test_instrument_candidate_identity_is_required_before_packaging(self):
+        for mode in ("missing", "published", "url", "ref", "invalid"):
+            with self.subTest(mode=mode):
+                files = source_files()
+                if mode == "missing":
+                    files.pop("instrument-candidates.json")
+                elif mode == "invalid":
+                    files["instrument-candidates.json"] = b"{}"
+                else:
+                    pin = json.loads(files["instrument-candidates.json"])
+                    item = pin["components"]["lab-instruments"]
+                    if mode == "published":
+                        item["status"] = "published"
+                    elif mode == "url":
+                        item["wheel"]["url"] = "https://example.invalid"
+                    else:
+                        item["source_ref"] = "refs/tags/v0.8.0"
+                    files["instrument-candidates.json"] = release.json_bytes(pin)
+                with self.assertRaises(release.ReleaseError):
+                    release.make_archive("1" * 40, files)
+
     def test_candidate_inventory_is_required_and_must_remain_a_candidate(self):
         for mutation in ("missing", "published", "url", "ref"):
             with self.subTest(mutation=mutation):
