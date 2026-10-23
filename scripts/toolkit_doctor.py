@@ -294,10 +294,10 @@ def build_report(
     if simulation_candidate and simulation_environment is None:
         raise ValueError("simulation_candidate requires simulation_environment")
     if type(instrument_candidate) is not bool or (
-        (instrument_environment is not None) != instrument_candidate
+        instrument_candidate and instrument_environment is None
     ):
         raise ValueError(
-            "instrument_environment and explicit instrument_candidate are required together"
+            "instrument_candidate requires instrument_environment and boolean mode"
         )
     component_results = []
     for component in selected_components:
@@ -374,7 +374,9 @@ def build_report(
         else None
     )
     instrument_result = (
-        instrument_runtime.inspect_environment(instrument_environment, candidate=True)
+        instrument_runtime.inspect_environment(
+            instrument_environment, candidate=instrument_candidate
+        )
         if instrument_environment is not None
         else None
     )
@@ -520,7 +522,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--instrument-environment",
         type=Path,
-        help="opt in to file-only instrument candidate checks",
+        help="opt in to file-only published instrument payload checks",
     )
     parser.add_argument(
         "--instrument-candidate",
@@ -562,10 +564,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     args = parser.parse_args(argv)
     if args.simulation_candidate and args.simulation_environment is None:
         parser.error("--simulation-candidate requires --simulation-environment")
-    if (args.instrument_environment is not None) != args.instrument_candidate:
-        parser.error(
-            "--instrument-environment and --instrument-candidate are required together"
-        )
+    if args.instrument_candidate and args.instrument_environment is None:
+        parser.error("--instrument-candidate requires --instrument-environment")
     return args
 
 

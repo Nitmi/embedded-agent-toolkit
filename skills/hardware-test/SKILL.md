@@ -12,7 +12,8 @@ second untyped command runner in this plugin.
 
 For saved instrument captures or logic assertion evidence, read
 [offline instrument workflows](../../docs/instruments.md). Use the explicitly
-selected candidate environment's native lab/HIL/Trace commands. The standalone
+selected environment's native lab/HIL/Trace commands. Inspect published pins by
+default; choose historical local builds only with explicit candidate mode. The standalone
 payload inspector is sufficient for this file-only domain; board discovery and
 native hardware doctor are unnecessary. Preserve failed/invalid evidence and
 distinguish recorded native recomputation from current import/view success.

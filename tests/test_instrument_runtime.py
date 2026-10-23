@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class InstrumentRuntimeTests(unittest.TestCase):
-    def fixture(self, root, layout="windows"):
+    def fixture(self, root, layout="windows", *, candidate=False):
         site = root / (
             "Lib/site-packages"
             if layout == "windows"
@@ -27,7 +27,7 @@ class InstrumentRuntimeTests(unittest.TestCase):
         python.parent.mkdir(parents=True)
         python.write_bytes(b"DO NOT EXECUTE OR READ INTERPRETER")
         (root / "pyvenv.cfg").write_text("version = 3.11.15\n")
-        pin = copy.deepcopy(runtime.load_pin())
+        pin = copy.deepcopy(runtime.load_pin(candidate=candidate))
         for component in pin["components"].values():
             for item in component["files"]:
                 path = site / item["path"]
@@ -37,7 +37,7 @@ class InstrumentRuntimeTests(unittest.TestCase):
                 item.update(size=len(raw), sha256=runtime.files.digest(raw))
         return site, pin
 
-    def inspect(self, root, pin, selected=None, *, candidate=True):
+    def inspect(self, root, pin, selected=None, *, candidate=False):
         with (
             mock.patch.object(runtime, "load_pin", return_value=pin),
             mock.patch.object(
@@ -53,17 +53,28 @@ class InstrumentRuntimeTests(unittest.TestCase):
             return runtime.inspect_environment(root, selected, candidate=candidate)
 
     def test_both_layouts_check_74_files_without_importing_or_execution(self):
-        for layout in ("windows", "posix"):
-            with self.subTest(layout=layout), tempfile.TemporaryDirectory() as tmp:
+        for layout, candidate in (
+            ("windows", False),
+            ("posix", False),
+            ("windows", True),
+            ("posix", True),
+        ):
+            with (
+                self.subTest(layout=layout, candidate=candidate),
+                tempfile.TemporaryDirectory() as tmp,
+            ):
                 root = Path(tmp)
-                _, pin = self.fixture(root, layout)
+                _, pin = self.fixture(root, layout, candidate=candidate)
                 before = {
                     str(p): p.read_bytes() for p in root.rglob("*") if p.is_file()
                 }
-                result = self.inspect(root, pin)
+                result = self.inspect(root, pin, candidate=candidate)
                 self.assertTrue(result["ok"], result)
                 self.assertEqual(result["layout"], layout)
-                self.assertEqual(result["resolution_source"], "pinned_local_candidates")
+                self.assertEqual(
+                    result["resolution_source"],
+                    "pinned_local_candidates" if candidate else "pinned_releases",
+                )
                 self.assertEqual(
                     sum(c["verified_files"] for c in result["components"]), 74
                 )
@@ -89,13 +100,15 @@ class InstrumentRuntimeTests(unittest.TestCase):
                     self.assertIs(result[field], False)
                 self.assertTrue(
                     all(
-                        c["distribution_status"] == "local_candidate"
+                        c["distribution_status"]
+                        == ("local_candidate" if candidate else "published")
                         for c in result["components"]
                     )
                 )
                 self.assertTrue(
                     all(
-                        "source_ref" not in c and "url" not in c["wheel"]
+                        ("source_ref" in c) is (not candidate)
+                        and ("url" in c["wheel"]) is (not candidate)
                         for c in result["components"]
                     )
                 )
@@ -104,16 +117,73 @@ class InstrumentRuntimeTests(unittest.TestCase):
                     {str(p): p.read_bytes() for p in root.rglob("*") if p.is_file()},
                 )
 
-    def test_explicit_candidate_is_required_before_pin_or_environment_reads(self):
+    def test_invalid_mode_is_rejected_before_pin_or_environment_reads(self):
         with mock.patch.object(
             runtime, "load_pin", side_effect=AssertionError("must not read pin")
         ):
-            for candidate in (False, 1, "true"):
+            for candidate in (None, 1, "true"):
                 result = runtime.inspect_environment(
                     Path("absent"), candidate=candidate
                 )
                 self.assertFalse(result["ok"])
-                self.assertIn("--candidate", result["errors"][0])
+                self.assertIn("candidate mode", result["errors"][0])
+
+    def test_modes_read_only_the_selected_pin_and_never_fall_back(self):
+        for candidate in (False, True):
+            expected = runtime.CANDIDATE_PIN_PATH if candidate else runtime.PIN_PATH
+            raw = expected.read_bytes()
+            with mock.patch.object(runtime.files, "read", return_value=raw) as read:
+                pin = runtime.load_pin(candidate=candidate)
+                self.assertEqual(
+                    pin["components"]["lab-instruments"]["status"],
+                    "local_candidate" if candidate else "published",
+                )
+                read.assert_called_once_with(expected, 65536)
+            wrong = (
+                runtime.PIN_PATH if candidate else runtime.CANDIDATE_PIN_PATH
+            ).read_bytes()
+            for effect in (
+                OSError("missing selected pin"),
+                ValueError("damaged selected pin"),
+            ):
+                with mock.patch.object(
+                    runtime.files, "read", side_effect=effect
+                ) as read:
+                    result = runtime.inspect_environment(
+                        Path("absent"), candidate=candidate
+                    )
+                    self.assertFalse(result["ok"])
+                    read.assert_called_once_with(expected, 65536)
+            with self.assertRaises(ValueError):
+                runtime.parse_pin(wrong, candidate=candidate)
+
+    def test_published_identity_rejects_unbound_repository_tag_and_url(self):
+        for field, value in (
+            ("repository", "Other/lab-instruments"),
+            ("source_ref", "refs/heads/main"),
+            ("source_ref", "refs/tags/v0.7.0"),
+            ("status", "local_candidate"),
+            ("wheel.url", "https://example.invalid/wheel.whl"),
+            (
+                "wheel.url",
+                "https://github.com/Nitmi/lab-instruments/releases/download/v0.7.0/lab_instruments-0.8.0-py3-none-any.whl",
+            ),
+            ("attestation_verified", True),
+        ):
+            with self.subTest(field=field, value=value):
+                pin = copy.deepcopy(runtime.load_pin())
+                item = pin["components"]["lab-instruments"]
+                if field.startswith("wheel."):
+                    item["wheel"][field.split(".")[1]] = value
+                else:
+                    item[field] = value
+                with self.assertRaises(ValueError):
+                    runtime.parse_pin(json.dumps(pin).encode())
+        for field in ("repository", "source_ref"):
+            pin = copy.deepcopy(runtime.load_pin())
+            del pin["components"]["lab-instruments"][field]
+            with self.assertRaises(ValueError):
+                runtime.parse_pin(json.dumps(pin).encode())
 
     def test_partial_selection_does_not_require_unselected_components(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -207,7 +277,7 @@ class InstrumentRuntimeTests(unittest.TestCase):
             "old-schema",
         ):
             with self.subTest(mode=mode):
-                pin = copy.deepcopy(runtime.load_pin())
+                pin = copy.deepcopy(runtime.load_pin(candidate=True))
                 component = pin["components"]["lab-instruments"]
                 if mode == "published":
                     component["status"] = "published"
@@ -240,7 +310,7 @@ class InstrumentRuntimeTests(unittest.TestCase):
                 else:
                     pin["schema_version"] = "invalid"
                 with self.assertRaises(ValueError):
-                    runtime.parse_pin(json.dumps(pin).encode())
+                    runtime.parse_pin(json.dumps(pin).encode(), candidate=True)
         with self.assertRaises(ValueError):
             runtime.parse_pin(b'{"components":{},"components":{}}')
 
@@ -273,24 +343,25 @@ class InstrumentRuntimeTests(unittest.TestCase):
         self.assertIn("instruments: invalid_runtime", result["errors"])
         self.assertIn("[FAIL] Instrument", doctor.render_human(result))
 
-    def test_doctor_validates_pair_before_native_checks(self):
+    def test_doctor_validates_mode_before_native_checks(self):
         with mock.patch.object(
             doctor, "check_component", side_effect=AssertionError("no native command")
         ):
             for arguments in (
                 {"instrument_candidate": True},
-                {"instrument_environment": ROOT},
                 {"instrument_environment": ROOT, "instrument_candidate": 1},
             ):
                 with self.assertRaises(ValueError):
                     doctor.build_report(doctor.COMPONENTS, 1, ROOT, **arguments)
-        for args in (
-            ["--instrument-candidate"],
-            ["--instrument-environment", str(ROOT)],
-        ):
+        for args in (["--instrument-candidate"],):
             with self.assertRaises(SystemExit) as error, mock.patch("sys.stderr"):
                 doctor.parse_args(args)
             self.assertEqual(error.exception.code, 2)
+        self.assertFalse(
+            doctor.parse_args(
+                ["--instrument-environment", str(ROOT)]
+            ).instrument_candidate
+        )
 
     def test_successful_optional_doctor_retains_static_qualification(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -307,11 +378,12 @@ class InstrumentRuntimeTests(unittest.TestCase):
                     subprocess, "run", side_effect=AssertionError("no executable")
                 ),
             ):
-                result = doctor.build_report(
-                    [], 1, ROOT, instrument_environment=root, instrument_candidate=True
-                )
+                result = doctor.build_report([], 1, ROOT, instrument_environment=root)
             self.assertTrue(result["complete"])
             self.assertIs(result["instruments"]["component_cli_verified"], False)
+            self.assertEqual(
+                result["instruments"]["resolution_source"], "pinned_releases"
+            )
 
     def test_script_entry_failure_is_json_and_creates_no_cache(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -1,37 +1,63 @@
 # Optional offline instrument workflows
 
-Toolkit 0.32.0 local source routes the recorded lab-instruments 0.8.0,
-HIL Runner 0.9.0 and Embedded Trace 0.9.0 local candidates. This optional domain
+Toolkit 0.32.0 routes the published lab-instruments 0.8.0,
+HIL Runner 0.9.0 and Embedded Trace 0.9.0 releases. This optional domain
 evaluates **saved** digital captures and native reports; it does not open an
 instrument or acquire a new waveform. Real devices, vendor SDK/ABI, wiring,
 calibration and timing accuracy have not been qualified by these software checks.
 
-`instrument-candidates.json` binds the three exact source revisions, wheel
-SHA-256 hashes and 74 installed code/schema/metadata/license files. It has no
-asserted release tag, download URL or remote attestation. Do not substitute the
+`instrument-runtime.json` binds each repository, immutable source tag/revision,
+wheel download URL/SHA-256 and 74 installed code/schema/metadata/license files.
+Its release identities are:
+
+| Component | Tag | Source revision |
+| --- | --- | --- |
+| [lab-instruments](https://github.com/Nitmi/lab-instruments/releases/tag/v0.8.0) | `v0.8.0` | `a772f80502d7560566eb70d2a5095103351f91bb` |
+| [HIL Runner](https://github.com/Nitmi/hil-runner/releases/tag/v0.9.0) | `v0.9.0` | `74bc5ea8365da0fe2d7aa2a6e72b138c1a9eb44b` |
+| [Embedded Trace](https://github.com/Nitmi/embedded-trace/releases/tag/v0.9.0) | `v0.9.0` | `d34193a7a5bdc5112fb765ef250ba79940eee27b` |
+
+Published identity in a pin is not an attestation verification. Do not substitute the
 older HIL/Trace versions selected by the separate simulation pin or managed HIL
 pin. A dedicated instrument environment keeps these selections explicit.
 
 ## Inspect the selected software
 
-During requested host setup, install the exact three reviewed wheels named in
-the candidate pin into a dedicated Python 3.11+ environment, using
+During requested host setup, download the exact three release wheels named in
+the published pin and independently compare each SHA-256 before installation.
+For authenticated setup, verify each wheel with GitHub CLI, taking values from
+that component's pin entry:
+
+```powershell
+gh attestation verify '<wheel>' --repo '<repository>' --source-ref '<source_ref>' `
+  --source-digest '<source_revision>' --signer-digest '<source_revision>' `
+  --signer-workflow '<repository>/.github/workflows/python-release.yml' `
+  --deny-self-hosted-runners
+```
+
+Preserve that command's independent result. The file-only inspector does not run
+it, fetch attestations or authenticate installed files' download history. Equal
+installed bytes do not establish which wheel container installed them.
+Install into a dedicated Python 3.11+ environment, using
 `uv pip install --python '<venv-python>' --no-index --no-deps '<wheel>' ...`.
 The inspector never downloads or installs anything. Installing/activating a
 plugin or modifying the active workstation is not needed to review saved data.
 
 ```powershell
-python scripts/instrument_runtime.py inspect '<absolute-venv-directory>' --candidate --json
+python scripts/instrument_runtime.py inspect '<absolute-venv-directory>' --json
 ```
 
 All three components are checked by default; repeat `--component lab-instruments`,
 `--component hil-runner` or `--component embedded-trace` to select only those needed
 by the task. Missing/changed requested files fail; an unselected component is not
-silently installed or accepted. Omitting `--candidate` fails before inspecting an
-environment, because no published instrument pin is supplied in this version.
+silently installed or accepted. Inspection defaults to the published pin.
+The historical `instrument-candidates.json` remains available only with explicit
+`--candidate`. Its local source/wheel identities are different and carry no
+release ref, URL or provenance claim. Neither mode falls back to the other when
+its selected pin or payload is missing or invalid.
 
-Success reports `resolution_source=pinned_local_candidates`, each component's
-version/source/wheel and verified file count, and the selected interpreter path.
+Success reports `resolution_source=pinned_releases` (or `pinned_local_candidates`
+in candidate mode), each component's version/source/wheel and verified file count,
+and the selected interpreter path. Published entries also name repository/ref.
 It checks file bytes and declared venv layout/version only. It never imports a
 component, starts its interpreter, loads an SDK, enumerates devices, uses network
 or evaluates a test. Bytecode, interpreter/stdlib/import customization, release
@@ -42,10 +68,11 @@ For a combined host-readiness task, optionally run:
 
 ```powershell
 python scripts/toolkit_doctor.py --instrument-environment '<absolute-venv-directory>' `
-  --instrument-candidate --strict --json
+  --strict --json
 ```
 
-Both options are required together and validated before native version commands.
+Add `--instrument-candidate` only to inspect the historical local candidates;
+it requires `--instrument-environment` before native version commands can run.
 This doctor also executes the selected native components' `--version` checks;
 its nested `instruments` check remains file-only. Default doctor does not inspect
 instruments. For a task concerned only with saved files, the standalone inspector

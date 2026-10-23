@@ -53,6 +53,7 @@ REQUIRED_FILES = {
     "simulation-runtime.json",
     "simulation-candidates.json",
     "instrument-candidates.json",
+    "instrument-runtime.json",
     "docs/instruments.md",
     "docs/simulation.md",
     "docs/simulation-faults.md",
@@ -197,9 +198,12 @@ def release_version(files: dict[str, bytes]) -> str:
     except (ValueError, TypeError, KeyError, RecursionError) as error:
         raise ReleaseError(f"Invalid simulation runtime pin: {error}") from error
     try:
-        instrument_runtime.parse_pin(files["instrument-candidates.json"])
+        instrument_runtime.parse_pin(files["instrument-runtime.json"])
+        instrument_runtime.parse_pin(
+            files["instrument-candidates.json"], candidate=True
+        )
     except (ValueError, TypeError, KeyError, RecursionError) as error:
-        raise ReleaseError(f"Invalid instrument candidate pin: {error}") from error
+        raise ReleaseError(f"Invalid instrument runtime pin: {error}") from error
     if any(
         path.casefold() in {".mcp.json", "mcp.json", ".app.json", "hooks.json"}
         for path in files
@@ -220,6 +224,7 @@ def included(path: str) -> bool:
             "simulation-runtime.json",
             "simulation-candidates.json",
             "instrument-candidates.json",
+            "instrument-runtime.json",
             "LICENSE",
             "README.md",
         }

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Inspect explicitly selected local instrument payloads without importing them."""
+"""Inspect selected published or explicit candidate instrument payloads offline."""
 
 from __future__ import annotations
 
@@ -16,7 +16,8 @@ else:
     import simulation_runtime as payloads
 
 files = payloads.files
-PIN_PATH = Path(__file__).resolve().parents[1] / "instrument-candidates.json"
+PIN_PATH = Path(__file__).resolve().parents[1] / "instrument-runtime.json"
+CANDIDATE_PIN_PATH = PIN_PATH.with_name("instrument-candidates.json")
 SCHEMA = "embedded-agent-toolkit.instrument-runtime-inspection.v1"
 SPECS = {
     "lab-instruments": (
@@ -113,16 +114,22 @@ def payload_paths(name: str) -> set[str]:
     }
 
 
-def parse_pin(data: bytes) -> dict:
+def parse_pin(data: bytes, *, candidate: bool = False) -> dict:
+    files.require(type(candidate) is bool, "Invalid instrument candidate mode")
     files.require(len(data) <= 65536, "Instrument pin exceeds size limit")
     pin = json.loads(data, object_pairs_hook=files.unique)
     files.require(
         isinstance(pin, dict)
         and set(pin) == {"schema_version", "components"}
-        and pin["schema_version"] == "embedded-agent-toolkit.instrument-candidates.v1"
+        and pin["schema_version"]
+        == (
+            "embedded-agent-toolkit.instrument-candidates.v1"
+            if candidate
+            else "embedded-agent-toolkit.instrument-runtime.v1"
+        )
         and isinstance(pin["components"], dict)
         and set(pin["components"]) == set(SPECS),
-        "Invalid instrument candidate pin",
+        "Invalid instrument pin",
     )
     for name, item in pin["components"].items():
         _, distribution, version, _ = SPECS[name]
@@ -130,9 +137,17 @@ def parse_pin(data: bytes) -> dict:
             isinstance(item, dict)
             and set(item)
             == {"project", "version", "source_revision", "status", "wheel", "files"}
+            | (set() if candidate else {"repository", "source_ref"})
             and item["project"] == distribution.replace("_", "-")
             and item["version"] == version
-            and item["status"] == "local_candidate"
+            and item["status"] == ("local_candidate" if candidate else "published")
+            and (
+                candidate
+                or (
+                    item["repository"] == f"Nitmi/{name}"
+                    and item["source_ref"] == f"refs/tags/v{version}"
+                )
+            )
             and isinstance(item["source_revision"], str)
             and re.fullmatch(r"[0-9a-f]{40}", item["source_revision"]),
             "Invalid instrument component identity",
@@ -140,8 +155,13 @@ def parse_pin(data: bytes) -> dict:
         wheel = item["wheel"]
         files.require(
             isinstance(wheel, dict)
-            and set(wheel) == {"name", "sha256"}
+            and set(wheel) == {"name", "sha256"} | (set() if candidate else {"url"})
             and wheel["name"] == f"{distribution}-{version}-py3-none-any.whl"
+            and (
+                candidate
+                or wheel["url"]
+                == f"https://github.com/Nitmi/{name}/releases/download/v{version}/{wheel['name']}"
+            )
             and isinstance(wheel["sha256"], str)
             and files.HASH.fullmatch(wheel["sha256"]),
             "Invalid instrument wheel identity",
@@ -178,8 +198,12 @@ def parse_pin(data: bytes) -> dict:
     return pin
 
 
-def load_pin() -> dict:
-    return parse_pin(files.read(PIN_PATH, 65536))
+def load_pin(*, candidate: bool = False) -> dict:
+    files.require(type(candidate) is bool, "Invalid instrument candidate mode")
+    return parse_pin(
+        files.read(CANDIDATE_PIN_PATH if candidate else PIN_PATH, 65536),
+        candidate=candidate,
+    )
 
 
 def inspect_environment(
@@ -208,16 +232,13 @@ def inspect_environment(
         },
     }
     try:
-        files.require(
-            candidate is True,
-            "Instrument components are local candidates; select --candidate explicitly",
-        )
+        files.require(type(candidate) is bool, "Invalid instrument candidate mode")
         names = selected if selected is not None else list(SPECS)
         files.require(
             bool(names) and len(names) == len(set(names)) and set(names) <= set(SPECS),
             "Invalid instrument component selection",
         )
-        pin = load_pin()
+        pin = load_pin(candidate=candidate)
         root, site, python, layout, version = payloads.environment_layout(environment)
         results = []
         for name in names:
@@ -233,6 +254,14 @@ def inspect_environment(
                     "project": item["project"],
                     "status": "payload_verified",
                     "source_revision": item["source_revision"],
+                    **(
+                        {}
+                        if candidate
+                        else {
+                            "repository": item["repository"],
+                            "source_ref": item["source_ref"],
+                        }
+                    ),
                     "wheel": item["wheel"],
                     "distribution_status": item["status"],
                     "verified_files": len(item["files"]),
@@ -248,7 +277,9 @@ def inspect_environment(
             "layout": layout,
             "python": str(python),
             "python_version_claim": ".".join(version),
-            "resolution_source": "pinned_local_candidates",
+            "resolution_source": (
+                "pinned_local_candidates" if candidate else "pinned_releases"
+            ),
         }
     except (OSError, ValueError, TypeError, KeyError, RecursionError) as error:
         return {

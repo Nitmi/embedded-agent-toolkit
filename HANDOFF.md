@@ -6,8 +6,9 @@ Read this file and AGENTS.md before starting another task.
 
 - Version 0.32.0 adds optional **offline** instrument routing and static payload
   inspection for lab-instruments 0.8.0, HIL Runner 0.9.0 and Embedded Trace 0.9.0.
-  These are local candidates, not attested releases. Their exact source revisions,
-  wheel hashes and 74 installed files are bound in instrument-candidates.json.
+  Published source/tag/repository/URL/wheel identities and 74 installed files are
+  bound in instrument-runtime.json. instrument-candidates.json retains historical
+  local builds, selected only with --candidate; never silently fall back.
 - Default doctor, published simulation pins, component catalog, active plugin,
   workstation selection and native locks must remain independent. This task does
   not authorize publishing, activation, lock changes or hardware/simulator access.
@@ -18,10 +19,14 @@ Read this file and AGENTS.md before starting another task.
 
 ## Pitfalls and acceptance
 
-1. Instrument inspection requires explicit candidate mode. It checks payload bytes
+1. Instrument inspection defaults to the published pin; explicit candidate mode
+   selects only the historical pin. It checks payload bytes
    and declared layout only, never imports selected packages, starts their Python,
    loads SDKs or accesses devices/network. Interpreter, bytecode, runtime, physical
-   instrument and remote provenance verification remain false.
+   instrument and remote provenance verification remain false. Installed payload
+   equality cannot identify the original wheel container. Record separate exact
+   gh verification results without turning a static inspection into provenance.
+   Lab's official source is a772f805, not the earlier 3cc861f/335b178 preparation.
 2. Shared bounded layout/payload helpers live in simulation_runtime.py. Changes
    must retain simulation's published/candidate behavior and regression coverage;
    instrument inventories and versions stay independent of simulation selections.
