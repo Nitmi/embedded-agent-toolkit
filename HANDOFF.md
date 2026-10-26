@@ -4,11 +4,13 @@ Read this file and AGENTS.md before starting another task.
 
 ## Current local work
 
-- Version 0.32.0 adds optional **offline** instrument routing and static payload
-  inspection for lab-instruments 0.8.0, HIL Runner 0.9.0 and Embedded Trace 0.9.0.
-  Published source/tag/repository/URL/wheel identities and 74 installed files are
-  bound in instrument-runtime.json. instrument-candidates.json retains historical
-  local builds, selected only with --candidate; never silently fall back.
+- Version 0.33.0 routes saved analog waveform checks alongside digital checks.
+  instrument-runtime.json binds published lab-instruments 0.9.0 (5eb1e8e5),
+  HIL Runner 0.10.0 (f5063e3e), Trace 0.10.0 (3154e735), exact release wheel
+  identities and 80 installed files. The historical instrument-candidates.json
+  remains byte-identical: lab 0.8 / HIL 0.9 / Trace 0.9, 74 files, explicit mode.
+  Published and candidate versions AND inventories differ; never reuse one mode's
+  SPECS for the other's validation or fall back between them.
 - Default doctor, published simulation pins, component catalog, active plugin,
   workstation selection and native locks must remain independent. This task does
   not authorize publishing, activation, lock changes or hardware/simulator access.
@@ -26,7 +28,9 @@ Read this file and AGENTS.md before starting another task.
    instrument and remote provenance verification remain false. Installed payload
    equality cannot identify the original wheel container. Record separate exact
    gh verification results without turning a static inspection into provenance.
-   Lab's official source is a772f805, not the earlier 3cc861f/335b178 preparation.
+   Current HIL/Trace sources include digital producer/verifier compatibility;
+   do not select the earlier waveform-only d25/140 preparation builds. Native
+   verifier 0.9 accepts producer 0.7/0.8/0.9, verifier 0.8 accepts 0.7/0.8 only.
 2. Shared bounded layout/payload helpers live in simulation_runtime.py. Changes
    must retain simulation's published/candidate behavior and regression coverage;
    instrument inventories and versions stay independent of simulation selections.
@@ -40,10 +44,22 @@ Read this file and AGENTS.md before starting another task.
 5. Build only clean committed source; compare both Python builds byte for byte.
    Install exact wheels offline without dependencies into separate candidate
    environments. Never activate a local candidate or silently replace station pins.
-6. Inspection reads at most 74 payloads (1 MiB/file, 4 MiB/component), bounded pin
+6. Inspection reads at most 80 published or 74 candidate payloads
+   (1 MiB/file, 4 MiB/component), bounded pin
    and venv declarations, and at most 256 package entries/component. Cost grows
    with selected bytes and entries; report warm timings and Python allocation
    measurements separately from interpreter startup, cold I/O and process RSS.
+7. Analog workflow details live in docs/instrument-waveform.md; keep entrypoint
+   routing short. Bind five primary inputs plus every SDS ancillary native source
+   in recorded inventory order. Zero-byte RX is valid; missing RX is not. HIL
+   preserves native voltage conversion, not a fresh conversion; Trace does not
+   reconstruct native XML. Passing/empty filtered pages retain the full verdict.
+   Native report inspection exit 0 means consistency, even for failed tests;
+   check/JUnit/import return 3 for complete failure/error evidence. RMS includes
+   DC and AC RMS removes only the population mean. Physical qualification and
+   synchronized sample origin remain false; software provenance proves neither.
+8. A Toolkit version bump also changes scripts/bootstrap.py VERSION, not only
+   the two plugin manifests. Keep the version-binding regression test enabled.
 
 Cross-repository state and evidence are recorded in the workspace HANDOFF.md at
 C:\Users\Nitmi\Documents\Codex\2026-08-13\guan. The desktop plan is

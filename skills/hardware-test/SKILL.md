@@ -1,6 +1,6 @@
 ---
 name: hardware-test
-description: Design or run repeatable embedded tests across flashing, serial/RTT/BLE readiness, assertions, evidence and cleanup. Use for hardware-in-the-loop checks, firmware build/flash loops, board regressions, supported simulation or model fault suites, and offline instrument protocol/PWM checks.
+description: Design or run repeatable embedded tests across flashing, serial/RTT/BLE readiness, assertions, evidence and cleanup. Use for hardware-in-the-loop checks, firmware build/flash loops, board regressions, supported simulation or model fault suites, and saved instrument logic or analog waveform checks.
 ---
 
 # Hardware Test
@@ -10,13 +10,17 @@ otherwise use their own CLIs with structured output. Keep each component's
 native workflow format and evidence as the source of truth. Do not create a
 second untyped command runner in this plugin.
 
-For saved instrument captures or logic assertion evidence, read
+For saved instrument captures or assertion evidence, read
 [offline instrument workflows](../../docs/instruments.md). Use the explicitly
 selected environment's native lab/HIL/Trace commands. Inspect published pins by
 default; choose historical local builds only with explicit candidate mode. The standalone
 payload inspector is sufficient for this file-only domain; board discovery and
 native hardware doctor are unnecessary. Preserve failed/invalid evidence and
 distinguish recorded native recomputation from current import/view success.
+For saved AD3 or SDS804X voltage checks, then read
+[analog waveform evidence](../../docs/instrument-waveform.md). Use native
+`waveform` commands; retain the explicit source inventory, RMS definitions,
+measurement qualifications and complete verdict even in filtered views.
 
 For simulation-only regressions, read [optional simulation](../../docs/simulation.md)
 first. Inspect the explicitly selected payloads with `simulation_runtime.py`, then

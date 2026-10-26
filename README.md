@@ -1,9 +1,11 @@
 # Embedded Agent Toolkit
 
-Local **0.32.0** adds [offline instrument routing](docs/instruments.md): published
-lab 0.8 / HIL 0.9 / Trace 0.9 payload checks and native evidence workflows, with
-explicit historical candidate mode. The installed Toolkit remains 0.31.0;
-simulation and workstation selections are independent.
+Local **0.33.0** adds [saved analog waveform checks](docs/instrument-waveform.md)
+to [offline instrument routing](docs/instruments.md): published lab 0.9 /
+HIL 0.10 / Trace 0.10, 80 payload files, and voltage assertions with native
+JUnit and self-contained evidence views. Historical candidates still require
+explicit selection. The installed Toolkit remains 0.32.0; simulation and
+workstation selections are independent.
 
 Toolkit 0.31.0 adds [ESP-EMU WASM routing](docs/simulation-wasm.md) with published
 sim 0.7 / HIL 0.8 / Trace 0.8 as its default optional simulation pin (69 files).
@@ -28,7 +30,7 @@ tools behind another hardware abstraction:
 | [HIL Runner](https://github.com/Nitmi/hil-runner) (optional) | Cooperative ownership and one native bounded scope across successive firmware builds | Python CLI |
 | [Embedded Trace](https://github.com/Nitmi/embedded-trace) (optional) | Offline serial/RTT line reconstruction and hash-bound timelines with explicit host clock domains | Python CLI |
 | [sim-runner](https://github.com/Nitmi/sim-runner) (optional) | Bounded Renode/nRF52840 and Espressif QEMU/ESP32-C3/S3 firmware simulation | Python CLI |
-| [lab-instruments](https://github.com/Nitmi/lab-instruments) (optional) | Saved logic protocol/PWM assertions, report verification and JUnit; HIL/Trace evidence views | Python CLI |
+| [lab-instruments](https://github.com/Nitmi/lab-instruments) (optional) | Saved logic/PWM and analog voltage assertions, report verification and JUnit; HIL/Trace evidence views | Python CLI |
 
 The value of the toolkit is the cross-tool workflow: one identity ledger, one
 safety policy, correlated evidence, and deterministic cleanup across serial,
@@ -36,7 +38,9 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The [0.31.0 release](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.31.0) adds [ESP-EMU WASM routing](docs/simulation-wasm.md)
+The [0.32.0 release](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.32.0)
+adds published lab 0.8 / HIL 0.9 / Trace 0.9 digital instrument workflows
+and 74 installed payload checks. It retains [ESP-EMU WASM routing](docs/simulation-wasm.md)
 with published sim-runner 0.7.0 / HIL 0.8.0 / Trace 0.8.0 as the default optional
 simulation pin: 69 installed files, exact release URLs, tags and source commits.
 Use `simulation_runtime.py inspect <venv> --json`. Recorded local build identities
@@ -67,11 +71,11 @@ standalone `bootstrap.py` alongside the plugin ZIP. Download the bootstrap with 
 authenticate it before execution, and keep its exact filename:
 
 ```powershell
-gh release download v0.31.0 --repo Nitmi/embedded-agent-toolkit `
+gh release download v0.32.0 --repo Nitmi/embedded-agent-toolkit `
   --pattern bootstrap.py
 gh attestation verify bootstrap.py `
   --repo Nitmi/embedded-agent-toolkit `
-  --source-ref refs/tags/v0.31.0 `
+  --source-ref refs/tags/v0.32.0 `
   --signer-workflow Nitmi/embedded-agent-toolkit/.github/workflows/release-attestation.yml `
   --deny-self-hosted-runners
 python bootstrap.py --install-root C:\Tools\embedded-agent-toolkit --json

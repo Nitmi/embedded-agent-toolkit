@@ -19,7 +19,7 @@ files = payloads.files
 PIN_PATH = Path(__file__).resolve().parents[1] / "instrument-runtime.json"
 CANDIDATE_PIN_PATH = PIN_PATH.with_name("instrument-candidates.json")
 SCHEMA = "embedded-agent-toolkit.instrument-runtime-inspection.v1"
-SPECS = {
+CANDIDATE_SPECS = {
     "lab-instruments": (
         "lab_instruments",
         "lab_instruments",
@@ -104,10 +104,35 @@ SPECS = {
         },
     ),
 }
+PUBLISHED_VERSIONS = {
+    "lab-instruments": "0.9.0",
+    "hil-runner": "0.10.0",
+    "embedded-trace": "0.10.0",
+}
+WAVEFORM_FILES = {
+    "lab-instruments": {"waveform.py"},
+    "hil-runner": {
+        "waveform.py",
+        "schemas/waveform-spec.schema.json",
+        "schemas/waveform-report.schema.json",
+    },
+    "embedded-trace": {"waveform.py", "schemas/waveform-report.schema.json"},
+}
+SPECS = {
+    name: (
+        package,
+        distribution,
+        PUBLISHED_VERSIONS[name],
+        names | WAVEFORM_FILES[name],
+    )
+    for name, (package, distribution, _, names) in CANDIDATE_SPECS.items()
+}
 
 
-def payload_paths(name: str) -> set[str]:
-    package, distribution, version, names = SPECS[name]
+def payload_paths(name: str, *, candidate: bool = False) -> set[str]:
+    package, distribution, version, names = (CANDIDATE_SPECS if candidate else SPECS)[
+        name
+    ]
     return {f"{package}/{leaf}" for leaf in names} | {
         f"{distribution}-{version}.dist-info/{leaf}"
         for leaf in ("METADATA", "WHEEL", "entry_points.txt", "licenses/LICENSE")
@@ -132,7 +157,7 @@ def parse_pin(data: bytes, *, candidate: bool = False) -> dict:
         "Invalid instrument pin",
     )
     for name, item in pin["components"].items():
-        _, distribution, version, _ = SPECS[name]
+        _, distribution, version, _ = (CANDIDATE_SPECS if candidate else SPECS)[name]
         files.require(
             isinstance(item, dict)
             and set(item)
@@ -167,7 +192,7 @@ def parse_pin(data: bytes, *, candidate: bool = False) -> dict:
             "Invalid instrument wheel identity",
         )
         inventory = item["files"]
-        expected = payload_paths(name)
+        expected = payload_paths(name, candidate=candidate)
         files.require(
             isinstance(inventory, list) and len(inventory) == len(expected),
             "Incomplete instrument inventory",
@@ -245,7 +270,11 @@ def inspect_environment(
             package = SPECS[name][0]
             item = pin["components"][name]
             payloads.verify_payload(
-                site, root, package, payload_paths(name), item["files"]
+                site,
+                root,
+                package,
+                payload_paths(name, candidate=candidate),
+                item["files"],
             )
             results.append(
                 {

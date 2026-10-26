@@ -4,40 +4,35 @@
     "lab-instruments": {
       "project": "lab-instruments",
       "repository": "Nitmi/lab-instruments",
-      "version": "0.8.0",
-      "source_revision": "a772f80502d7560566eb70d2a5095103351f91bb",
-      "source_ref": "refs/tags/v0.8.0",
+      "version": "0.9.0",
+      "source_revision": "5eb1e8e5ab1fe2ecb172c9ef7080387a400ef433",
+      "source_ref": "refs/tags/v0.9.0",
       "status": "published",
-      "wheel": {
-        "name": "lab_instruments-0.8.0-py3-none-any.whl",
-        "sha256": "064fd2c88f28ce499510201c3a71add47e15c849bec52c7a4611e8ec4a56a20d",
-        "url": "https://github.com/Nitmi/lab-instruments/releases/download/v0.8.0/lab_instruments-0.8.0-py3-none-any.whl"
-      },
       "files": [
         {
-          "path": "lab_instruments-0.8.0.dist-info/METADATA",
-          "size": 10030,
-          "sha256": "d5a127634b1f66d324a9aa56d3821fe9b5257f25761207a9314ed5934184e2a2"
+          "path": "lab_instruments-0.9.0.dist-info/METADATA",
+          "size": 10353,
+          "sha256": "45d45ef9e79967858d463cfa4e4995591ca9c78451bc6ee4dbd24ad8a2c5e175"
         },
         {
-          "path": "lab_instruments-0.8.0.dist-info/WHEEL",
+          "path": "lab_instruments-0.9.0.dist-info/WHEEL",
           "size": 87,
           "sha256": "5b77e4a649bbfb07fdbc123967eeecd1e5a478cfaca6eefc23c35e6fdf037848"
         },
         {
-          "path": "lab_instruments-0.8.0.dist-info/entry_points.txt",
+          "path": "lab_instruments-0.9.0.dist-info/entry_points.txt",
           "size": 61,
           "sha256": "4e59a2451861ab75d2d188c61787fdac12a31fa15b32e23fb7ed7e86facea55f"
         },
         {
-          "path": "lab_instruments-0.8.0.dist-info/licenses/LICENSE",
+          "path": "lab_instruments-0.9.0.dist-info/licenses/LICENSE",
           "size": 1062,
           "sha256": "cd24e7704a2b7505c01595eb602ad9be91edbb95650364fb428b2150c7044559"
         },
         {
           "path": "lab_instruments/__init__.py",
           "size": 92,
-          "sha256": "c2043674797629b96efbf45076ec03a481159176a62f15617d199675c5920e46"
+          "sha256": "6190857206920215f8bc614197f5fdfd5593c126ac09624f4dcb821ca225f770"
         },
         {
           "path": "lab_instruments/__main__.py",
@@ -66,8 +61,8 @@
         },
         {
           "path": "lab_instruments/cli.py",
-          "size": 23521,
-          "sha256": "cf44fbaaf7c8a90601aae81df5f955167cea6085bdcc500cc561987b69c68313"
+          "size": 25655,
+          "sha256": "949bf784ed99c50eaf33001b5c1456778ea05e455671c03c345bfa5fcf689657"
         },
         {
           "path": "lab_instruments/common.py",
@@ -96,8 +91,8 @@
         },
         {
           "path": "lab_instruments/logic_reports.py",
-          "size": 6406,
-          "sha256": "c99481a9b4c23115bbc1a26ac984c316d9ef90c261cd81fb02f78077df2c4251"
+          "size": 6415,
+          "sha256": "57e363e1f6d4841d13e5007e435aac012e5ce6c43a5ad3186b9f2067b3c67d35"
         },
         {
           "path": "lab_instruments/plan.py",
@@ -121,8 +116,8 @@
         },
         {
           "path": "lab_instruments/sds.py",
-          "size": 17812,
-          "sha256": "67839df7f99c39dd96ff51fb840b31dbcf6c5eb183a38dc1d10696cbde65c752"
+          "size": 18215,
+          "sha256": "573cee65a652042817f674ae27d8fec58e46a4b1c30a3a97d7de51def133d41c"
         },
         {
           "path": "lab_instruments/sds_plan.py",
@@ -131,8 +126,8 @@
         },
         {
           "path": "lab_instruments/sds_wave.py",
-          "size": 3670,
-          "sha256": "6fad3f1806eb92237963da4c223d60353447304e5e99da7f5e1cf17a9d05c4aa"
+          "size": 3970,
+          "sha256": "2e5d4cfab4c27a1aca2eeebd86d218a75346cc3d3b1fab5665737323314a70ad"
         },
         {
           "path": "lab_instruments/sds_wire.py",
@@ -153,46 +148,51 @@
           "path": "lab_instruments/thermal_plan.py",
           "size": 5982,
           "sha256": "4a59efe04981635b641229d0006fd2b2b4459ebd82aff2c1c959b13d1c127208"
+        },
+        {
+          "path": "lab_instruments/waveform.py",
+          "size": 15945,
+          "sha256": "8d5675cc16fdc2c96a89a7e3c7493c0919eb5ca0752d4cb9c5051230d02511d1"
         }
-      ]
+      ],
+      "wheel": {
+        "name": "lab_instruments-0.9.0-py3-none-any.whl",
+        "sha256": "4faaed4f1eac32c329a0ae83673b680ec566e2c32583e69772c0a2060aedd2bf",
+        "url": "https://github.com/Nitmi/lab-instruments/releases/download/v0.9.0/lab_instruments-0.9.0-py3-none-any.whl"
+      }
     },
     "hil-runner": {
       "project": "embedded-hil-runner",
       "repository": "Nitmi/hil-runner",
-      "version": "0.9.0",
-      "source_revision": "74bc5ea8365da0fe2d7aa2a6e72b138c1a9eb44b",
-      "source_ref": "refs/tags/v0.9.0",
+      "version": "0.10.0",
+      "source_revision": "f5063e3e95ca5bcbddf023748e3d2ce88787feb0",
+      "source_ref": "refs/tags/v0.10.0",
       "status": "published",
-      "wheel": {
-        "name": "embedded_hil_runner-0.9.0-py3-none-any.whl",
-        "sha256": "a5908b3762bc9a9a795869f870fa286a0003547feccb64f781c055be55b3a280",
-        "url": "https://github.com/Nitmi/hil-runner/releases/download/v0.9.0/embedded_hil_runner-0.9.0-py3-none-any.whl"
-      },
       "files": [
         {
-          "path": "embedded_hil_runner-0.9.0.dist-info/METADATA",
-          "size": 9852,
-          "sha256": "1fa07fcbaac92c0bf83b0978fe041107548366614d360a95490ed5a527fd40e7"
+          "path": "embedded_hil_runner-0.10.0.dist-info/METADATA",
+          "size": 10082,
+          "sha256": "2ef4cce46898137e4bd0ed95a4e843f5cf07af3c5aeaf90c09070d2e8bbf5925"
         },
         {
-          "path": "embedded_hil_runner-0.9.0.dist-info/WHEEL",
+          "path": "embedded_hil_runner-0.10.0.dist-info/WHEEL",
           "size": 87,
           "sha256": "5b77e4a649bbfb07fdbc123967eeecd1e5a478cfaca6eefc23c35e6fdf037848"
         },
         {
-          "path": "embedded_hil_runner-0.9.0.dist-info/entry_points.txt",
+          "path": "embedded_hil_runner-0.10.0.dist-info/entry_points.txt",
           "size": 51,
           "sha256": "7c769c154ed617bd7476f3c91d085a05958f386bc8eeac2672866e191bda34cb"
         },
         {
-          "path": "embedded_hil_runner-0.9.0.dist-info/licenses/LICENSE",
+          "path": "embedded_hil_runner-0.10.0.dist-info/licenses/LICENSE",
           "size": 1062,
           "sha256": "cd24e7704a2b7505c01595eb602ad9be91edbb95650364fb428b2150c7044559"
         },
         {
           "path": "hil_runner/__init__.py",
-          "size": 88,
-          "sha256": "9b2ac087a4cd2c9e0abdd0907cd859e6bdac46756bc25ac4db7736fa61e20cda"
+          "size": 89,
+          "sha256": "4cf85c026c50de54225c9ead88268c1f67e622bd15359df9d67cd3eb5d448186"
         },
         {
           "path": "hil_runner/__main__.py",
@@ -206,8 +206,8 @@
         },
         {
           "path": "hil_runner/cli.py",
-          "size": 8902,
-          "sha256": "068abadce7eeae2165bbb223f2382b21eadcb1ef60229d986de5383c30370bad"
+          "size": 9076,
+          "sha256": "8c8f3d880c50c4387b598877f4dd9efad6a7be3bcc92fd5ffcbcd9710774c102"
         },
         {
           "path": "hil_runner/common.py",
@@ -216,8 +216,8 @@
         },
         {
           "path": "hil_runner/instrument.py",
-          "size": 16928,
-          "sha256": "db34934457ae33a3fbf25cff969ae4d40727d3a0605ffb48439e85f74a810712"
+          "size": 17470,
+          "sha256": "137de628a3af159b382ae0833270aeeeee7e42d305321c59ccc700f8cf1c5337"
         },
         {
           "path": "hil_runner/lease.py",
@@ -236,8 +236,8 @@
         },
         {
           "path": "hil_runner/schemas/instrument-report.schema.json",
-          "size": 3604,
-          "sha256": "28bee94b86e2004baf49efa0b1a2e89cde0a26ddfeb611eb8404ded6d8319ea4"
+          "size": 3615,
+          "sha256": "109e9ece1b7916b99a42bfb169a7403153e9faca4aa73389267b79212a673f22"
         },
         {
           "path": "hil_runner/schemas/instrument-spec.schema.json",
@@ -246,8 +246,8 @@
         },
         {
           "path": "hil_runner/schemas/managed-plan.schema.json",
-          "size": 2470,
-          "sha256": "21988cd3eef3074f76da4c589c7291239a6b705ff985140959ae236b4d920a0a"
+          "size": 2480,
+          "sha256": "35007ca83b391e245d34d7c0037b68a33dd3d5b18d3b8e1fbb7867bedc3657f4"
         },
         {
           "path": "hil_runner/schemas/managed-result.schema.json",
@@ -266,8 +266,8 @@
         },
         {
           "path": "hil_runner/schemas/simulation-plan.schema.json",
-          "size": 1451,
-          "sha256": "52ff5d926c69558adb3c3a63cf8c35bab460b3a0fe1fa7ad58bfef30f0aeabcb"
+          "size": 1452,
+          "sha256": "f6b1d5dbd324e1083a9f3f8a09d9ebedff6835b861f92216ed723aae2c4786b3"
         },
         {
           "path": "hil_runner/schemas/simulation-report.schema.json",
@@ -278,6 +278,16 @@
           "path": "hil_runner/schemas/simulation-spec.schema.json",
           "size": 1017,
           "sha256": "6d0f8ffaa97f18b1b53ef8008a11d9e52adc66d97e283d9a0f91164b104952a9"
+        },
+        {
+          "path": "hil_runner/schemas/waveform-report.schema.json",
+          "size": 3217,
+          "sha256": "46764eaba221953de9dae73b796b7064d24b133af3931a1153383cfd48a177ed"
+        },
+        {
+          "path": "hil_runner/schemas/waveform-spec.schema.json",
+          "size": 1802,
+          "sha256": "811657a870678903030b08b80ca971e073b69a10bc8ae7c9362eb522faadbf78"
         },
         {
           "path": "hil_runner/selection.py",
@@ -295,49 +305,54 @@
           "sha256": "5acc29457aea8ee3bd61e2b2975369f142e7b2bbe102b53c3d85a69de269206f"
         },
         {
+          "path": "hil_runner/waveform.py",
+          "size": 24553,
+          "sha256": "6326583aee75e91dd831282ea86566c80a88d7bf7aa99ed34ae5947c2c67f5ad"
+        },
+        {
           "path": "hil_runner/winjob.py",
           "size": 5982,
           "sha256": "3242c8f6dbe41f403c2fd930a2b544c9052c5c70cc428bf94b7c4ab2c2bed402"
         }
-      ]
+      ],
+      "wheel": {
+        "name": "embedded_hil_runner-0.10.0-py3-none-any.whl",
+        "sha256": "42014177f2a9b8fea84674af95034093e159cf0c7dfe858446a03f919512c676",
+        "url": "https://github.com/Nitmi/hil-runner/releases/download/v0.10.0/embedded_hil_runner-0.10.0-py3-none-any.whl"
+      }
     },
     "embedded-trace": {
       "project": "embedded-trace",
       "repository": "Nitmi/embedded-trace",
-      "version": "0.9.0",
-      "source_revision": "d34193a7a5bdc5112fb765ef250ba79940eee27b",
-      "source_ref": "refs/tags/v0.9.0",
+      "version": "0.10.0",
+      "source_revision": "3154e73545c18d74909333db6a5d987aac7c91b6",
+      "source_ref": "refs/tags/v0.10.0",
       "status": "published",
-      "wheel": {
-        "name": "embedded_trace-0.9.0-py3-none-any.whl",
-        "sha256": "45ba044481a1c9443a17ec54f6dc9e6f2ae57ee2e3d9e30955d0d2545011e569",
-        "url": "https://github.com/Nitmi/embedded-trace/releases/download/v0.9.0/embedded_trace-0.9.0-py3-none-any.whl"
-      },
       "files": [
         {
-          "path": "embedded_trace-0.9.0.dist-info/METADATA",
-          "size": 6921,
-          "sha256": "a335dfd33a4a3f40b5588c276b823bcc68d17831cf89edf79573044117333d33"
+          "path": "embedded_trace-0.10.0.dist-info/METADATA",
+          "size": 7152,
+          "sha256": "bc8c33d157c8a347ade1def0c8f6f1ae66b49aa96a8044dd179601a83b11e621"
         },
         {
-          "path": "embedded_trace-0.9.0.dist-info/WHEEL",
+          "path": "embedded_trace-0.10.0.dist-info/WHEEL",
           "size": 87,
           "sha256": "5b77e4a649bbfb07fdbc123967eeecd1e5a478cfaca6eefc23c35e6fdf037848"
         },
         {
-          "path": "embedded_trace-0.9.0.dist-info/entry_points.txt",
+          "path": "embedded_trace-0.10.0.dist-info/entry_points.txt",
           "size": 59,
           "sha256": "e180a3647b9cfcfff5b791785e23468834bc0ddc426fbdd7c84fc51797e71dcd"
         },
         {
-          "path": "embedded_trace-0.9.0.dist-info/licenses/LICENSE",
+          "path": "embedded_trace-0.10.0.dist-info/licenses/LICENSE",
           "size": 1062,
           "sha256": "cd24e7704a2b7505c01595eb602ad9be91edbb95650364fb428b2150c7044559"
         },
         {
           "path": "embedded_trace/__init__.py",
-          "size": 65,
-          "sha256": "bfec17062d349af9e98b05ce7c61f5021e3efcfe91fbeb16fd860e5eb5da0854"
+          "size": 66,
+          "sha256": "e6e93dec1d18990426765a97af2ddf83e9354365d1a5d61468b7c8b5daf517da"
         },
         {
           "path": "embedded_trace/__main__.py",
@@ -351,8 +366,8 @@
         },
         {
           "path": "embedded_trace/cli.py",
-          "size": 6255,
-          "sha256": "62f37b3a5b0f57a1fc71f476bebfdc9e5a482ae0259ff49027b9f390962de817"
+          "size": 7473,
+          "sha256": "2d1aa8bdfe723fc4c1a262b3a8cb009b61802d652b64bb6caaa96ed198ea60d4"
         },
         {
           "path": "embedded_trace/clock.py",
@@ -371,8 +386,8 @@
         },
         {
           "path": "embedded_trace/instrument.py",
-          "size": 14651,
-          "sha256": "e3c9e9fceb76a18e66c6ad0a95a8873691d045e671394e8fcbfbdddc2a99fe61"
+          "size": 14871,
+          "sha256": "15e117f719c414b0b76db6442d788753acf7f0828ed33d12035ce53f53cd2fcc"
         },
         {
           "path": "embedded_trace/query.py",
@@ -391,8 +406,8 @@
         },
         {
           "path": "embedded_trace/schemas/instrument-report.schema.json",
-          "size": 3604,
-          "sha256": "28bee94b86e2004baf49efa0b1a2e89cde0a26ddfeb611eb8404ded6d8319ea4"
+          "size": 3615,
+          "sha256": "109e9ece1b7916b99a42bfb169a7403153e9faca4aa73389267b79212a673f22"
         },
         {
           "path": "embedded_trace/schemas/result.v1.schema.json",
@@ -405,6 +420,11 @@
           "sha256": "c16f176a83c581407d8e3d6dfe505ce4289bb662d8de2235906c81c8650a9d55"
         },
         {
+          "path": "embedded_trace/schemas/waveform-report.schema.json",
+          "size": 3217,
+          "sha256": "46764eaba221953de9dae73b796b7064d24b133af3931a1153383cfd48a177ed"
+        },
+        {
           "path": "embedded_trace/simulation.py",
           "size": 32408,
           "sha256": "741c672b46b9911c5f89fe345c47e91ae8f42fdf0acfea9cdf7d33619443588c"
@@ -413,8 +433,18 @@
           "path": "embedded_trace/timeline.py",
           "size": 6004,
           "sha256": "6d615dc5899d3ff38ae532294d861e7cb0fc15d001f5e59d2a6013da0986422d"
+        },
+        {
+          "path": "embedded_trace/waveform.py",
+          "size": 16550,
+          "sha256": "b04e479beda75aa30d434a2240e72184fdd050021982263b84884472271918e2"
         }
-      ]
+      ],
+      "wheel": {
+        "name": "embedded_trace-0.10.0-py3-none-any.whl",
+        "sha256": "df839b2f8a34402d3cd7e05d2f101e26f4739b4b0a41a1cf87a0406ae34fc056",
+        "url": "https://github.com/Nitmi/embedded-trace/releases/download/v0.10.0/embedded_trace-0.10.0-py3-none-any.whl"
+      }
     }
   }
 }

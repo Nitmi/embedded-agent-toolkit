@@ -52,7 +52,7 @@ class InstrumentRuntimeTests(unittest.TestCase):
         ):
             return runtime.inspect_environment(root, selected, candidate=candidate)
 
-    def test_both_layouts_check_74_files_without_importing_or_execution(self):
+    def test_both_layouts_check_selected_inventory_without_importing_or_execution(self):
         for layout, candidate in (
             ("windows", False),
             ("posix", False),
@@ -76,7 +76,8 @@ class InstrumentRuntimeTests(unittest.TestCase):
                     "pinned_local_candidates" if candidate else "pinned_releases",
                 )
                 self.assertEqual(
-                    sum(c["verified_files"] for c in result["components"]), 74
+                    sum(c["verified_files"] for c in result["components"]),
+                    74 if candidate else 80,
                 )
                 self.assertEqual(
                     {c["name"]: c["version"] for c in result["components"]},
@@ -84,6 +85,12 @@ class InstrumentRuntimeTests(unittest.TestCase):
                         "lab-instruments": "0.8.0",
                         "hil-runner": "0.9.0",
                         "embedded-trace": "0.9.0",
+                    }
+                    if candidate
+                    else {
+                        "lab-instruments": "0.9.0",
+                        "hil-runner": "0.10.0",
+                        "embedded-trace": "0.10.0",
                     },
                 )
                 for field in (
@@ -128,6 +135,33 @@ class InstrumentRuntimeTests(unittest.TestCase):
                 self.assertFalse(result["ok"])
                 self.assertIn("candidate mode", result["errors"][0])
 
+    def test_historical_candidate_cannot_satisfy_published_waveform_inventory(self):
+        for candidate in (False, True):
+            with (
+                self.subTest(candidate=candidate),
+                tempfile.TemporaryDirectory() as tmp,
+            ):
+                root = Path(tmp)
+                self.fixture(root, candidate=not candidate)
+                selected = runtime.load_pin(candidate=candidate)
+                self.assertFalse(
+                    self.inspect(root, selected, candidate=candidate)["ok"]
+                )
+
+    def test_waveform_code_and_schemas_are_required_by_published_inspection(self):
+        for name, (_, _, _, leaves) in runtime.SPECS.items():
+            previous = runtime.CANDIDATE_SPECS[name][3]
+            for leaf in leaves - previous:
+                with (
+                    self.subTest(component=name, path=leaf),
+                    tempfile.TemporaryDirectory() as tmp,
+                ):
+                    root = Path(tmp)
+                    site, pin = self.fixture(root)
+                    path = site / runtime.SPECS[name][0] / leaf
+                    path.unlink()
+                    self.assertFalse(self.inspect(root, pin)["ok"])
+
     def test_modes_read_only_the_selected_pin_and_never_fall_back(self):
         for candidate in (False, True):
             expected = runtime.CANDIDATE_PIN_PATH if candidate else runtime.PIN_PATH
@@ -166,7 +200,7 @@ class InstrumentRuntimeTests(unittest.TestCase):
             ("wheel.url", "https://example.invalid/wheel.whl"),
             (
                 "wheel.url",
-                "https://github.com/Nitmi/lab-instruments/releases/download/v0.7.0/lab_instruments-0.8.0-py3-none-any.whl",
+                "https://github.com/Nitmi/lab-instruments/releases/download/v0.8.0/lab_instruments-0.9.0-py3-none-any.whl",
             ),
             ("attestation_verified", True),
         ):

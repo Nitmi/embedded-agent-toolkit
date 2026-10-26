@@ -1,20 +1,20 @@
 # Optional offline instrument workflows
 
-Toolkit 0.32.0 routes the published lab-instruments 0.8.0,
-HIL Runner 0.9.0 and Embedded Trace 0.9.0 releases. This optional domain
-evaluates **saved** digital captures and native reports; it does not open an
+Toolkit 0.33.0 routes the published lab-instruments 0.9.0,
+HIL Runner 0.10.0 and Embedded Trace 0.10.0 releases. This optional domain
+evaluates **saved** digital/analog captures and native reports; it does not open an
 instrument or acquire a new waveform. Real devices, vendor SDK/ABI, wiring,
 calibration and timing accuracy have not been qualified by these software checks.
 
 `instrument-runtime.json` binds each repository, immutable source tag/revision,
-wheel download URL/SHA-256 and 74 installed code/schema/metadata/license files.
+wheel download URL/SHA-256 and 80 installed code/schema/metadata/license files.
 Its release identities are:
 
 | Component | Tag | Source revision |
 | --- | --- | --- |
-| [lab-instruments](https://github.com/Nitmi/lab-instruments/releases/tag/v0.8.0) | `v0.8.0` | `a772f80502d7560566eb70d2a5095103351f91bb` |
-| [HIL Runner](https://github.com/Nitmi/hil-runner/releases/tag/v0.9.0) | `v0.9.0` | `74bc5ea8365da0fe2d7aa2a6e72b138c1a9eb44b` |
-| [Embedded Trace](https://github.com/Nitmi/embedded-trace/releases/tag/v0.9.0) | `v0.9.0` | `d34193a7a5bdc5112fb765ef250ba79940eee27b` |
+| [lab-instruments](https://github.com/Nitmi/lab-instruments/releases/tag/v0.9.0) | `v0.9.0` | `5eb1e8e5ab1fe2ecb172c9ef7080387a400ef433` |
+| [HIL Runner](https://github.com/Nitmi/hil-runner/releases/tag/v0.10.0) | `v0.10.0` | `f5063e3e95ca5bcbddf023748e3d2ce88787feb0` |
+| [Embedded Trace](https://github.com/Nitmi/embedded-trace/releases/tag/v0.10.0) | `v0.10.0` | `3154e73545c18d74909333db6a5d987aac7c91b6` |
 
 Published identity in a pin is not an attestation verification. Do not substitute the
 older HIL/Trace versions selected by the separate simulation pin or managed HIL
@@ -81,6 +81,10 @@ Native component locks and workstation selection remain independent.
 
 ## Choose the native operation
 
+For AD3/SDS804X voltage assertions, read [analog waveform evidence](instrument-waveform.md)
+and use the separate `waveform` command domain. The table and manifest below
+describe digital protocol/PWM evidence.
+
 Use the inspected environment's trusted interpreter in isolated module mode.
 On Windows its entry is `Scripts/python.exe`; POSIX uses `bin/python`. Component
 execution is separate from the static inspection. Input hashes bind selected
@@ -121,10 +125,15 @@ The HIL import manifest contains exactly `schema_version` set to
 `embedded-hil-runner.instrument-spec.v1`, recorded `native_exit_code` (0 or 3),
 and five `inputs`: `report`, `spec`, `capture`, `native_result`, `junit`. Each input
 has a portable relative `path` and lowercase `sha256`. `native_result` is the
-preserved JSON stdout from lab 0.8.0 `logic junit`; it includes full verification
+preserved JSON stdout from lab 0.9.0 `logic junit`; it includes full verification
 bindings and XML reference/counts. HIL reads all explicitly bound files once,
 checks consistency and preserves their original bytes in a new artifact. It
 never follows SDK, plan or file paths recorded inside that evidence.
+
+The selected HIL/Trace releases accept digital reports from lab 0.7/0.8/0.9
+verified by 0.9, and reports from 0.7/0.8 verified by 0.8. Keep the actual
+producer and verifier versions: a 0.9 producer with a claimed 0.8 verifier, or
+an unknown verifier, is rejected. Do not relabel old reports to make them pass.
 
 ## Keep the result boundaries
 
@@ -151,14 +160,15 @@ origin and false physical/calibration/authorization claims remain visible.
 
 ## Bounds and cost
 
-Static inspection reads at most 74 selected payload files, each at most 1 MiB and
+Static inspection reads at most 80 published payload files (74 historical candidate
+files), each at most 1 MiB and
 each package at most 4 MiB, plus bounded venv configuration/pin data. Package
 inventory walks are capped at 256 entries per component. It rejects links,
 unexpected package content, ambiguous layouts and mismatched payloads. Generated
 `.pyc` files may exist but are not authenticated. It holds one payload at a time;
 runtime/environment overhead is additional, so limits are not an RSS guarantee.
 
-Native lab evaluation supports at most eight checks and 16,384 samples, report/
+Native digital lab evaluation supports at most eight checks and 16,384 samples, report/
 capture/XML up to 1 MiB and spec up to 64 KiB. Recomputing costs depend on checks
 and samples. HIL import accepts up to 3,358,720 explicit input bytes and an 8 MiB
 self-contained report. HIL/Trace views validate the entire report regardless of
