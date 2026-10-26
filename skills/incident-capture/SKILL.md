@@ -39,6 +39,11 @@ operation.
 
 ## Build the evidence bundle
 
+When the scene already includes saved load measurements, read
+[load evidence](../../docs/instrument-load.md). Preserve the original result,
+plan, transcript, assertions and cleanup/error context beside the derived bundle.
+Packaging those files does not require reconnecting or commanding input OFF.
+
 For RTT collection, read [bounded RTT workflows](../../docs/rtt.md) first.
 RTT consumes the selected RAM read cursor and attachment may perturb the target.
 Preserve the native summary and raw JSONL, including partial evidence and cleanup

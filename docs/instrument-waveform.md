@@ -2,8 +2,8 @@
 
 Use this workflow for voltage assertions on saved AD3 or SIGLENT SDS804X data.
 First inspect the explicitly selected published environment as described in
-[instrument setup](instruments.md). Toolkit 0.33.0 selects lab-instruments 0.9.0,
-HIL Runner 0.10.0 and Embedded Trace 0.10.0. Digital UART/I2C/SPI/PWM checks
+[instrument setup](instruments.md). Toolkit 0.34.0 selects lab-instruments 0.10.0,
+HIL Runner 0.11.0 and Embedded Trace 0.11.0. Digital UART/I2C/SPI/PWM checks
 continue to use `logic` in lab and `instrument` in HIL/Trace.
 
 ## Evaluate the original samples

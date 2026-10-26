@@ -56,6 +56,7 @@ REQUIRED_FILES = {
     "instrument-runtime.json",
     "docs/instruments.md",
     "docs/instrument-waveform.md",
+    "docs/instrument-load.md",
     "docs/simulation.md",
     "docs/simulation-faults.md",
     "docs/simulation-wasm.md",

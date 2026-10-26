@@ -1,11 +1,12 @@
 # Embedded Agent Toolkit
 
-Local **0.33.0** adds [saved analog waveform checks](docs/instrument-waveform.md)
-to [offline instrument routing](docs/instruments.md): published lab 0.9 /
-HIL 0.10 / Trace 0.10, 80 payload files, and voltage assertions with native
-JUnit and self-contained evidence views. Historical candidates still require
-explicit selection. The installed Toolkit remains 0.32.0; simulation and
-workstation selections are independent.
+Local **0.34.0** adds [saved load measurement checks](docs/instrument-load.md)
+to [offline instrument routing](docs/instruments.md): published lab 0.10 /
+HIL 0.11 / Trace 0.11 and 88 payload files. Native assertions/JUnit and
+self-contained views preserve failed sources, partial readings and unknown
+cleanup. [Analog waveform checks](docs/instrument-waveform.md) and digital
+checks remain supported. Historical candidates require explicit selection;
+simulation and workstation selections are independent.
 
 Toolkit 0.31.0 adds [ESP-EMU WASM routing](docs/simulation-wasm.md) with published
 sim 0.7 / HIL 0.8 / Trace 0.8 as its default optional simulation pin (69 files).

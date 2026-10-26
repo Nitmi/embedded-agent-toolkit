@@ -11,10 +11,13 @@ use the corresponding component CLI with structured output. Preserve each
 component's capability and safety limits instead of translating a successful
 process exit into a hardware claim.
 
-For already saved UART/I2C/SPI/PWM instrument evidence, read
+For already saved digital, voltage or load assertion evidence, read
 [offline instrument workflows](../../docs/instruments.md). Use native assertions
-and the separate Trace instrument view; sample-relative data has no verified UTC
+and the matching Trace evidence view; sample-relative data has no verified UTC
 alignment with serial/RTT logs. Preserve the full verdict when filtering results.
+For saved load records, use [load evidence](../../docs/instrument-load.md) to
+retain the original error, partial readings and unknown OFF state; historical
+cleanup and plausible values alone cannot establish the current physical fault.
 
 For a failure reproduced in a supported Renode/QEMU model, read
 [optional simulation](../../docs/simulation.md). Use the explicitly selected

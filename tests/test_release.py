@@ -62,6 +62,12 @@ def source_files(version: str = "0.2.0") -> dict[str, bytes]:
 
 
 class ReleaseTests(unittest.TestCase):
+    def test_saved_load_guide_is_required_before_packaging(self):
+        files = source_files()
+        files.pop("docs/instrument-load.md")
+        with self.assertRaises(release.ReleaseError):
+            release.make_archive("1" * 40, files)
+
     def test_published_instrument_identity_is_required_before_packaging(self):
         for mode in ("missing", "candidate", "url", "ref", "repository", "invalid"):
             with self.subTest(mode=mode):

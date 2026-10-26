@@ -77,7 +77,7 @@ class InstrumentRuntimeTests(unittest.TestCase):
                 )
                 self.assertEqual(
                     sum(c["verified_files"] for c in result["components"]),
-                    74 if candidate else 80,
+                    74 if candidate else 88,
                 )
                 self.assertEqual(
                     {c["name"]: c["version"] for c in result["components"]},
@@ -88,9 +88,9 @@ class InstrumentRuntimeTests(unittest.TestCase):
                     }
                     if candidate
                     else {
-                        "lab-instruments": "0.9.0",
-                        "hil-runner": "0.10.0",
-                        "embedded-trace": "0.10.0",
+                        "lab-instruments": "0.10.0",
+                        "hil-runner": "0.11.0",
+                        "embedded-trace": "0.11.0",
                     },
                 )
                 for field in (
@@ -135,7 +135,7 @@ class InstrumentRuntimeTests(unittest.TestCase):
                 self.assertFalse(result["ok"])
                 self.assertIn("candidate mode", result["errors"][0])
 
-    def test_historical_candidate_cannot_satisfy_published_waveform_inventory(self):
+    def test_historical_candidate_cannot_satisfy_published_inventory(self):
         for candidate in (False, True):
             with (
                 self.subTest(candidate=candidate),
@@ -148,7 +148,7 @@ class InstrumentRuntimeTests(unittest.TestCase):
                     self.inspect(root, selected, candidate=candidate)["ok"]
                 )
 
-    def test_waveform_code_and_schemas_are_required_by_published_inspection(self):
+    def test_added_code_and_schemas_are_required_by_published_inspection(self):
         for name, (_, _, _, leaves) in runtime.SPECS.items():
             previous = runtime.CANDIDATE_SPECS[name][3]
             for leaf in leaves - previous:

@@ -4,10 +4,13 @@ Read this file and AGENTS.md before starting another task.
 
 ## Current local work
 
-- Version 0.33.0 routes saved analog waveform checks alongside digital checks.
-  instrument-runtime.json binds published lab-instruments 0.9.0 (5eb1e8e5),
-  HIL Runner 0.10.0 (f5063e3e), Trace 0.10.0 (3154e735), exact release wheel
-  identities and 80 installed files. The historical instrument-candidates.json
+- Local version 0.34.0 routes saved SDL load assertions alongside digital/analog
+  checks. instrument-runtime.json binds published lab0.10 (b953725f), HIL0.11
+  (28bd2275), Trace0.11 (029233a8), exact release wheel identities and 88 files.
+  Trace's initial 9b6bc76 candidate is not its final published source; the test-only
+  CI correction preserves wheel bytes, but source provenance must bind 029233a8.
+  Toolkit0.33 is already published and remains the active workstation plugin.
+  The historical instrument-candidates.json
   remains byte-identical: lab 0.8 / HIL 0.9 / Trace 0.9, 74 files, explicit mode.
   Published and candidate versions AND inventories differ; never reuse one mode's
   SPECS for the other's validation or fall back between them.
@@ -30,7 +33,9 @@ Read this file and AGENTS.md before starting another task.
    gh verification results without turning a static inspection into provenance.
    Current HIL/Trace sources include digital producer/verifier compatibility;
    do not select the earlier waveform-only d25/140 preparation builds. Native
-   verifier 0.9 accepts producer 0.7/0.8/0.9, verifier 0.8 accepts 0.7/0.8 only.
+   Digital verifier0.10 accepts producers0.7/0.8/0.9/0.10, verifier0.9 accepts
+   0.7/0.8/0.9, verifier0.8 accepts 0.7/0.8. Waveform verifier0.10 accepts
+   producers0.9/0.10. Load producer/verifier must be0.10. Never relabel sources.
 2. Shared bounded layout/payload helpers live in simulation_runtime.py. Changes
    must retain simulation's published/candidate behavior and regression coverage;
    instrument inventories and versions stay independent of simulation selections.
@@ -44,7 +49,7 @@ Read this file and AGENTS.md before starting another task.
 5. Build only clean committed source; compare both Python builds byte for byte.
    Install exact wheels offline without dependencies into separate candidate
    environments. Never activate a local candidate or silently replace station pins.
-6. Inspection reads at most 80 published or 74 candidate payloads
+6. Inspection reads at most 88 published or 74 candidate payloads
    (1 MiB/file, 4 MiB/component), bounded pin
    and venv declarations, and at most 256 package entries/component. Cost grows
    with selected bytes and entries; report warm timings and Python allocation
@@ -60,6 +65,17 @@ Read this file and AGENTS.md before starting another task.
    synchronized sample origin remain false; software provenance proves neither.
 8. A Toolkit version bump also changes scripts/bootstrap.py VERSION, not only
    the two plugin manifests. Keep the version-binding regression test enabled.
+9. docs/instrument-load.md owns saved-load details; entrypoint Skills route there.
+   Bind seven native inputs, including plan/transcript, instead of waveform's
+   source_files. Lab performs native replay; HIL checks recorded consistency/XML;
+   Trace does not repeat HIL XML or native replay. Complete failures and unknown
+   cleanup retain unscored readings and global verdict under every page/filter.
+   Keep hardware gates scoped to hardware tests so file-only tasks do not invoke
+   board doctor/discovery. Hash selection adds no per-command confirmation.
+10. Validate existing published digital/waveform views with the new instrument
+    environment, not just load. Reuse the already verified formal bundles rather
+    than decoding or acquiring again for a Toolkit-only change. Compare new/old
+    environment rejection, historical candidate mode and simulation separately.
 
 Cross-repository state and evidence are recorded in the workspace HANDOFF.md at
 C:\Users\Nitmi\Documents\Codex\2026-08-13\guan. The desktop plan is

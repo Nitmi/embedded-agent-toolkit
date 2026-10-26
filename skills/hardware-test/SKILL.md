@@ -1,6 +1,6 @@
 ---
 name: hardware-test
-description: Design or run repeatable embedded tests across flashing, serial/RTT/BLE readiness, assertions, evidence and cleanup. Use for hardware-in-the-loop checks, firmware build/flash loops, board regressions, supported simulation or model fault suites, and saved instrument logic or analog waveform checks.
+description: Design or run repeatable embedded tests across flashing, serial/RTT/BLE readiness, assertions, evidence and cleanup. Use for hardware-in-the-loop checks, firmware build/flash loops, board regressions, supported simulation or model fault suites, and saved instrument logic, voltage or load checks.
 ---
 
 # Hardware Test
@@ -21,6 +21,11 @@ For saved AD3 or SDS804X voltage checks, then read
 [analog waveform evidence](../../docs/instrument-waveform.md). Use native
 `waveform` commands; retain the explicit source inventory, RMS definitions,
 measurement qualifications and complete verdict even in filtered views.
+
+For saved SDL1020X-E measurements, read
+[load evidence](../../docs/instrument-load.md). Use native `load` checks,
+JUnit and self-contained views. Failed sources retain unscored partial readings
+and unknown cleanup; a passing or empty page never replaces the global verdict.
 
 For simulation-only regressions, read [optional simulation](../../docs/simulation.md)
 first. Inspect the explicitly selected payloads with `simulation_runtime.py`, then
@@ -110,6 +115,9 @@ Friendly names and discovery order are not exact selection rules. Make retries
 explicit per stage; default state-changing operations to zero retries.
 
 ## Execute in gates
+
+The following gates apply to hardware tests. Saved instrument evaluation uses
+the file-only workflow above; it needs no board discovery or hardware doctor.
 
 1. Run the host-only toolkit doctor. When discovery belongs to a repeatable
    test, declare `baud.list`, `blea.doctor`, or
