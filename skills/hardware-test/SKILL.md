@@ -1,6 +1,6 @@
 ---
 name: hardware-test
-description: Design or run repeatable embedded tests across flashing, serial/RTT/BLE readiness, assertions, evidence and cleanup. Use for hardware-in-the-loop checks, firmware build/flash loops, board regressions, supported simulation or model fault suites, and saved instrument logic, voltage or load checks.
+description: Design or run repeatable embedded tests across flashing, serial/RTT/BLE readiness, assertions, evidence and cleanup. Use for hardware-in-the-loop checks, firmware build/flash loops, board regressions, supported simulation or model fault suites, and saved instrument logic, voltage, load or thermal checks.
 ---
 
 # Hardware Test
@@ -26,6 +26,12 @@ For saved SDL1020X-E measurements, read
 [load evidence](../../docs/instrument-load.md). Use native `load` checks,
 JUnit and self-contained views. Failed sources retain unscored partial readings
 and unknown cleanup; a passing or empty page never replaces the global verdict.
+
+For saved PureThermal/Lepton ROI assertions, read
+[thermal evidence](../../docs/instrument-thermal.md). Use native `thermal`
+commands and the full ordered raw inventory. Keep invalid pixels, FFC/mask
+trend limits, failed-source cleanup and apparent surface-temperature qualifications
+visible; saved evidence work does not require camera access.
 
 For simulation-only regressions, read [optional simulation](../../docs/simulation.md)
 first. Inspect the explicitly selected payloads with `simulation_runtime.py`, then

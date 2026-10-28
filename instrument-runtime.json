@@ -4,35 +4,35 @@
     "lab-instruments": {
       "project": "lab-instruments",
       "repository": "Nitmi/lab-instruments",
-      "version": "0.10.0",
-      "source_revision": "b953725f393d8df8aecfbdd3e2bebf901d0ebced",
-      "source_ref": "refs/tags/v0.10.0",
+      "version": "0.11.0",
+      "source_revision": "8d8ea1743699e3a0bd889d2612bdd19d4552b590",
+      "source_ref": "refs/tags/v0.11.0",
       "status": "published",
       "files": [
         {
-          "path": "lab_instruments-0.10.0.dist-info/METADATA",
-          "size": 10739,
-          "sha256": "0f1cbc15b1a20552a68d815e8810e52a67b9c96522903304e512bc8b5cf3068a"
+          "path": "lab_instruments-0.11.0.dist-info/METADATA",
+          "size": 11052,
+          "sha256": "5417d240d0fa87033052bf74405e6788c7a8464a0adc8eac2b475595ff8ef8a7"
         },
         {
-          "path": "lab_instruments-0.10.0.dist-info/WHEEL",
+          "path": "lab_instruments-0.11.0.dist-info/WHEEL",
           "size": 87,
           "sha256": "5b77e4a649bbfb07fdbc123967eeecd1e5a478cfaca6eefc23c35e6fdf037848"
         },
         {
-          "path": "lab_instruments-0.10.0.dist-info/entry_points.txt",
+          "path": "lab_instruments-0.11.0.dist-info/entry_points.txt",
           "size": 61,
           "sha256": "4e59a2451861ab75d2d188c61787fdac12a31fa15b32e23fb7ed7e86facea55f"
         },
         {
-          "path": "lab_instruments-0.10.0.dist-info/licenses/LICENSE",
+          "path": "lab_instruments-0.11.0.dist-info/licenses/LICENSE",
           "size": 1062,
           "sha256": "cd24e7704a2b7505c01595eb602ad9be91edbb95650364fb428b2150c7044559"
         },
         {
           "path": "lab_instruments/__init__.py",
           "size": 93,
-          "sha256": "6bbfecee118cb8efafb1ce2ea110e9bc9ecd888d8debd047ec013aa69e6eb4e8"
+          "sha256": "3f1ed96d6ff6811b07a4bfe1dbb95b17b8537970afb66fc6492c006ccdac5a0a"
         },
         {
           "path": "lab_instruments/__main__.py",
@@ -61,8 +61,8 @@
         },
         {
           "path": "lab_instruments/cli.py",
-          "size": 27861,
-          "sha256": "e619dba99a0476281d2e62b25cfbdb5a572fc7e3d4db89a259da5e6bbf804474"
+          "size": 30305,
+          "sha256": "f68677299277b98a6e7d1474fc35fabadb302c6bac038aae0048acc797596484"
         },
         {
           "path": "lab_instruments/common.py",
@@ -81,8 +81,8 @@
         },
         {
           "path": "lab_instruments/load_checks.py",
-          "size": 25735,
-          "sha256": "c3b653494a239ab676ce23f3850727f1e0773d2dcd9c5489d28690341aed0bc2"
+          "size": 25744,
+          "sha256": "88abc9d482909e65e9fd09d96c1a8ea74807f01cf5924595b2fa12eb7d83335b"
         },
         {
           "path": "lab_instruments/logic.py",
@@ -96,8 +96,8 @@
         },
         {
           "path": "lab_instruments/logic_reports.py",
-          "size": 6425,
-          "sha256": "b51240e3c4700c00849226f08c9c72bed304bc9acd989dc333cbd5e2adc7d818"
+          "size": 6435,
+          "sha256": "d7e250ed987e6f04b096a9e7fc5f2af678fb5a6566410c6b0e64d664f39d68fa"
         },
         {
           "path": "lab_instruments/plan.py",
@@ -141,13 +141,18 @@
         },
         {
           "path": "lab_instruments/thermal.py",
-          "size": 14803,
-          "sha256": "c139580803aad13162598b2e09f12c44287be8e14771a44aa028e7727f1a38e3"
+          "size": 15917,
+          "sha256": "a9f2b70df30c76663613577f66731484520f48b03469859912a273ea4d75f0c7"
+        },
+        {
+          "path": "lab_instruments/thermal_checks.py",
+          "size": 14339,
+          "sha256": "1b2a673d4bdadb09150b8a07afa0f3c198cd9e2a5c1c0770eefc35050eaf28a5"
         },
         {
           "path": "lab_instruments/thermal_frame.py",
-          "size": 8566,
-          "sha256": "d5b3c29d64c78c18648cb557b7b444b26dba8db881696587a06169c5ccf59399"
+          "size": 8662,
+          "sha256": "ca847c24945eb608f2cbaa320a222267e64a27fe0fe9affacdb7d49cc1db0d1d"
         },
         {
           "path": "lab_instruments/thermal_plan.py",
@@ -156,48 +161,48 @@
         },
         {
           "path": "lab_instruments/waveform.py",
-          "size": 16122,
-          "sha256": "f638ae6c7c4c2a073230d43c22c8b4d5f97d9cd797782a9f85ca75b62cbd9078"
+          "size": 16132,
+          "sha256": "96fecd6253cdab57c8fa0a56569a8f5d41c04b36ac65ac8009a57085f649166c"
         }
       ],
       "wheel": {
-        "name": "lab_instruments-0.10.0-py3-none-any.whl",
-        "sha256": "9e1da8d1b03bfa96d779b67800aafd414838903fbceb3b9ae52b3b2a09be9354",
-        "url": "https://github.com/Nitmi/lab-instruments/releases/download/v0.10.0/lab_instruments-0.10.0-py3-none-any.whl"
+        "name": "lab_instruments-0.11.0-py3-none-any.whl",
+        "sha256": "869f777d0b2f734a8a987ea7416d100bac09de383c92093b6bafba71354510c2",
+        "url": "https://github.com/Nitmi/lab-instruments/releases/download/v0.11.0/lab_instruments-0.11.0-py3-none-any.whl"
       }
     },
     "hil-runner": {
       "project": "embedded-hil-runner",
       "repository": "Nitmi/hil-runner",
-      "version": "0.11.0",
-      "source_revision": "28bd227554d1fb1e5ef9bda7f10f96590cb9e454",
-      "source_ref": "refs/tags/v0.11.0",
+      "version": "0.12.0",
+      "source_revision": "81c3b6fd8b23bc7ac2c3da5ce0d9b98bb39ed883",
+      "source_ref": "refs/tags/v0.12.0",
       "status": "published",
       "files": [
         {
-          "path": "embedded_hil_runner-0.11.0.dist-info/METADATA",
-          "size": 10382,
-          "sha256": "9ab7520b6ea2a61764b6f24116d0fd24e1ffce474379d8c95d41dd63b447c0a2"
+          "path": "embedded_hil_runner-0.12.0.dist-info/METADATA",
+          "size": 10629,
+          "sha256": "451387bcc9c0e33221c689076e2655f3e91db58a97c22bfe614007f3efc18a8d"
         },
         {
-          "path": "embedded_hil_runner-0.11.0.dist-info/WHEEL",
+          "path": "embedded_hil_runner-0.12.0.dist-info/WHEEL",
           "size": 87,
           "sha256": "5b77e4a649bbfb07fdbc123967eeecd1e5a478cfaca6eefc23c35e6fdf037848"
         },
         {
-          "path": "embedded_hil_runner-0.11.0.dist-info/entry_points.txt",
+          "path": "embedded_hil_runner-0.12.0.dist-info/entry_points.txt",
           "size": 51,
           "sha256": "7c769c154ed617bd7476f3c91d085a05958f386bc8eeac2672866e191bda34cb"
         },
         {
-          "path": "embedded_hil_runner-0.11.0.dist-info/licenses/LICENSE",
+          "path": "embedded_hil_runner-0.12.0.dist-info/licenses/LICENSE",
           "size": 1062,
           "sha256": "cd24e7704a2b7505c01595eb602ad9be91edbb95650364fb428b2150c7044559"
         },
         {
           "path": "hil_runner/__init__.py",
           "size": 89,
-          "sha256": "a6f0792bbd65def3fc3868d0476407cbd9ff40caf8b018069c90898a41fe2fe8"
+          "sha256": "09e9ac6058f4625597f531be0e92203ffaea32c453dd0cc572cf1ebe016fa330"
         },
         {
           "path": "hil_runner/__main__.py",
@@ -211,8 +216,8 @@
         },
         {
           "path": "hil_runner/cli.py",
-          "size": 9181,
-          "sha256": "0c4ba371660001de7438379518fd3770be0b5b3d0e0d05478af5d5c909463250"
+          "size": 9269,
+          "sha256": "95e5eecd8aed7faa0e4dbe2064fa65344108ac7b0606234132d07edea84c09b7"
         },
         {
           "path": "hil_runner/common.py",
@@ -221,8 +226,8 @@
         },
         {
           "path": "hil_runner/instrument.py",
-          "size": 17557,
-          "sha256": "13a9e54c41e7e018a1a7009f659d4a035eb0f38c7dd442de8d4b83b951eb9ee6"
+          "size": 17649,
+          "sha256": "e844193deed3ad8fecb6d967077bbdb5fa35275c1c14609e8c44deaa535d88cf"
         },
         {
           "path": "hil_runner/lease.py",
@@ -231,13 +236,13 @@
         },
         {
           "path": "hil_runner/load.py",
-          "size": 4435,
-          "sha256": "ccdfc53f4966e8752feb6dd1494bdec47d543197b5f04f0f2d6cd4480c303fa6"
+          "size": 4675,
+          "sha256": "6e465b2d77fe84cfa4feb42f6945269ade2878c6455cb8b6ac5f457161aa5d93"
         },
         {
           "path": "hil_runner/load_protocol.py",
-          "size": 23975,
-          "sha256": "5200da16d390a0409364ad9a487572219b953d3cb67de418a3c02b00edbb8370"
+          "size": 24235,
+          "sha256": "8532b7515107dd84265d99c2cd41d4fadb71d4ed3b6c434703798a7a24cf222c"
         },
         {
           "path": "hil_runner/managed.py",
@@ -251,8 +256,8 @@
         },
         {
           "path": "hil_runner/schemas/instrument-report.schema.json",
-          "size": 5457,
-          "sha256": "518f2a51605ca23847f46851f292f7b2bef6f05bde7244c4f18973c7cbd3bcc6"
+          "size": 5475,
+          "sha256": "abe0a52ea108c833a7a4235a3ca1a0d57b234b73f63d41bc2c084a9342b2a78f"
         },
         {
           "path": "hil_runner/schemas/instrument-spec.schema.json",
@@ -261,8 +266,8 @@
         },
         {
           "path": "hil_runner/schemas/load-report.schema.json",
-          "size": 8977,
-          "sha256": "f94c5fcf14790d34528ced44940a49366634ed96a30a9b03a7b5f4562c9a52b4"
+          "size": 9012,
+          "sha256": "874a7cf5d23958732f384d252cf045859b056823bdf3ae1069235c676067ecbd"
         },
         {
           "path": "hil_runner/schemas/load-spec.schema.json",
@@ -271,8 +276,8 @@
         },
         {
           "path": "hil_runner/schemas/managed-plan.schema.json",
-          "size": 3618,
-          "sha256": "1d6e0d3f48cf5252774f073da547841632fa9027247109cb5139267b1b3f1d0e"
+          "size": 3636,
+          "sha256": "b7c83159b3df40981faa532c3c1ed89ed47d3d80d309cf3b48fc977abd7bcf02"
         },
         {
           "path": "hil_runner/schemas/managed-result.schema.json",
@@ -292,7 +297,7 @@
         {
           "path": "hil_runner/schemas/simulation-plan.schema.json",
           "size": 1974,
-          "sha256": "56146aecb744f44e0527a0e8901dae3d144307d2635a1c049b2a7686d44ede00"
+          "sha256": "108f43d739172fe9c89ac158ec6d9ea3cf27cc68ac6dcc8810fe1b0c157ca7a9"
         },
         {
           "path": "hil_runner/schemas/simulation-report.schema.json",
@@ -305,9 +310,19 @@
           "sha256": "6d0f8ffaa97f18b1b53ef8008a11d9e52adc66d97e283d9a0f91164b104952a9"
         },
         {
+          "path": "hil_runner/schemas/thermal-report.schema.json",
+          "size": 8217,
+          "sha256": "b40dc8df22d38768c6a44a819468158115d0135de3f160fbc825e67653064e60"
+        },
+        {
+          "path": "hil_runner/schemas/thermal-spec.schema.json",
+          "size": 3586,
+          "sha256": "acba0181de0ff8aef23b75eb73b0250fa47efd2e693155ac040c4ce9b362ced0"
+        },
+        {
           "path": "hil_runner/schemas/waveform-report.schema.json",
-          "size": 5083,
-          "sha256": "7cbf167d98abdd19fe387a726d35a7deae92a9616d34c32fccbd7ccd3e3f8b1f"
+          "size": 5101,
+          "sha256": "a8f8bb19f3d99262af8e3adfa6242167b6d59ef0ab876cc19d3825a71a59235a"
         },
         {
           "path": "hil_runner/schemas/waveform-spec.schema.json",
@@ -330,9 +345,19 @@
           "sha256": "5acc29457aea8ee3bd61e2b2975369f142e7b2bbe102b53c3d85a69de269206f"
         },
         {
+          "path": "hil_runner/thermal.py",
+          "size": 5462,
+          "sha256": "6bd2a6455a94a8872a786c5ebbc18774996dddc4a083a625507a1cc8ea9ef1c8"
+        },
+        {
+          "path": "hil_runner/thermal_protocol.py",
+          "size": 26089,
+          "sha256": "1e6ed6cf4307709b6bf821d3a9b0b1fb4b4c6825370338344a9ef391e2ae60a5"
+        },
+        {
           "path": "hil_runner/waveform.py",
-          "size": 24865,
-          "sha256": "e43fa21ecc87d6aeb0d0a7133aa36387a29220e9709c53d5e915012acaec27c1"
+          "size": 24985,
+          "sha256": "4a2f27bd04bb49a445a607b98f168a5bf6bce6035650a2f9c013b9ea1b219823"
         },
         {
           "path": "hil_runner/winjob.py",
@@ -341,43 +366,43 @@
         }
       ],
       "wheel": {
-        "name": "embedded_hil_runner-0.11.0-py3-none-any.whl",
-        "sha256": "ed0fa83672a1739fbc7080b348e6386f3095e328ae9af51eb4397f7e3cb7e933",
-        "url": "https://github.com/Nitmi/hil-runner/releases/download/v0.11.0/embedded_hil_runner-0.11.0-py3-none-any.whl"
+        "name": "embedded_hil_runner-0.12.0-py3-none-any.whl",
+        "sha256": "505866fda72c4af5544d7b2bb0c4598fb28275b4a574574c38268eab58fc9003",
+        "url": "https://github.com/Nitmi/hil-runner/releases/download/v0.12.0/embedded_hil_runner-0.12.0-py3-none-any.whl"
       }
     },
     "embedded-trace": {
       "project": "embedded-trace",
       "repository": "Nitmi/embedded-trace",
-      "version": "0.11.0",
-      "source_revision": "029233a88267d233922d44520fb85572239a9ccc",
-      "source_ref": "refs/tags/v0.11.0",
+      "version": "0.12.0",
+      "source_revision": "c365536bdd91d4c2c2453115e0e035ea2f8ef26d",
+      "source_ref": "refs/tags/v0.12.0",
       "status": "published",
       "files": [
         {
-          "path": "embedded_trace-0.11.0.dist-info/METADATA",
-          "size": 7452,
-          "sha256": "0ce8369bf4c8291e744738764bc374de2138df6081a6adbc4baf3ebb154036ad"
+          "path": "embedded_trace-0.12.0.dist-info/METADATA",
+          "size": 7682,
+          "sha256": "f0906083dbb607d35e3c9a102e00920c59f2c00726cf56059abd43ff7f8018f9"
         },
         {
-          "path": "embedded_trace-0.11.0.dist-info/WHEEL",
+          "path": "embedded_trace-0.12.0.dist-info/WHEEL",
           "size": 87,
           "sha256": "5b77e4a649bbfb07fdbc123967eeecd1e5a478cfaca6eefc23c35e6fdf037848"
         },
         {
-          "path": "embedded_trace-0.11.0.dist-info/entry_points.txt",
+          "path": "embedded_trace-0.12.0.dist-info/entry_points.txt",
           "size": 59,
           "sha256": "e180a3647b9cfcfff5b791785e23468834bc0ddc426fbdd7c84fc51797e71dcd"
         },
         {
-          "path": "embedded_trace-0.11.0.dist-info/licenses/LICENSE",
+          "path": "embedded_trace-0.12.0.dist-info/licenses/LICENSE",
           "size": 1062,
           "sha256": "cd24e7704a2b7505c01595eb602ad9be91edbb95650364fb428b2150c7044559"
         },
         {
           "path": "embedded_trace/__init__.py",
           "size": 66,
-          "sha256": "7d9da770f5b880e06fc1f00eb249ec6b680f6ab676158941e822a66fce9a7456"
+          "sha256": "e11bfd3826c07e834453fded2186311addfdd1c5ff9d88931074acd2c3d850fe"
         },
         {
           "path": "embedded_trace/__main__.py",
@@ -391,8 +416,8 @@
         },
         {
           "path": "embedded_trace/cli.py",
-          "size": 8535,
-          "sha256": "280554631530e88a256eef3bfe96d2e1b2ee753ed1754eb879b036836eb95750"
+          "size": 9608,
+          "sha256": "410142d5c44b3c194e192dc43ac3f061c1fa2e483184ab88d2d4fb1cffc4b994"
         },
         {
           "path": "embedded_trace/clock.py",
@@ -411,8 +436,8 @@
         },
         {
           "path": "embedded_trace/instrument.py",
-          "size": 14944,
-          "sha256": "705f93f946e46263f3225d39821eb6504526ce32420fe5724ff3f254b0f1d6bd"
+          "size": 15027,
+          "sha256": "7916633b13171213a6fdbaca432d32ce348db7d5060a030878525dbb9d26ede9"
         },
         {
           "path": "embedded_trace/load.py",
@@ -421,8 +446,8 @@
         },
         {
           "path": "embedded_trace/load_protocol.py",
-          "size": 23975,
-          "sha256": "5200da16d390a0409364ad9a487572219b953d3cb67de418a3c02b00edbb8370"
+          "size": 24235,
+          "sha256": "8532b7515107dd84265d99c2cd41d4fadb71d4ed3b6c434703798a7a24cf222c"
         },
         {
           "path": "embedded_trace/query.py",
@@ -441,18 +466,23 @@
         },
         {
           "path": "embedded_trace/schemas/instrument-report.schema.json",
-          "size": 5457,
-          "sha256": "518f2a51605ca23847f46851f292f7b2bef6f05bde7244c4f18973c7cbd3bcc6"
+          "size": 5475,
+          "sha256": "abe0a52ea108c833a7a4235a3ca1a0d57b234b73f63d41bc2c084a9342b2a78f"
         },
         {
           "path": "embedded_trace/schemas/load-report.schema.json",
-          "size": 8977,
-          "sha256": "f94c5fcf14790d34528ced44940a49366634ed96a30a9b03a7b5f4562c9a52b4"
+          "size": 9012,
+          "sha256": "874a7cf5d23958732f384d252cf045859b056823bdf3ae1069235c676067ecbd"
         },
         {
           "path": "embedded_trace/schemas/result.v1.schema.json",
           "size": 1431,
           "sha256": "a7aa421b9c5610d2a4f3cd81b65de506a4ae6bcd8b340d8e1193e5f75792fd45"
+        },
+        {
+          "path": "embedded_trace/schemas/thermal-report.schema.json",
+          "size": 8217,
+          "sha256": "b40dc8df22d38768c6a44a819468158115d0135de3f160fbc825e67653064e60"
         },
         {
           "path": "embedded_trace/schemas/timeline.v1.schema.json",
@@ -461,13 +491,23 @@
         },
         {
           "path": "embedded_trace/schemas/waveform-report.schema.json",
-          "size": 5083,
-          "sha256": "7cbf167d98abdd19fe387a726d35a7deae92a9616d34c32fccbd7ccd3e3f8b1f"
+          "size": 5101,
+          "sha256": "a8f8bb19f3d99262af8e3adfa6242167b6d59ef0ab876cc19d3825a71a59235a"
         },
         {
           "path": "embedded_trace/simulation.py",
           "size": 32408,
           "sha256": "741c672b46b9911c5f89fe345c47e91ae8f42fdf0acfea9cdf7d33619443588c"
+        },
+        {
+          "path": "embedded_trace/thermal.py",
+          "size": 3412,
+          "sha256": "2f0385acfe00340863b79e9889e766a2a2249b5604c5a6424c2551e5d273302a"
+        },
+        {
+          "path": "embedded_trace/thermal_protocol.py",
+          "size": 26089,
+          "sha256": "1e6ed6cf4307709b6bf821d3a9b0b1fb4b4c6825370338344a9ef391e2ae60a5"
         },
         {
           "path": "embedded_trace/timeline.py",
@@ -476,14 +516,14 @@
         },
         {
           "path": "embedded_trace/waveform.py",
-          "size": 16862,
-          "sha256": "472479aa9774e24f558f99ee539243053f8fd6c3cbca9f228be89ac52903ce77"
+          "size": 16982,
+          "sha256": "54d9c889e99df1df8961cfdf39861955117f0778f711c3000c48ff688c00399d"
         }
       ],
       "wheel": {
-        "name": "embedded_trace-0.11.0-py3-none-any.whl",
-        "sha256": "70a237fb12ea825f9c9d9899eaef963295471b3e76146792dd15be499ef7f49f",
-        "url": "https://github.com/Nitmi/embedded-trace/releases/download/v0.11.0/embedded_trace-0.11.0-py3-none-any.whl"
+        "name": "embedded_trace-0.12.0-py3-none-any.whl",
+        "sha256": "579ba41461d1bad66bf4ea23dc60685ad27c3ff565fd26b00fe12d0e0429f673",
+        "url": "https://github.com/Nitmi/embedded-trace/releases/download/v0.12.0/embedded_trace-0.12.0-py3-none-any.whl"
       }
     }
   }

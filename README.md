@@ -1,12 +1,13 @@
 # Embedded Agent Toolkit
 
-Local **0.34.0** adds [saved load measurement checks](docs/instrument-load.md)
-to [offline instrument routing](docs/instruments.md): published lab 0.10 /
-HIL 0.11 / Trace 0.11 and 88 payload files. Native assertions/JUnit and
-self-contained views preserve failed sources, partial readings and unknown
-cleanup. [Analog waveform checks](docs/instrument-waveform.md) and digital
-checks remain supported. Historical candidates require explicit selection;
-simulation and workstation selections are independent.
+Local **0.35.0** adds [saved thermal ROI checks](docs/instrument-thermal.md)
+to [offline instrument routing](docs/instruments.md): published lab 0.11 /
+HIL 0.12 / Trace 0.12 and 96 payload files. Native assertions/JUnit and
+self-contained views retain invalid pixels, FFC/mask trend limits, failed
+sources and full verdicts under filtering. [Load](docs/instrument-load.md),
+[analog waveform](docs/instrument-waveform.md) and digital checks remain supported.
+Historical candidates require explicit selection; simulation and workstation
+selections are independent.
 
 Toolkit 0.31.0 adds [ESP-EMU WASM routing](docs/simulation-wasm.md) with published
 sim 0.7 / HIL 0.8 / Trace 0.8 as its default optional simulation pin (69 files).
@@ -31,7 +32,7 @@ tools behind another hardware abstraction:
 | [HIL Runner](https://github.com/Nitmi/hil-runner) (optional) | Cooperative ownership and one native bounded scope across successive firmware builds | Python CLI |
 | [Embedded Trace](https://github.com/Nitmi/embedded-trace) (optional) | Offline serial/RTT line reconstruction and hash-bound timelines with explicit host clock domains | Python CLI |
 | [sim-runner](https://github.com/Nitmi/sim-runner) (optional) | Bounded Renode/nRF52840 and Espressif QEMU/ESP32-C3/S3 firmware simulation | Python CLI |
-| [lab-instruments](https://github.com/Nitmi/lab-instruments) (optional) | Saved logic/PWM and analog voltage assertions, report verification and JUnit; HIL/Trace evidence views | Python CLI |
+| [lab-instruments](https://github.com/Nitmi/lab-instruments) (optional) | Saved logic/PWM, voltage, load and thermal ROI assertions, verification and JUnit; HIL/Trace evidence views | Python CLI |
 
 The value of the toolkit is the cross-tool workflow: one identity ledger, one
 safety policy, correlated evidence, and deterministic cleanup across serial,

@@ -105,9 +105,9 @@ CANDIDATE_SPECS = {
     ),
 }
 PUBLISHED_VERSIONS = {
-    "lab-instruments": "0.10.0",
-    "hil-runner": "0.11.0",
-    "embedded-trace": "0.11.0",
+    "lab-instruments": "0.11.0",
+    "hil-runner": "0.12.0",
+    "embedded-trace": "0.12.0",
 }
 WAVEFORM_FILES = {
     "lab-instruments": {"waveform.py"},
@@ -132,12 +132,26 @@ LOAD_FILES = {
         "schemas/load-report.schema.json",
     },
 }
+THERMAL_FILES = {
+    "lab-instruments": {"thermal_checks.py"},
+    "hil-runner": {
+        "thermal.py",
+        "thermal_protocol.py",
+        "schemas/thermal-spec.schema.json",
+        "schemas/thermal-report.schema.json",
+    },
+    "embedded-trace": {
+        "thermal.py",
+        "thermal_protocol.py",
+        "schemas/thermal-report.schema.json",
+    },
+}
 SPECS = {
     name: (
         package,
         distribution,
         PUBLISHED_VERSIONS[name],
-        names | WAVEFORM_FILES[name] | LOAD_FILES[name],
+        names | WAVEFORM_FILES[name] | LOAD_FILES[name] | THERMAL_FILES[name],
     )
     for name, (package, distribution, _, names) in CANDIDATE_SPECS.items()
 }

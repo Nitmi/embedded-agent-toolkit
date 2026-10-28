@@ -77,7 +77,7 @@ class InstrumentRuntimeTests(unittest.TestCase):
                 )
                 self.assertEqual(
                     sum(c["verified_files"] for c in result["components"]),
-                    74 if candidate else 88,
+                    74 if candidate else 96,
                 )
                 self.assertEqual(
                     {c["name"]: c["version"] for c in result["components"]},
@@ -88,9 +88,9 @@ class InstrumentRuntimeTests(unittest.TestCase):
                     }
                     if candidate
                     else {
-                        "lab-instruments": "0.10.0",
-                        "hil-runner": "0.11.0",
-                        "embedded-trace": "0.11.0",
+                        "lab-instruments": "0.11.0",
+                        "hil-runner": "0.12.0",
+                        "embedded-trace": "0.12.0",
                     },
                 )
                 for field in (
@@ -161,6 +161,27 @@ class InstrumentRuntimeTests(unittest.TestCase):
                     path = site / runtime.SPECS[name][0] / leaf
                     path.unlink()
                     self.assertFalse(self.inspect(root, pin)["ok"])
+
+    def test_previous_published_identity_cannot_satisfy_new_selection(self):
+        pin = copy.deepcopy(runtime.load_pin())
+        for name, version in (
+            ("lab-instruments", "0.10.0"),
+            ("hil-runner", "0.11.0"),
+            ("embedded-trace", "0.11.0"),
+        ):
+            with self.subTest(component=name):
+                previous = copy.deepcopy(pin)
+                item = previous["components"][name]
+                item["version"] = version
+                item["source_ref"] = f"refs/tags/v{version}"
+                distribution = runtime.SPECS[name][1]
+                wheel = f"{distribution}-{version}-py3-none-any.whl"
+                item["wheel"].update(
+                    name=wheel,
+                    url=f"https://github.com/Nitmi/{name}/releases/download/v{version}/{wheel}",
+                )
+                with self.assertRaisesRegex(ValueError, "component identity"):
+                    runtime.parse_pin(json.dumps(previous).encode())
 
     def test_modes_read_only_the_selected_pin_and_never_fall_back(self):
         for candidate in (False, True):

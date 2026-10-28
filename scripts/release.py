@@ -57,6 +57,7 @@ REQUIRED_FILES = {
     "docs/instruments.md",
     "docs/instrument-waveform.md",
     "docs/instrument-load.md",
+    "docs/instrument-thermal.md",
     "docs/simulation.md",
     "docs/simulation-faults.md",
     "docs/simulation-wasm.md",

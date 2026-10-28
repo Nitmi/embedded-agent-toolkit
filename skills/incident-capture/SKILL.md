@@ -39,6 +39,12 @@ operation.
 
 ## Build the evidence bundle
 
+For already saved thermal evidence, read
+[thermal evidence](../../docs/instrument-thermal.md). Preserve the full raw
+inventory, controls, telemetry, failed assertions and cleanup context. Package
+the original bytes without reconnecting the camera or changing FFC/gain settings;
+surface-temperature observations do not establish junction temperature.
+
 When the scene already includes saved load measurements, read
 [load evidence](../../docs/instrument-load.md). Preserve the original result,
 plan, transcript, assertions and cleanup/error context beside the derived bundle.

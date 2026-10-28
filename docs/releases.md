@@ -1,5 +1,11 @@
 # Versioned releases
 
+Local 0.35.0 adds [saved thermal ROI routing](instrument-thermal.md), using
+published lab0.11/HIL0.12/Trace0.12 and 96 installed payloads. It retains digital,
+waveform and load evidence compatibility, historical candidate mode and independent
+simulation/native station selections. This source version is not a published
+Toolkit release until its own CI/provenance and Release workflow complete.
+
 Toolkit 0.31.0 adds [WASM simulation routing](simulation-wasm.md) with published
 sim 0.7.0 / HIL 0.8.0 / Trace 0.8.0 as its default optional simulation pin
 (69 installed files). Native station selection remains independent.

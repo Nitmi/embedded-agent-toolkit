@@ -62,6 +62,12 @@ def source_files(version: str = "0.2.0") -> dict[str, bytes]:
 
 
 class ReleaseTests(unittest.TestCase):
+    def test_saved_thermal_guide_is_required_before_packaging(self):
+        files = source_files()
+        files.pop("docs/instrument-thermal.md")
+        with self.assertRaises(release.ReleaseError):
+            release.make_archive("1" * 40, files)
+
     def test_saved_load_guide_is_required_before_packaging(self):
         files = source_files()
         files.pop("docs/instrument-load.md")

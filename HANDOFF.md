@@ -4,12 +4,13 @@ Read this file and AGENTS.md before starting another task.
 
 ## Current local work
 
-- Local version 0.34.0 routes saved SDL load assertions alongside digital/analog
-  checks. instrument-runtime.json binds published lab0.10 (b953725f), HIL0.11
-  (28bd2275), Trace0.11 (029233a8), exact release wheel identities and 88 files.
-  Trace's initial 9b6bc76 candidate is not its final published source; the test-only
-  CI correction preserves wheel bytes, but source provenance must bind 029233a8.
-  Toolkit0.33 is already published and remains the active workstation plugin.
+- Local version 0.35.0 adds saved thermal ROI routing alongside digital/analog
+  and SDL load assertions. instrument-runtime.json binds published lab0.11
+  (8d8ea174), HIL0.12 (81c3b6fd), Trace0.12 (c365536b), exact formal release
+  wheel identities and 96 files. Prior formal wheel provenance/installed-payload
+  receipts from the completed three-component release are reused; no new network
+  verification is needed for this routing change. Toolkit0.34 remains the active
+  workstation plugin until a separately scoped release/upgrade.
   The historical instrument-candidates.json
   remains byte-identical: lab 0.8 / HIL 0.9 / Trace 0.9, 74 files, explicit mode.
   Published and candidate versions AND inventories differ; never reuse one mode's
@@ -21,6 +22,13 @@ Read this file and AGENTS.md before starting another task.
   and independent views in Trace. Do not add another executor or decoder here.
   Recorded recomputation is not a new decode or authenticated execution; a passing
   filtered page cannot replace the complete failing verdict.
+- Source acceptance for this change: Python3.11/3.13 each ran271 unittest cases,
+  268 passed/3 expected platform skips; Ruff and all four official Skill checks
+  passed, plus the repository plugin layout/version check. No official plugin
+  creator validator is installed. Clean-source double builds and candidate
+  installs are recorded separately in D:\Code\tmp\toolkit-thermal-0350-20261028;
+  use its final completed receipt and workspace handoff for later status, without
+  rewriting this source commit or relabeling candidates as published Toolkit.
 
 ## Pitfalls and acceptance
 
@@ -33,9 +41,12 @@ Read this file and AGENTS.md before starting another task.
    gh verification results without turning a static inspection into provenance.
    Current HIL/Trace sources include digital producer/verifier compatibility;
    do not select the earlier waveform-only d25/140 preparation builds. Native
-   Digital verifier0.10 accepts producers0.7/0.8/0.9/0.10, verifier0.9 accepts
-   0.7/0.8/0.9, verifier0.8 accepts 0.7/0.8. Waveform verifier0.10 accepts
-   producers0.9/0.10. Load producer/verifier must be0.10. Never relabel sources.
+   Digital verifier0.11 accepts producers0.7..0.11; verifier0.10 accepts
+   producers0.7..0.10, verifier0.9 accepts
+   0.7/0.8/0.9, verifier0.8 accepts 0.7/0.8. Waveform verifier0.11 accepts
+   producers0.9..0.11; verifier0.10 accepts0.9/0.10. Load verifier0.11 accepts
+   producers0.10/0.11; verifier0.10 still requires0.10. Thermal requires native
+   producer/verifier0.11 and HIL0.12. Never relabel sources.
 2. Shared bounded layout/payload helpers live in simulation_runtime.py. Changes
    must retain simulation's published/candidate behavior and regression coverage;
    instrument inventories and versions stay independent of simulation selections.
@@ -49,7 +60,7 @@ Read this file and AGENTS.md before starting another task.
 5. Build only clean committed source; compare both Python builds byte for byte.
    Install exact wheels offline without dependencies into separate candidate
    environments. Never activate a local candidate or silently replace station pins.
-6. Inspection reads at most 88 published or 74 candidate payloads
+6. Inspection reads at most 96 published or 74 candidate payloads
    (1 MiB/file, 4 MiB/component), bounded pin
    and venv declarations, and at most 256 package entries/component. Cost grows
    with selected bytes and entries; report warm timings and Python allocation
@@ -76,6 +87,19 @@ Read this file and AGENTS.md before starting another task.
     environment, not just load. Reuse the already verified formal bundles rather
     than decoding or acquiring again for a Toolkit-only change. Compare new/old
     environment rejection, historical candidate mode and simulation separately.
+11. docs/instrument-thermal.md owns saved thermal steps. Bind five primary inputs
+    plus every original source entry in recorded inventory order, including raw
+    Y16/warmup, GET, telemetry, CSV and empty stdout/stderr. HIL validates canonical
+    native XML/recorded consistency; Trace does not recompute pixels, temperatures
+    or XML. Preserve apparent surface units, invalid-pixel budgets, FFC/effective
+    gain/resolution/mask qualifications, unknown cleanup and unscored partial frames.
+    Global failure stays under passing/empty pages. No junction temperature,
+    physical identity, radiometric accuracy or clock alignment is established.
+12. A prior task's config.toml hash may change between user turns. Record that
+    one-file drift and protect current bytes without opening contents or changing
+    settings; never overwrite old sealed baselines or claim cross-turn equality.
+    Existing dev313 lacks Ruff; use the already installed dev311 Ruff. No package
+    installation is necessary for this task.
 
 Cross-repository state and evidence are recorded in the workspace HANDOFF.md at
 C:\Users\Nitmi\Documents\Codex\2026-08-13\guan. The desktop plan is

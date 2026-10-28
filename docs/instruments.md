@@ -1,20 +1,20 @@
 # Optional offline instrument workflows
 
-Toolkit 0.34.0 routes the published lab-instruments 0.10.0,
-HIL Runner 0.11.0 and Embedded Trace 0.11.0 releases. This optional domain
-evaluates **saved** digital/analog captures, load measurements and native reports; it does not open an
+Toolkit 0.35.0 routes the published lab-instruments 0.11.0,
+HIL Runner 0.12.0 and Embedded Trace 0.12.0 releases. This optional domain
+evaluates **saved** digital/analog captures, load/thermal measurements and native reports; it does not open an
 instrument or acquire a new waveform. Real devices, vendor SDK/ABI, wiring,
 calibration and timing accuracy have not been qualified by these software checks.
 
 `instrument-runtime.json` binds each repository, immutable source tag/revision,
-wheel download URL/SHA-256 and 88 installed code/schema/metadata/license files.
+wheel download URL/SHA-256 and 96 installed code/schema/metadata/license files.
 Its release identities are:
 
 | Component | Tag | Source revision |
 | --- | --- | --- |
-| [lab-instruments](https://github.com/Nitmi/lab-instruments/releases/tag/v0.10.0) | `v0.10.0` | `b953725f393d8df8aecfbdd3e2bebf901d0ebced` |
-| [HIL Runner](https://github.com/Nitmi/hil-runner/releases/tag/v0.11.0) | `v0.11.0` | `28bd227554d1fb1e5ef9bda7f10f96590cb9e454` |
-| [Embedded Trace](https://github.com/Nitmi/embedded-trace/releases/tag/v0.11.0) | `v0.11.0` | `029233a88267d233922d44520fb85572239a9ccc` |
+| [lab-instruments](https://github.com/Nitmi/lab-instruments/releases/tag/v0.11.0) | `v0.11.0` | `8d8ea1743699e3a0bd889d2612bdd19d4552b590` |
+| [HIL Runner](https://github.com/Nitmi/hil-runner/releases/tag/v0.12.0) | `v0.12.0` | `81c3b6fd8b23bc7ac2c3da5ce0d9b98bb39ed883` |
+| [Embedded Trace](https://github.com/Nitmi/embedded-trace/releases/tag/v0.12.0) | `v0.12.0` | `c365536bdd91d4c2c2453115e0e035ea2f8ef26d` |
 
 Published identity in a pin is not an attestation verification. Do not substitute the
 older HIL/Trace versions selected by the separate simulation pin or managed HIL
@@ -31,7 +31,7 @@ that component's pin entry:
 gh attestation verify '<wheel>' --repo '<repository>' --source-ref '<source_ref>' `
   --source-digest '<source_revision>' --signer-digest '<source_revision>' `
   --signer-workflow '<repository>/.github/workflows/python-release.yml' `
-  --deny-self-hosted-runners
+  --predicate-type https://slsa.dev/provenance/v1 --deny-self-hosted-runners
 ```
 
 Preserve that command's independent result. The file-only inspector does not run
@@ -84,7 +84,9 @@ Native component locks and workstation selection remain independent.
 For AD3/SDS804X voltage assertions, read [analog waveform evidence](instrument-waveform.md)
 and use the separate `waveform` command domain. For SDL1020X-E measurement
 assertions, read [load evidence](instrument-load.md) and use the independent
-`load` domain. The table and manifest below
+`load` domain. For saved PureThermal/Lepton ROI assertions, read
+[thermal evidence](instrument-thermal.md) and use `thermal` throughout.
+The table and manifest below
 describe digital protocol/PWM evidence.
 
 Use the inspected environment's trusted interpreter in isolated module mode.
@@ -127,13 +129,13 @@ The HIL import manifest contains exactly `schema_version` set to
 `embedded-hil-runner.instrument-spec.v1`, recorded `native_exit_code` (0 or 3),
 and five `inputs`: `report`, `spec`, `capture`, `native_result`, `junit`. Each input
 has a portable relative `path` and lowercase `sha256`. `native_result` is the
-preserved JSON stdout from lab 0.10.0 `logic junit`; it includes full verification
+preserved JSON stdout from lab 0.11.0 `logic junit`; it includes full verification
 bindings and XML reference/counts. HIL reads all explicitly bound files once,
 checks consistency and preserves their original bytes in a new artifact. It
 never follows SDK, plan or file paths recorded inside that evidence.
 
-The selected HIL/Trace releases accept digital producers 0.7/0.8/0.9/0.10
-verified by 0.10. They also retain verifier0.9 for producers0.7/0.8/0.9 and
+The selected HIL/Trace releases accept digital producers0.7..0.11 verified by0.11.
+They retain verifier0.10 for producers0.7..0.10, verifier0.9 for producers0.7/0.8/0.9 and
 verifier0.8 for producers0.7/0.8. Keep actual producer/verifier versions; newer
 producers with an older unsupported verifier, or unknown versions, are rejected.
 Do not relabel old reports to make them pass.
@@ -163,7 +165,7 @@ origin and false physical/calibration/authorization claims remain visible.
 
 ## Bounds and cost
 
-Static inspection reads at most 88 published payload files (74 historical candidate
+Static inspection reads at most 96 published payload files (74 historical candidate
 files), each at most 1 MiB and
 each package at most 4 MiB, plus bounded venv configuration/pin data. Package
 inventory walks are capped at 256 entries per component. It rejects links,
