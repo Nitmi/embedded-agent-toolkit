@@ -1,17 +1,13 @@
 # Embedded Agent Toolkit
 
-Local **0.35.0** adds [saved thermal ROI checks](docs/instrument-thermal.md)
-to [offline instrument routing](docs/instruments.md): published lab 0.11 /
-HIL 0.12 / Trace 0.12 and 96 payload files. Native assertions/JUnit and
-self-contained views retain invalid pixels, FFC/mask trend limits, failed
-sources and full verdicts under filtering. [Load](docs/instrument-load.md),
-[analog waveform](docs/instrument-waveform.md) and digital checks remain supported.
-Historical candidates require explicit selection; simulation and workstation
-selections are independent.
-
-Toolkit 0.31.0 adds [ESP-EMU WASM routing](docs/simulation-wasm.md) with published
-sim 0.7 / HIL 0.8 / Trace 0.8 as its default optional simulation pin (69 files).
-Experimental model limits remain visible through native, HIL and Trace results.
+Local **0.36.0** adds [TMP103 sensor simulation](docs/simulation-sensors.md):
+published sim 0.8 / HIL 0.13 / Trace 0.13 and 95 payload files. Signed guest
+samples, raw model snapshots, fault effects and failed/null outcomes survive
+filtered evidence views. [GPIO faults](docs/simulation-faults.md) and
+[ESP-EMU WASM](docs/simulation-wasm.md) retain their native limitations.
+Historical 69-file candidates require explicit selection. Instrument routing
+remains lab 0.11 / HIL 0.12 / Trace 0.12 with 96 files; workstation locks and
+default doctor remain independent.
 
 [![CI](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/ci.yml)
 [![Release provenance](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/release-attestation.yml/badge.svg)](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/release-attestation.yml)
@@ -40,25 +36,18 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The [0.32.0 release](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.32.0)
-adds published lab 0.8 / HIL 0.9 / Trace 0.9 digital instrument workflows
-and 74 installed payload checks. It retains [ESP-EMU WASM routing](docs/simulation-wasm.md)
-with published sim-runner 0.7.0 / HIL 0.8.0 / Trace 0.8.0 as the default optional
-simulation pin: 69 installed files, exact release URLs, tags and source commits.
-Use `simulation_runtime.py inspect <venv> --json`. Recorded local build identities
-are available only with explicit candidate flags. The plugin does not select
-or install a new environment automatically.
+The current published Toolkit is [0.35.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.35.0):
+saved digital, voltage, load and thermal checks (96 instrument files), with the
+earlier sim 0.7 / HIL 0.8 / Trace 0.8 simulation pin (69 files). Local 0.36.0
+above is not a published Toolkit release yet.
 
-It retains Xtensa ESP32-S3 Flash support in
-[simulation routing and payload checks](docs/simulation.md). All three components are published and attested;
-The v2 simulation pin binds
-their official tag commits, exact release wheel URLs and installed payload hashes.
-The inspector checks 69 selected installed files
-without starting their interpreters or emulators; doctor opts in with
-`--simulation-environment`. Default doctor, native locks and station selection
-are unchanged. Native `passed_with_model_limits` and model diagnostics remain
-visible through HIL and Trace. GPIO samples, model snapshots and time semantics
-retain their native sources. Simulation never establishes physical board acceptance.
+For the selected Toolkit version, use `simulation_runtime.py inspect <venv> --json`.
+The v2 pin binds release URLs, tags, source commits and installed bytes without
+starting components or verifying signatures. Combined doctor opts in through
+`--simulation-environment`; default doctor and workstation selection stay separate.
+The plugin does not install or activate an environment automatically.
+Native qualified/failed outcomes and model limitations remain visible through
+HIL and Trace. Simulation never establishes physical board acceptance.
 
 It retains optional Embedded Trace timelines and static installed-payload checks
 for saved serial/RTT evidence. It retains bootstrap preflight before network access,

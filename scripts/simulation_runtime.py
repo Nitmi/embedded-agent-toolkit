@@ -20,7 +20,7 @@ else:
 PIN_PATH = Path(__file__).resolve().parents[1] / "simulation-runtime.json"
 CANDIDATE_PIN_PATH = Path(__file__).resolve().parents[1] / "simulation-candidates.json"
 SCHEMA = "embedded-agent-toolkit.simulation-runtime-inspection.v1"
-SPECS = {
+CANDIDATE_SPECS = {
     "sim-runner": (
         "sim_runner",
         "embedded_sim_runner",
@@ -100,28 +100,51 @@ SPECS = {
         },
     ),
 }
-CANDIDATE_VERSIONS = {
-    "sim-runner": "0.7.0",
-    "hil-runner": "0.8.0",
-    "embedded-trace": "0.8.0",
+CANDIDATE_VERSIONS = {name: spec[2] for name, spec in CANDIDATE_SPECS.items()}
+PUBLISHED_VERSIONS = {
+    "sim-runner": "0.8.0",
+    "hil-runner": "0.13.0",
+    "embedded-trace": "0.13.0",
 }
-CANDIDATE_SPECS = {
+PUBLISHED_FILES = {
+    "sim-runner": {"sensor.py", "assets/nrf52840-i2c-sensor.repl"},
+    "hil-runner": {
+        "instrument.py",
+        "waveform.py",
+        "load.py",
+        "load_protocol.py",
+        "thermal.py",
+        "thermal_protocol.py",
+        "schemas/instrument-spec.schema.json",
+        "schemas/instrument-report.schema.json",
+        "schemas/waveform-spec.schema.json",
+        "schemas/waveform-report.schema.json",
+        "schemas/load-spec.schema.json",
+        "schemas/load-report.schema.json",
+        "schemas/thermal-spec.schema.json",
+        "schemas/thermal-report.schema.json",
+    },
+    "embedded-trace": {
+        "instrument.py",
+        "waveform.py",
+        "load.py",
+        "load_protocol.py",
+        "thermal.py",
+        "thermal_protocol.py",
+        "schemas/instrument-report.schema.json",
+        "schemas/waveform-report.schema.json",
+        "schemas/load-report.schema.json",
+        "schemas/thermal-report.schema.json",
+    },
+}
+SPECS = {
     name: (
         package,
         distribution,
-        CANDIDATE_VERSIONS[name],
-        names
-        | (
-            {
-                "esp_wasm.py",
-                "assets/esp32c3-esp-wasm.json",
-                "assets/esp_wasm_runner.mjs",
-            }
-            if name == "sim-runner"
-            else set()
-        ),
+        PUBLISHED_VERSIONS[name],
+        names | PUBLISHED_FILES[name],
     )
-    for name, (package, distribution, _, names) in SPECS.items()
+    for name, (package, distribution, _, names) in CANDIDATE_SPECS.items()
 }
 
 

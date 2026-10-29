@@ -4,6 +4,37 @@ Read this file and AGENTS.md before starting another task.
 
 ## Current local work
 
+- Local 0.36.0 on feat/published-sensor-simulation routes fixed Renode TMP103
+  signed-temperature and model-fault evidence. Read docs/simulation-sensors.md.
+  The simulation default now binds published sim0.8 (7f542e0), HIL0.13
+  (ceea67dd), Trace0.13 (f07f0051), exact official wheel URLs/hashes and95 files
+  (30/37/28). Inventory comes from authenticated formal wheels and frozen prior
+  release receipts, not candidate containers. No fresh network verification or
+  native simulation is needed for this Toolkit-only integration.
+- Historical simulation-candidates.json stays byte-identical at sim0.7/HIL0.8/
+  Trace0.8 and69 files. Its explicit audited CANDIDATE_SPECS is independent from
+  the new default; do not derive the old inventory from a growing published
+  table. Both directions of version/inventory mismatch must fail without fallback.
+  Sensor code/model substitution and the full HIL/Trace dependencies are checked;
+  selecting a simulation wheel does not activate its instrument functions.
+- Native sensor policy remains in sim-runner, HIL preserves results and Trace
+  views retain guest samples, raw model spans, failures/nulls and clock/coverage
+  qualifications. Three short Skill routes share the new guide. No additional
+  executor, decoder, repeated per-run approval or physical fallback is added.
+  Include the sensor guide in release.REQUIRED_FILES; keep bootstrap VERSION
+  aligned with both0.36 manifests.
+- Source checks: each Python3.11/3.13 ran274 unittest cases,271 passed/3 expected
+  symlink-permission skips; Ruff, four official Skill validators and repository
+  plugin layout/version check passed. Official plugin-creator is absent; do not
+  mislabel the repository check. Clean-source double builds/candidate installs,
+  mode compatibility, byte-only checks and warm cost are recorded separately in
+  D:\Code\tmp\toolkit-sensor-0360-20261029; use its final completed receipt.
+- Active Toolkit0.35, instrument published96/candidate74, native component catalog,
+  managed/HIL pins, workstation locks and PATH remain separate and unchanged.
+  This local task does not publish or activate Toolkit and never starts hardware
+  or an emulator. Source0.35 notes below are historical; it has been published
+  and its actual Skill loading was accepted before this task.
+
 - Local version 0.35.0 adds saved thermal ROI routing alongside digital/analog
   and SDL load assertions. instrument-runtime.json binds published lab0.11
   (8d8ea174), HIL0.12 (81c3b6fd), Trace0.12 (c365536b), exact formal release

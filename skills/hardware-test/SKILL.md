@@ -57,6 +57,11 @@ only for an explicitly chosen recorded local build. Keep the native nominal verd
 counter/IRQ raw spans and failure stop. Successful injection never makes a failed
 regression pass or allows a later case to run.
 
+For TMP103 temperature conversion or sensor fault regressions, read
+[sensor simulation](../../docs/simulation-sensors.md). Select the published
+0.8.0 / 0.13.0 / 0.13.0 environment; preserve guest samples, raw model spans,
+fault effect/null state and the nominal verdict without adding per-run approval.
+
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only
 its hash-bound component paths. Do not let environment overrides mask that lock.

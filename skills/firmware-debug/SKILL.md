@@ -40,6 +40,11 @@ spans describe the model, not a physical fault or confirmed root cause. Use the
 published default for released components; select local candidate payloads only
 when that recorded build is explicitly requested.
 
+For signed-temperature, stale-read or fixed TMP103 model faults, read
+[sensor simulation](../../docs/simulation-sensors.md). Compare native guest
+samples and raw model observations; retain failed/null evidence and avoid
+inferring an electrical fault, sensor accuracy or physical root cause.
+
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only
 its hash-bound component paths. Do not let environment overrides mask that lock.

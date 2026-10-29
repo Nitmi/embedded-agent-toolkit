@@ -39,6 +39,11 @@ operation.
 
 ## Build the evidence bundle
 
+For saved TMP103 model failures, read
+[sensor simulation](../../docs/simulation-sensors.md). Preserve native reports,
+UART, model stdout spans and failed/unknown outcomes as simulation evidence;
+packaging these files requires no board discovery or new emulator run.
+
 For already saved thermal evidence, read
 [thermal evidence](../../docs/instrument-thermal.md). Preserve the full raw
 inventory, controls, telemetry, failed assertions and cleanup context. Package

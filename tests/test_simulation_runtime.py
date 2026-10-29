@@ -182,7 +182,7 @@ class SimulationRuntimeTests(unittest.TestCase):
         self.assertTrue(result["complete"])
         inspector.assert_called_once_with(ROOT, candidate=True)
 
-    def test_matching_bytes_preserve_explicit_pin_declarations_without_fallback(self):
+    def test_published_and_candidate_inventories_are_independent_without_fallback(self):
         with tempfile.TemporaryDirectory() as tmp:
             published_root, candidate_root = (
                 Path(tmp) / "published",
@@ -190,22 +190,23 @@ class SimulationRuntimeTests(unittest.TestCase):
             )
             _, published = self.fixture(published_root)
             _, candidate = self.fixture(candidate_root, candidate=True)
-            # A promoted release can contain the exact recorded candidate bytes.
-            # Matching bytes do not authenticate provenance or change the selected pin.
-            for root in (published_root, candidate_root):
-                release_result = self.inspect(root, published)
-                local_result = self.inspect(root, candidate, candidate=True)
-                self.assertTrue(release_result["ok"], release_result)
-                self.assertTrue(local_result["ok"], local_result)
-                self.assertEqual(release_result["resolution_source"], "pinned_releases")
-                self.assertEqual(
-                    local_result["resolution_source"], "pinned_local_candidates"
-                )
-                self.assertIs(release_result["release_attestation_verified"], False)
-                self.assertIs(local_result["release_attestation_verified"], False)
-                for item in local_result["components"]:
-                    self.assertEqual(item["distribution_status"], "local_candidate")
-                    self.assertIsNone(item["source_ref"])
+            release_result = self.inspect(published_root, published)
+            local_result = self.inspect(candidate_root, candidate, candidate=True)
+            self.assertTrue(release_result["ok"], release_result)
+            self.assertTrue(local_result["ok"], local_result)
+            self.assertEqual(release_result["resolution_source"], "pinned_releases")
+            self.assertEqual(
+                local_result["resolution_source"], "pinned_local_candidates"
+            )
+            self.assertIs(release_result["release_attestation_verified"], False)
+            self.assertIs(local_result["release_attestation_verified"], False)
+            for item in local_result["components"]:
+                self.assertEqual(item["distribution_status"], "local_candidate")
+                self.assertIsNone(item["source_ref"])
+            self.assertFalse(self.inspect(candidate_root, published)["ok"])
+            self.assertFalse(
+                self.inspect(published_root, candidate, candidate=True)["ok"]
+            )
             selected = copy.deepcopy(published)
             selected["components"]["sim-runner"]["files"][0]["sha256"] = "0" * 64
             self.assertFalse(self.inspect(candidate_root, selected)["ok"])
@@ -232,7 +233,7 @@ class SimulationRuntimeTests(unittest.TestCase):
                 self.assertEqual(report["layout"], layout)
                 self.assertEqual(report["resolution_source"], "pinned_releases")
                 self.assertEqual(
-                    sum(x["verified_files"] for x in report["components"]), 69
+                    sum(x["verified_files"] for x in report["components"]), 95
                 )
                 for flag in (
                     "executables_started",
@@ -250,6 +251,57 @@ class SimulationRuntimeTests(unittest.TestCase):
                     for key in ("repository", "source_ref", "source_revision", "wheel"):
                         self.assertEqual(component[key], selected[key])
                 self.assertFalse(list(site.rglob("__pycache__")))
+
+    def test_sensor_code_and_model_are_required_and_historical_mode_rejects_them(self):
+        for leaf in ("sensor.py", "assets/nrf52840-i2c-sensor.repl"):
+            for change in ("missing", "drift"):
+                with (
+                    self.subTest(leaf=leaf, change=change),
+                    tempfile.TemporaryDirectory() as tmp,
+                ):
+                    root = Path(tmp)
+                    site, pin = self.fixture(root)
+                    path = site / "sim_runner" / leaf
+                    if change == "missing":
+                        path.unlink()
+                    else:
+                        path.write_bytes(b"altered sensor model")
+                    result = self.inspect(root, pin, ["sim-runner"])
+                    self.assertFalse(result["ok"])
+                    self.assertIs(result["executables_started"], False)
+            with (
+                self.subTest(leaf=leaf, mode="historical"),
+                tempfile.TemporaryDirectory() as tmp,
+            ):
+                root = Path(tmp)
+                site, pin = self.fixture(root, candidate=True)
+                path = site / "sim_runner" / leaf
+                path.parent.mkdir(exist_ok=True)
+                path.write_bytes(b"new payload in old distribution")
+                self.assertFalse(self.inspect(root, pin, candidate=True)["ok"])
+
+    def test_simulation_inventory_includes_bundled_hil_trace_dependencies(self):
+        for name, package, leaf in (
+            ("hil-runner", "hil_runner", "thermal_protocol.py"),
+            ("embedded-trace", "embedded_trace", "schemas/load-report.schema.json"),
+        ):
+            with self.subTest(component=name), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                site, pin = self.fixture(root)
+                (site / package / leaf).unlink()
+                # Full wheel integrity is required even when the use case is simulation.
+                self.assertFalse(self.inspect(root, pin, [name])["ok"])
+
+    def test_sensor_model_cannot_be_substituted_by_rehashing_the_pin(self):
+        pin = copy.deepcopy(sim.load_pin())
+        item = next(
+            row
+            for row in pin["components"]["sim-runner"]["files"]
+            if row["path"] == "sim_runner/assets/nrf52840-i2c-sensor.repl"
+        )
+        item["path"] = "sim_runner/assets/arbitrary-sensor.repl"
+        with self.assertRaises(ValueError):
+            sim.parse_pin(json.dumps(pin).encode())
 
     def test_selected_missing_changed_or_extra_package_bytes_fail(self):
         for name in sim.SPECS:

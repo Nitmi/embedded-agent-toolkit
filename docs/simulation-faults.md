@@ -1,7 +1,7 @@
 # GPIO/TIMER0 model fault regressions
 
-Toolkit 0.31.0 routes the published sim-runner
-0.7.0, HIL Runner 0.8.0 and Embedded Trace 0.8.0 wheels. Their fixed profile is
+Local Toolkit 0.36.0 routes the published sim-runner
+0.8.0, HIL Runner 0.13.0 and Embedded Trace 0.13.0 wheels. Their fixed profile is
 `nrf52840-gpio-timer-fault-v1` on Renode 1.17.0. It extends the nominal GPIO/TIMER0
 fixture with `none`, `gpio-stuck-low`, `gpio-stuck-high`, `timer-stop` and
 `timer-irq-mask`. These are simulated inputs, not physical board tests.
@@ -18,7 +18,7 @@ environment. Local computed hashes do not require new user approval.
 python scripts/simulation_runtime.py inspect '<simulation-venv>' --json
 ```
 
-This checks 69 source/schema/metadata/license files without importing or launching
+This checks 95 source/schema/metadata/license files without importing or launching
 components. Expect `candidate_mode=false`, `resolution_source=pinned_releases`,
 three `distribution_status=published` entries and the exact release refs/commits.
 `executables_started`, `release_attestation_verified`, `backend_runtime_verified`
@@ -32,11 +32,13 @@ use the file inspector and skip hardware doctor, discovery, attach and selection
 Neither route changes station configuration, PATH or the active plugin.
 
 The separate `simulation-candidates.json` is available only through explicit
-`--candidate` / `--simulation-candidate` flags. In Toolkit 0.31.0 it selects the
+`--candidate` / `--simulation-candidate` flags. It preserves the
 earlier [WASM-capable local builds](simulation-wasm.md); normal WASM and fault
 workflows both select the published default.
-Those records retain local-candidate status and no release URL/ref, even when
-wheel bytes match a later release. Use the published default for normal use.
+Those older 69-file records retain local-candidate status and no release URL/ref;
+their versions and inventories differ from the current default. Use the
+published default for normal use. For TMP103 faults instead, read
+[sensor simulation](simulation-sensors.md).
 
 ## Plan and run through the native components
 
@@ -60,7 +62,7 @@ and observer limitations. Use `--fault none` for the control; do not alter the
 firmware merely to produce the four different fault inputs.
 
 Follow [native simulation planning and suites](simulation.md) for inspect-plan,
-single run or HIL's typed simulation spec. Bind the exact 0.7.0 wheel for HIL.
+single run or HIL's typed simulation spec. Bind the exact 0.8.0 wheel for HIL.
 HIL preflights every case before any backend starts, then runs cases in order
 without per-case confirmation. A failed/indeterminate case stops later cases,
 including when injection was observed. No expected-failure override, retry,

@@ -1,7 +1,7 @@
 # Experimental ESP-EMU WASM workflow
 
-Toolkit 0.31.0's published default pin selects sim-runner 0.7.0, HIL Runner 0.8.0
-and Embedded Trace 0.8.0: 69 source/asset/schema/metadata/license files. Each
+Local Toolkit 0.36.0's published default pin selects sim-runner 0.8.0, HIL Runner 0.13.0
+and Embedded Trace 0.13.0: 95 source/asset/schema/metadata/license files. Each
 component is bound to its release tag/source commit, wheel URL/hash and payload
 inventory in `simulation-runtime.json`.
 
@@ -21,12 +21,13 @@ python scripts/simulation_runtime.py inspect '<absolute-simulation-venv>' --json
 ```
 
 Require `ok=true`, `candidate_mode=false`, `resolution_source=pinned_releases`,
-versions 0.7.0/0.8.0/0.8.0 and 69 verified files. Each distribution is
+versions 0.8.0/0.13.0/0.13.0 and 95 verified files. Each distribution is
 `published`. Existing `--component` supports individual checks. A missing,
 changed or unexpected selected payload fails without fallback.
 The preserved `simulation-candidates.json` records the earlier local builds;
-`--candidate` explicitly selects those declarations, even though their bytes
-match these releases. It is unnecessary for normal WASM use.
+`--candidate` explicitly selects those older 0.7.0/0.8.0/0.8.0, 69-file
+declarations. Versions and inventories differ from the current default;
+neither mode falls back to the other. It is unnecessary for normal WASM use.
 
 For a requested combined host check:
 
@@ -64,7 +65,7 @@ $python = '<simulation-venv>\Scripts\python.exe'
 
 Continue with native inspect-plan/run/inspect-report in the
 [simulation guide](simulation.md). Native commands emit JSON without `--json`.
-HIL 0.8.0 uses the existing simulation spec with the pinned 0.7.0 wheel and
+HIL 0.13.0 uses the existing simulation spec with the pinned 0.8.0 wheel and
 native plans. It preflights all cases before any emulator starts, runs each
 once and stops on failure/indeterminate state. Earlier supported profiles may
 share a suite. No hardware fallback, lease, per-run approval or recovery is added.
