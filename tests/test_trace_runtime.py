@@ -68,7 +68,7 @@ class TraceInspectionTests(unittest.TestCase):
         self.assertFalse(trace.inspect_environment(self.environment)["ok"])
 
     def test_metadata_is_part_of_payload_identity(self):
-        (self.site / "embedded_trace-0.13.1.dist-info/entry_points.txt").write_bytes(
+        (self.site / "embedded_trace-0.14.0.dist-info/entry_points.txt").write_bytes(
             b"wrong CLI"
         )
         self.assertFalse(trace.inspect_environment(self.environment)["ok"])
@@ -183,7 +183,7 @@ class TracePinAndCliTests(unittest.TestCase):
             selected = runtime.load_pin()["components"]["embedded-trace"]
             for field in ("version", "source_revision", "wheel", "files"):
                 self.assertEqual(standalone[field], selected[field])
-        self.assertEqual(standalone["version"], "0.13.1")
+        self.assertEqual(standalone["version"], "0.14.0")
 
     def test_audited_legacy_layout_remains_valid_but_cannot_hide_new_files(self):
         legacy = copy.deepcopy(trace.load_pin())
@@ -197,7 +197,7 @@ class TracePinAndCliTests(unittest.TestCase):
         legacy["files"] = [
             dict(
                 item,
-                path=item["path"].replace("-0.13.1.dist-info/", "-0.1.0.dist-info/"),
+                path=item["path"].replace("-0.14.0.dist-info/", "-0.1.0.dist-info/"),
             )
             for item in legacy["files"]
             if item["path"] in trace.LEGACY_PACKAGE_FILES
@@ -219,6 +219,26 @@ class TracePinAndCliTests(unittest.TestCase):
         pin = copy.deepcopy(trace.load_pin())
         pin["version"] = "0.13.2"
         with self.assertRaisesRegex(ValueError, "Unsupported pinned Trace version"):
+            trace.parse_pin(json.dumps(pin).encode())
+
+    def test_audited_previous_trace_layout_can_still_be_selected_explicitly(self):
+        pin = copy.deepcopy(trace.load_pin())
+        pin["version"] = "0.13.1"
+        wheel = "embedded_trace-0.13.1-py3-none-any.whl"
+        pin["wheel"].update(
+            name=wheel,
+            url="https://github.com/Nitmi/embedded-trace/releases/download/v0.13.1/"
+            + wheel,
+        )
+        for item in pin["files"]:
+            item["path"] = item["path"].replace(
+                "-0.14.0.dist-info/", "-0.13.1.dist-info/"
+            )
+        self.assertEqual(trace.parse_pin(json.dumps(pin).encode()), pin)
+        pin["files"].append(
+            {"path": "embedded_trace/unreviewed.py", "size": 0, "sha256": "0" * 64}
+        )
+        with self.assertRaises(ValueError):
             trace.parse_pin(json.dumps(pin).encode())
 
     def test_pin_cannot_drop_payloads_redirect_or_override_runtime_paths(self):

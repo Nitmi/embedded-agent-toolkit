@@ -44,6 +44,10 @@ For signed-temperature, stale-read or fixed TMP103 model faults, read
 [sensor simulation](../../docs/simulation-sensors.md). Compare native guest
 samples and raw model observations; retain failed/null evidence and avoid
 inferring an electrical fault, sensor accuracy or physical root cause.
+For LM74 signed Q4, two-byte framing or SPI model faults, read
+[SPI simulation](../../docs/simulation-spi.md). Keep raw words, paused model
+observations, frame-slip byte spans and failed/unknown nominal outcomes distinct;
+the monitor-byte fault does not establish an electrical or physical root cause.
 
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only

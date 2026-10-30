@@ -4,6 +4,39 @@ Read this file and AGENTS.md before starting another task.
 
 ## Current local work
 
+- Local0.37.0 on feat/published-spi-simulation adds SPI0/LM74 routing. The
+  simulation default selects authenticated published sim0.9/HIL0.14/Trace0.14
+  and97 payloads; instruments retain lab0.11/HIL0.12 with the same Trace0.14
+  and96 files; standalone28. Formal wheel bytes and original24 GitHub signature
+  results are reused from the completed three-component release, not replaced
+  by candidate metadata or new network validation. Read docs/simulation-spi.md.
+- Keep independent native SPI plan/report schemas, signed Q4/two-byte words,
+  four model observations and spi_frame_slip_span. Native sim owns assertions;
+  HIL preserves fail-stop/cleanup; Trace preserves failed/unknown full/sample/
+  empty results without a second executor or physical fallback. The fixed
+  monitor Transmit call consumes a model byte, not an electrical bus glitch.
+- Current source tests on Python3.11/3.13 each279,276 passed/three existing
+  symlink skips; Ruff/format, repository plugin layout/release identity and all
+  four official Skill validators pass. The official plugin-creator validator
+  remains absent. Three short Skill routes use one SPI guide, which must stay
+  in release.REQUIRED_FILES. Bootstrap VERSION and both manifests are0.37.0.
+- Historical candidate69/74, native component catalog, managed HIL pins,
+  active Toolkit0.36.1/plugin, workstation locks/PATH and old environments stay
+  independent. Local acceptance D:/Code/tmp/toolkit-spi-0370-20261030 owns later
+  clean-source dual builds, candidate installs, mode rejection, saved31 SPI
+  results and26 instrument bundles/52 views per Python. Consult completed.json
+  for completion; do not rerun native captures or public release stages.
+- New pin generation must preserve each domain's schema. Instrument components
+  retain project in addition to repository/source_ref; replacing one with a
+  simulation component object drops that required field. The first generator
+  stopped before writing the instrument pin; corrected to update its fields
+  and regenerated deterministic pins. Ruff found one new dict() literal rule;
+  fixed directly, raw lint failure retained. No runtime check was relaxed.
+- A coherent older release pin, including matching tag/URL/metadata and old
+  inventory, still cannot satisfy the new simulation default. Missing/drifted
+  SPI source/model files fail, as do SPI files added to historical candidates.
+  Standalone explicitly retains audited0.1/0.13.1 layouts, not arbitrary semver.
+
 - Local 0.36.1 on fix/trace-0131-runtime-pins selects the authenticated Trace
   0.13.1 wheel (c28cf02) for standalone, simulation and instrument inspection.
   Inventories are 28 standalone, 95 simulation (sim0.8/HIL0.13/Trace0.13.1),
@@ -124,7 +157,8 @@ Read this file and AGENTS.md before starting another task.
 5. Build only clean committed source; compare both Python builds byte for byte.
    Install exact wheels offline without dependencies into separate candidate
    environments. Never activate a local candidate or silently replace station pins.
-6. Inspection reads at most 96 published or 74 candidate payloads
+6. Inspection reads at most97 simulation,96 instrument or28 standalone payloads;
+   historical simulation/instrument candidates retain69/74 payloads
    (1 MiB/file, 4 MiB/component), bounded pin
    and venv declarations, and at most 256 package entries/component. Cost grows
    with selected bytes and entries; report warm timings and Python allocation

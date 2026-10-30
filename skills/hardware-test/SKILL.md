@@ -59,8 +59,12 @@ regression pass or allows a later case to run.
 
 For TMP103 temperature conversion or sensor fault regressions, read
 [sensor simulation](../../docs/simulation-sensors.md). Select the published
-0.8.0 / 0.13.0 / 0.13.0 environment; preserve guest samples, raw model spans,
+environment from that guide; preserve guest samples, raw model spans,
 fault effect/null state and the nominal verdict without adding per-run approval.
+For LM74 signed Q4, two-byte framing or SPI fault regressions, read
+[SPI simulation](../../docs/simulation-spi.md). Use the published simulation
+selection, preserve raw words/model/slip spans and fail-stop behavior, and
+reuse the agreed task authorization without per-run confirmation.
 
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only

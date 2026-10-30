@@ -90,7 +90,7 @@ class InstrumentRuntimeTests(unittest.TestCase):
                     else {
                         "lab-instruments": "0.11.0",
                         "hil-runner": "0.12.0",
-                        "embedded-trace": "0.13.1",
+                        "embedded-trace": "0.14.0",
                     },
                 )
                 for field in (

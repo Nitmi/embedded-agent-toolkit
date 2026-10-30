@@ -1,11 +1,17 @@
 # Versioned releases
 
-Local 0.36.1 selects the published Trace 0.13.1 performance patch for standalone,
-simulation and instrument evidence. Their inventories are 28, 95 and 96 files.
-The other components and explicit historical candidate modes keep their pins.
-All selected files are still verified; static readiness does not verify an
-interpreter, release signature, backend runtime or physical device. Toolkit is
-a local candidate until its own release workflow and publication complete.
+Local 0.37.0 adds [SPI model regression routing](simulation-spi.md), with
+published sim0.9/HIL0.14/Trace0.14 and 97 simulation payload files. Instrument
+routing retains lab0.11/HIL0.12 and selects Trace0.14 (96 files); standalone
+Trace selects that same 28-file payload. Historical 69/74-file candidate modes,
+native component catalog, managed HIL pins and workstation locks stay independent.
+Toolkit0.37 is local until its own CI/provenance and publication complete.
+
+Published [0.36.1](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.36.1)
+selects the Trace0.13.1 performance patch for standalone, simulation and
+instrument evidence, with 28/95/96 files. New defaults reject those older
+environments rather than silently falling back. Static readiness does not
+authenticate an interpreter, release signature, backend runtime or physical device.
 
 Local 0.35.0 adds [saved thermal ROI routing](instrument-thermal.md), using
 published lab0.11/HIL0.12/Trace0.12 and 96 installed payloads. It retains digital,

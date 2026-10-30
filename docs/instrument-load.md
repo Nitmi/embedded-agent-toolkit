@@ -2,7 +2,7 @@
 
 Use this file-only workflow for already saved SDL1020X-E measurements. First
 inspect the explicitly selected environment as in [instrument setup](instruments.md).
-Toolkit 0.36.1 pins published lab0.11.0/HIL0.12.0/Trace0.13.1, with 96 payloads.
+Toolkit 0.37.0 pins published lab0.11.0/HIL0.12.0/Trace0.14.0, with 96 payloads.
 Load verifier0.11 accepts producers0.10/0.11; verifier0.10 still requires producer0.10.
 The historical `--candidate` mode selects older components without these commands;
 it cannot repair a missing or mismatched published environment.

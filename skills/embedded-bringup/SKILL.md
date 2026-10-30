@@ -28,6 +28,11 @@ catalog component installation only when the user explicitly requested host
 setup and supplied separate component and new-lock destinations; this is still
 host setup, not authorization to discover or operate hardware.
 
+For a model-only SPI bring-up, use [SPI simulation](../../docs/simulation-spi.md)
+and skip board discovery, attach and hardware doctor. Inspect the published
+simulation environment, then use native sim/HIL execution and Trace evidence;
+model success does not establish physical wiring or driver correctness.
+
 ## Establish identities
 
 1. Run `python scripts/toolkit_doctor.py --json`. This is host-only and does not

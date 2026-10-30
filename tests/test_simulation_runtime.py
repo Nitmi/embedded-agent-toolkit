@@ -233,7 +233,7 @@ class SimulationRuntimeTests(unittest.TestCase):
                 self.assertEqual(report["layout"], layout)
                 self.assertEqual(report["resolution_source"], "pinned_releases")
                 self.assertEqual(
-                    sum(x["verified_files"] for x in report["components"]), 95
+                    sum(x["verified_files"] for x in report["components"]), 97
                 )
                 for flag in (
                     "executables_started",
@@ -253,7 +253,12 @@ class SimulationRuntimeTests(unittest.TestCase):
                 self.assertFalse(list(site.rglob("__pycache__")))
 
     def test_sensor_code_and_model_are_required_and_historical_mode_rejects_them(self):
-        for leaf in ("sensor.py", "assets/nrf52840-i2c-sensor.repl"):
+        for leaf in (
+            "sensor.py",
+            "assets/nrf52840-i2c-sensor.repl",
+            "spi_sensor.py",
+            "assets/nrf52840-spi-sensor.repl",
+        ):
             for change in ("missing", "drift"):
                 with (
                     self.subTest(leaf=leaf, change=change),
@@ -293,15 +298,58 @@ class SimulationRuntimeTests(unittest.TestCase):
                 self.assertFalse(self.inspect(root, pin, [name])["ok"])
 
     def test_sensor_model_cannot_be_substituted_by_rehashing_the_pin(self):
-        pin = copy.deepcopy(sim.load_pin())
-        item = next(
-            row
-            for row in pin["components"]["sim-runner"]["files"]
-            if row["path"] == "sim_runner/assets/nrf52840-i2c-sensor.repl"
-        )
-        item["path"] = "sim_runner/assets/arbitrary-sensor.repl"
-        with self.assertRaises(ValueError):
-            sim.parse_pin(json.dumps(pin).encode())
+        for model in ("nrf52840-i2c-sensor.repl", "nrf52840-spi-sensor.repl"):
+            with self.subTest(model=model):
+                pin = copy.deepcopy(sim.load_pin())
+                item = next(
+                    row
+                    for row in pin["components"]["sim-runner"]["files"]
+                    if row["path"] == "sim_runner/assets/" + model
+                )
+                item["path"] = "sim_runner/assets/arbitrary-sensor.repl"
+                with self.assertRaises(ValueError):
+                    sim.parse_pin(json.dumps(pin).encode())
+
+    def test_coherent_previous_release_or_mixed_versions_cannot_replace_spi_selection(
+        self,
+    ):
+        versions = {
+            "sim-runner": "0.8.0",
+            "hil-runner": "0.13.0",
+            "embedded-trace": "0.13.1",
+        }
+        selections = [[name] for name in versions] + [list(versions)]
+        for names in selections:
+            with self.subTest(components=names):
+                pin = copy.deepcopy(sim.load_pin())
+                for name in names:
+                    item = pin["components"][name]
+                    current = item["version"]
+                    version = versions[name]
+                    item["version"] = version
+                    item["source_ref"] = f"refs/tags/v{version}"
+                    distribution = sim.SPECS[name][1]
+                    wheel = f"{distribution}-{version}-py3-none-any.whl"
+                    item["wheel"].update(
+                        name=wheel,
+                        url=f"https://github.com/Nitmi/{name}/releases/download/v{version}/{wheel}",
+                    )
+                    for row in item["files"]:
+                        row["path"] = row["path"].replace(
+                            f"-{current}.dist-info/", f"-{version}.dist-info/"
+                        )
+                    if name == "sim-runner":
+                        item["files"] = [
+                            row
+                            for row in item["files"]
+                            if row["path"]
+                            not in {
+                                "sim_runner/spi_sensor.py",
+                                "sim_runner/assets/nrf52840-spi-sensor.repl",
+                            }
+                        ]
+                with self.assertRaisesRegex(ValueError, "component identity"):
+                    sim.parse_pin(json.dumps(pin).encode())
 
     def test_selected_missing_changed_or_extra_package_bytes_fail(self):
         for name in sim.SPECS:

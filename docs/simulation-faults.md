@@ -1,7 +1,7 @@
 # GPIO/TIMER0 model fault regressions
 
-Toolkit 0.36.1 routes the published sim-runner
-0.8.0, HIL Runner 0.13.0 and Embedded Trace 0.13.1 wheels. Their fixed profile is
+Toolkit 0.37.0 routes the published sim-runner
+0.9.0, HIL Runner 0.14.0 and Embedded Trace 0.14.0 wheels. Their fixed profile is
 `nrf52840-gpio-timer-fault-v1` on Renode 1.17.0. It extends the nominal GPIO/TIMER0
 fixture with `none`, `gpio-stuck-low`, `gpio-stuck-high`, `timer-stop` and
 `timer-irq-mask`. These are simulated inputs, not physical board tests.
@@ -18,7 +18,7 @@ environment. Local computed hashes do not require new user approval.
 python scripts/simulation_runtime.py inspect '<simulation-venv>' --json
 ```
 
-This checks 95 source/schema/metadata/license files without importing or launching
+This checks 97 source/schema/metadata/license files without importing or launching
 components. Expect `candidate_mode=false`, `resolution_source=pinned_releases`,
 three `distribution_status=published` entries and the exact release refs/commits.
 `executables_started`, `release_attestation_verified`, `backend_runtime_verified`
@@ -62,7 +62,7 @@ and observer limitations. Use `--fault none` for the control; do not alter the
 firmware merely to produce the four different fault inputs.
 
 Follow [native simulation planning and suites](simulation.md) for inspect-plan,
-single run or HIL's typed simulation spec. Bind the exact 0.8.0 wheel for HIL.
+single run or HIL's typed simulation spec. Bind the exact 0.9.0 wheel for HIL.
 HIL preflights every case before any backend starts, then runs cases in order
 without per-case confirmation. A failed/indeterminate case stops later cases,
 including when injection was observed. No expected-failure override, retry,

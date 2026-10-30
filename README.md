@@ -1,19 +1,13 @@
 # Embedded Agent Toolkit
 
-Local **0.36.1** selects published [Trace 0.13.1](docs/embedded-trace.md) for
-standalone, simulation and instrument evidence. Its bounded reader reduces
-small-file allocations while retaining full file/hash checks. Simulation keeps
-sim 0.8 / HIL 0.13 (95 files); instruments keep lab 0.11 / HIL 0.12 (96 files).
-Historical candidate selections and default doctor remain independent.
-
-Local **0.36.0** adds [TMP103 sensor simulation](docs/simulation-sensors.md):
-published sim 0.8 / HIL 0.13 / Trace 0.13 and 95 payload files. Signed guest
-samples, raw model snapshots, fault effects and failed/null outcomes survive
-filtered evidence views. [GPIO faults](docs/simulation-faults.md) and
-[ESP-EMU WASM](docs/simulation-wasm.md) retain their native limitations.
-Historical 69-file candidates require explicit selection. Instrument routing
-uses lab 0.11 / HIL 0.12 / Trace 0.13.1 with 96 files; workstation locks and
-default doctor remain independent.
+Local **0.37.0** adds [SPI / LM74 model regressions](docs/simulation-spi.md)
+through published sim 0.9 / HIL 0.14 / Trace 0.14 (97 files). Signed Q4 words,
+raw model observations, frame-slip spans and failed/unknown outcomes remain
+visible in saved evidence. [TMP103](docs/simulation-sensors.md),
+[GPIO faults](docs/simulation-faults.md) and [WASM](docs/simulation-wasm.md)
+keep their separate model limits. Standalone and instrument routes use the same
+Trace 0.14; instruments retain lab 0.11 / HIL 0.12 and 96 files. Historical
+candidate modes, native station selection and default doctor remain independent.
 
 [![CI](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/ci.yml)
 [![Release provenance](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/release-attestation.yml/badge.svg)](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/release-attestation.yml)
@@ -42,10 +36,10 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The current published Toolkit is [0.35.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.35.0):
-saved digital, voltage, load and thermal checks (96 instrument files), with the
-earlier sim 0.7 / HIL 0.8 / Trace 0.8 simulation pin (69 files). Local 0.36.0
-above is not a published Toolkit release yet.
+The current published Toolkit is [0.36.1](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.36.1):
+simulation uses sim 0.8 / HIL 0.13 / Trace 0.13.1 (95 files); saved instrument
+evidence uses lab 0.11 / HIL 0.12 / Trace 0.13.1 (96 files). Local 0.37.0 above
+is not a published Toolkit release yet.
 
 For the selected Toolkit version, use `simulation_runtime.py inspect <venv> --json`.
 The v2 pin binds release URLs, tags, source commits and installed bytes without

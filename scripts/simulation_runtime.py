@@ -102,12 +102,17 @@ CANDIDATE_SPECS = {
 }
 CANDIDATE_VERSIONS = {name: spec[2] for name, spec in CANDIDATE_SPECS.items()}
 PUBLISHED_VERSIONS = {
-    "sim-runner": "0.8.0",
-    "hil-runner": "0.13.0",
-    "embedded-trace": "0.13.1",
+    "sim-runner": "0.9.0",
+    "hil-runner": "0.14.0",
+    "embedded-trace": "0.14.0",
 }
 PUBLISHED_FILES = {
-    "sim-runner": {"sensor.py", "assets/nrf52840-i2c-sensor.repl"},
+    "sim-runner": {
+        "sensor.py",
+        "assets/nrf52840-i2c-sensor.repl",
+        "spi_sensor.py",
+        "assets/nrf52840-spi-sensor.repl",
+    },
     "hil-runner": {
         "instrument.py",
         "waveform.py",
