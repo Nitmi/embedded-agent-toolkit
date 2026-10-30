@@ -17,7 +17,7 @@ SCHEMA = "embedded-agent-toolkit.trace-runtime-inspection.v1"
 PIN_SCHEMA = "embedded-agent-toolkit.trace-runtime.v1"
 PIN_PATH = Path(__file__).resolve().parents[1] / "trace-runtime.json"
 HASH = re.compile(r"[0-9a-f]{64}")
-PACKAGE_FILES = {
+LEGACY_PACKAGE_FILES = {
     "embedded_trace/" + name
     for name in (
         "__init__.py",
@@ -32,6 +32,23 @@ PACKAGE_FILES = {
         "schemas/input.v1.schema.json",
         "schemas/result.v1.schema.json",
         "schemas/timeline.v1.schema.json",
+    )
+}
+PACKAGE_FILES = LEGACY_PACKAGE_FILES | {
+    "embedded_trace/" + name
+    for name in (
+        "report.py",
+        "simulation.py",
+        "instrument.py",
+        "waveform.py",
+        "load.py",
+        "load_protocol.py",
+        "thermal.py",
+        "thermal_protocol.py",
+        "schemas/instrument-report.schema.json",
+        "schemas/waveform-report.schema.json",
+        "schemas/load-report.schema.json",
+        "schemas/thermal-report.schema.json",
     )
 }
 
@@ -94,9 +111,8 @@ def parse_pin(data: bytes) -> dict:
         "Pin identity differs",
     )
     require(
-        isinstance(version, str)
-        and re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version) is not None,
-        "Invalid pinned version",
+        isinstance(version, str) and version in ("0.1.0", "0.13.1"),
+        "Unsupported pinned Trace version",
     )
     require(
         isinstance(pin["source_revision"], str)
@@ -115,7 +131,8 @@ def parse_pin(data: bytes) -> dict:
         and HASH.fullmatch(wheel["sha256"]) is not None,
         "Invalid wheel pin",
     )
-    expected = PACKAGE_FILES | {
+    package_files = LEGACY_PACKAGE_FILES if version == "0.1.0" else PACKAGE_FILES
+    expected = package_files | {
         f"embedded_trace-{version}.dist-info/" + leaf
         for leaf in ("METADATA", "WHEEL", "entry_points.txt", "licenses/LICENSE")
     }
@@ -231,6 +248,11 @@ def inspect_environment(environment: Path) -> dict:
                 len(raw) == item["size"] and digest(raw) == item["sha256"],
                 f"Installed payload differs: {item['path']}",
             )
+        package_files = {
+            item["path"]
+            for item in pin["files"]
+            if item["path"].startswith("embedded_trace/")
+        }
         pending = [site / "embedded_trace"]
         count = 0
         while pending:
@@ -258,7 +280,7 @@ def inspect_environment(environment: Path) -> dict:
                             "Nonregular package entry",
                         )
                         require(
-                            relative in PACKAGE_FILES
+                            relative in package_files
                             or (
                                 path.parent.name == "__pycache__"
                                 and path.suffix == ".pyc"

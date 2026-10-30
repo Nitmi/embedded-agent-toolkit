@@ -3,28 +3,28 @@
     "embedded-trace": {
       "files": [
         {
-          "path": "embedded_trace-0.13.0.dist-info/METADATA",
-          "sha256": "ea9085355fc3964a263ede5f719754aeb8a077d0958fa331208f10787cdd1252",
-          "size": 7971
+          "path": "embedded_trace-0.13.1.dist-info/METADATA",
+          "sha256": "fe8ded9fd16f1e0dee439399fe85a691ea2ae23ad4fa9ce6665ed0613abf0848",
+          "size": 8196
         },
         {
-          "path": "embedded_trace-0.13.0.dist-info/WHEEL",
+          "path": "embedded_trace-0.13.1.dist-info/WHEEL",
           "sha256": "5b77e4a649bbfb07fdbc123967eeecd1e5a478cfaca6eefc23c35e6fdf037848",
           "size": 87
         },
         {
-          "path": "embedded_trace-0.13.0.dist-info/entry_points.txt",
+          "path": "embedded_trace-0.13.1.dist-info/entry_points.txt",
           "sha256": "e180a3647b9cfcfff5b791785e23468834bc0ddc426fbdd7c84fc51797e71dcd",
           "size": 59
         },
         {
-          "path": "embedded_trace-0.13.0.dist-info/licenses/LICENSE",
+          "path": "embedded_trace-0.13.1.dist-info/licenses/LICENSE",
           "sha256": "cd24e7704a2b7505c01595eb602ad9be91edbb95650364fb428b2150c7044559",
           "size": 1062
         },
         {
           "path": "embedded_trace/__init__.py",
-          "sha256": "504cf0536e00735290d5aaf1a114d175ead59b3dc9e05cbc9cb6458f3a0d1fc6",
+          "sha256": "2c80e098ace1208496b0916dc14260360808056afd24d20c16817bada8cb3dda",
           "size": 66
         },
         {
@@ -49,8 +49,8 @@
         },
         {
           "path": "embedded_trace/common.py",
-          "sha256": "945c641d62d7964773cb05d540e7eb33202d20af0505da6597fab0ba2f6f525d",
-          "size": 6240
+          "sha256": "047dff28cd3b9a02554163b9a92ce49a30a1fccbe101bb7ddb71768b8ae77208",
+          "size": 6923
         },
         {
           "path": "embedded_trace/framing.py",
@@ -144,14 +144,14 @@
         }
       ],
       "repository": "Nitmi/embedded-trace",
-      "source_ref": "refs/tags/v0.13.0",
-      "source_revision": "f07f00510e580ed5ae69f9a66c4b5eae5388d241",
+      "source_ref": "refs/tags/v0.13.1",
+      "source_revision": "c28cf02e7a02dc13b95c031636bfb9d844d2f81b",
       "status": "published",
-      "version": "0.13.0",
+      "version": "0.13.1",
       "wheel": {
-        "name": "embedded_trace-0.13.0-py3-none-any.whl",
-        "sha256": "58fbd505147e7c447a9e23fb4fdfef607f20ef75ad1a8dd5b14db34d9c9b284b",
-        "url": "https://github.com/Nitmi/embedded-trace/releases/download/v0.13.0/embedded_trace-0.13.0-py3-none-any.whl"
+        "name": "embedded_trace-0.13.1-py3-none-any.whl",
+        "sha256": "38bb53dd54be2074e75881ff95d51f0c23c2a2809cc1ffc4bededdacd2e890b1",
+        "url": "https://github.com/Nitmi/embedded-trace/releases/download/v0.13.1/embedded_trace-0.13.1-py3-none-any.whl"
       }
     },
     "hil-runner": {

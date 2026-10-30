@@ -4,6 +4,39 @@ Read this file and AGENTS.md before starting another task.
 
 ## Current local work
 
+- Local 0.36.1 on fix/trace-0131-runtime-pins selects the authenticated Trace
+  0.13.1 wheel (c28cf02) for standalone, simulation and instrument inspection.
+  Inventories are 28 standalone, 95 simulation (sim0.8/HIL0.13/Trace0.13.1),
+  and 96 instrument (lab0.11/HIL0.12/Trace0.13.1) files. Other components and
+  historical 69/74-file candidate pins are unchanged. Do not conflate a directory
+  containing published wheels with the explicit historical --candidate mode.
+- The standalone reader has audited per-version inventories for legacy0.1 and
+  current0.13.1. A version-looking string cannot expand the reviewed inventory;
+  walking accepts only the selected pin's package files. All three current
+  routes bind identical Trace bytes/metadata; an old environment must fail the
+  new default rather than fall back. Static inspections never start/import the
+  selected interpreter/components or turn provenance/runtime/physical flags true.
+- Two Python versions each ran277 source tests:274 passed/three existing platform
+  skips. Ruff/format, all four official Skill validators and repository plugin
+  layout/release identity passed. The official plugin-creator validator is absent;
+  retain that distinction. No Skill content or hardware confirmation rule changed.
+- Separate new simulation/instrument environments on3.11/3.13 install the exact
+  formal wheels offline without dependencies. Saved26 digital/waveform/load/
+  thermal bundles retain52 full/empty views per Python, matching Trace0.12 after
+  normalizing only root viewer_version; twelve saved sensor views per Python
+  match their complete Trace0.13.1 hashes. No native decoding/capture is repeated.
+- Local acceptance D:\Code\tmp\toolkit-trace-0361-20261030 owns later clean-source
+  builds, candidate installation, mode rejection and cost records. Use its final
+  completed receipt. Active Toolkit0.36, station/locks/PATH and old environments
+  stay unchanged; this task does not publish or activate Toolkit.
+- Pitfalls: instrument '*-import.json' files are import specs, not normalized
+  bundles. Compare explicit case/bundle.json files against prior result.json
+  SHA-256s. Initial wrapper failure read only a spec; preserve that log. Ruff
+  first rejected two formatting changes; corrected format passes. PowerShell
+  passes literal glob path arguments to rg; use an explicit directory plus -g.
+  Large combined reads can be display-truncated; use small selected regions or
+  structured fields, never infer validation from a truncated result.
+
 - Local 0.36.0 on feat/published-sensor-simulation routes fixed Renode TMP103
   signed-temperature and model-fault evidence. Read docs/simulation-sensors.md.
   The simulation default now binds published sim0.8 (7f542e0), HIL0.13

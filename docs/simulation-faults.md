@@ -1,7 +1,7 @@
 # GPIO/TIMER0 model fault regressions
 
-Local Toolkit 0.36.0 routes the published sim-runner
-0.8.0, HIL Runner 0.13.0 and Embedded Trace 0.13.0 wheels. Their fixed profile is
+Toolkit 0.36.1 routes the published sim-runner
+0.8.0, HIL Runner 0.13.0 and Embedded Trace 0.13.1 wheels. Their fixed profile is
 `nrf52840-gpio-timer-fault-v1` on Renode 1.17.0. It extends the nominal GPIO/TIMER0
 fixture with `none`, `gpio-stuck-low`, `gpio-stuck-high`, `timer-stop` and
 `timer-irq-mask`. These are simulated inputs, not physical board tests.

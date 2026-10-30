@@ -1,12 +1,18 @@
 # Embedded Agent Toolkit
 
+Local **0.36.1** selects published [Trace 0.13.1](docs/embedded-trace.md) for
+standalone, simulation and instrument evidence. Its bounded reader reduces
+small-file allocations while retaining full file/hash checks. Simulation keeps
+sim 0.8 / HIL 0.13 (95 files); instruments keep lab 0.11 / HIL 0.12 (96 files).
+Historical candidate selections and default doctor remain independent.
+
 Local **0.36.0** adds [TMP103 sensor simulation](docs/simulation-sensors.md):
 published sim 0.8 / HIL 0.13 / Trace 0.13 and 95 payload files. Signed guest
 samples, raw model snapshots, fault effects and failed/null outcomes survive
 filtered evidence views. [GPIO faults](docs/simulation-faults.md) and
 [ESP-EMU WASM](docs/simulation-wasm.md) retain their native limitations.
 Historical 69-file candidates require explicit selection. Instrument routing
-remains lab 0.11 / HIL 0.12 / Trace 0.12 with 96 files; workstation locks and
+uses lab 0.11 / HIL 0.12 / Trace 0.13.1 with 96 files; workstation locks and
 default doctor remain independent.
 
 [![CI](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/ci.yml)

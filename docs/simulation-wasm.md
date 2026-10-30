@@ -1,7 +1,7 @@
 # Experimental ESP-EMU WASM workflow
 
-Local Toolkit 0.36.0's published default pin selects sim-runner 0.8.0, HIL Runner 0.13.0
-and Embedded Trace 0.13.0: 95 source/asset/schema/metadata/license files. Each
+Toolkit 0.36.1's published default pin selects sim-runner 0.8.0, HIL Runner 0.13.0
+and Embedded Trace 0.13.1: 95 source/asset/schema/metadata/license files. Each
 component is bound to its release tag/source commit, wheel URL/hash and payload
 inventory in `simulation-runtime.json`.
 
@@ -21,7 +21,7 @@ python scripts/simulation_runtime.py inspect '<absolute-simulation-venv>' --json
 ```
 
 Require `ok=true`, `candidate_mode=false`, `resolution_source=pinned_releases`,
-versions 0.8.0/0.13.0/0.13.0 and 95 verified files. Each distribution is
+versions 0.8.0/0.13.0/0.13.1 and 95 verified files. Each distribution is
 `published`. Existing `--component` supports individual checks. A missing,
 changed or unexpected selected payload fails without fallback.
 The preserved `simulation-candidates.json` records the earlier local builds;

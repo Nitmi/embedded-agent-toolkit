@@ -1,8 +1,8 @@
 # TMP103 sensor simulation
 
-Local Toolkit 0.36.0 routes published [sim-runner 0.8.0](https://github.com/Nitmi/sim-runner/releases/tag/v0.8.0),
+Toolkit 0.36.1 routes published [sim-runner 0.8.0](https://github.com/Nitmi/sim-runner/releases/tag/v0.8.0),
 [HIL Runner 0.13.0](https://github.com/Nitmi/hil-runner/releases/tag/v0.13.0) and
-[Embedded Trace 0.13.0](https://github.com/Nitmi/embedded-trace/releases/tag/v0.13.0).
+[Embedded Trace 0.13.1](https://github.com/Nitmi/embedded-trace/releases/tag/v0.13.1).
 Use this workflow for signed-temperature conversion, stale reads or bounded
 sensor-response regressions in Renode. It does not test physical sensors,
 board wiring or I2C electrical behavior.

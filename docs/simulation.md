@@ -1,9 +1,9 @@
 # Optional simulation workflow
 
-Local Toolkit 0.36.0 routes the published
+Toolkit 0.36.1 routes the published
 [sim-runner 0.8.0](https://github.com/Nitmi/sim-runner/releases/tag/v0.8.0),
 [HIL Runner 0.13.0](https://github.com/Nitmi/hil-runner/releases/tag/v0.13.0) and
-[Embedded Trace 0.13.0](https://github.com/Nitmi/embedded-trace/releases/tag/v0.13.0).
+[Embedded Trace 0.13.1](https://github.com/Nitmi/embedded-trace/releases/tag/v0.13.1).
 `simulation-runtime.json`
 v2 binds each component's official tag/ref and source commit, exact release wheel
 URL and hash, and all 95 installed source/schema/metadata/license files.
@@ -231,7 +231,7 @@ partial evidence and must not be fabricated into a Trace source.
   --output '<new-report.md>' --json
 ```
 
-Trace 0.13.0's `sim-runner-report` adapter checks the selected report and adjacent
+Trace 0.13.1's `sim-runner-report` adapter checks the selected report and adjacent
 hash-bound artifacts offline. Keep the native reports, plans, locks, firmware,
 UART bytes, CLI outputs and suite journal. UART is labelled `simulation.uart`;
 line windows cover the host run, with no invented per-byte timestamps or measured

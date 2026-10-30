@@ -104,7 +104,7 @@ CANDIDATE_VERSIONS = {name: spec[2] for name, spec in CANDIDATE_SPECS.items()}
 PUBLISHED_VERSIONS = {
     "sim-runner": "0.8.0",
     "hil-runner": "0.13.0",
-    "embedded-trace": "0.13.0",
+    "embedded-trace": "0.13.1",
 }
 PUBLISHED_FILES = {
     "sim-runner": {"sensor.py", "assets/nrf52840-i2c-sensor.repl"},

@@ -1,7 +1,7 @@
 # Optional offline instrument workflows
 
-Toolkit 0.35.0 routes the published lab-instruments 0.11.0,
-HIL Runner 0.12.0 and Embedded Trace 0.12.0 releases. This optional domain
+Toolkit 0.36.1 routes the published lab-instruments 0.11.0,
+HIL Runner 0.12.0 and Embedded Trace 0.13.1 releases. This optional domain
 evaluates **saved** digital/analog captures, load/thermal measurements and native reports; it does not open an
 instrument or acquire a new waveform. Real devices, vendor SDK/ABI, wiring,
 calibration and timing accuracy have not been qualified by these software checks.
@@ -14,11 +14,13 @@ Its release identities are:
 | --- | --- | --- |
 | [lab-instruments](https://github.com/Nitmi/lab-instruments/releases/tag/v0.11.0) | `v0.11.0` | `8d8ea1743699e3a0bd889d2612bdd19d4552b590` |
 | [HIL Runner](https://github.com/Nitmi/hil-runner/releases/tag/v0.12.0) | `v0.12.0` | `81c3b6fd8b23bc7ac2c3da5ce0d9b98bb39ed883` |
-| [Embedded Trace](https://github.com/Nitmi/embedded-trace/releases/tag/v0.12.0) | `v0.12.0` | `c365536bdd91d4c2c2453115e0e035ea2f8ef26d` |
+| [Embedded Trace](https://github.com/Nitmi/embedded-trace/releases/tag/v0.13.1) | `v0.13.1` | `c28cf02e7a02dc13b95c031636bfb9d844d2f81b` |
 
 Published identity in a pin is not an attestation verification. Do not substitute the
-older HIL/Trace versions selected by the separate simulation pin or managed HIL
-pin. A dedicated instrument environment keeps these selections explicit.
+HIL versions selected by the separate simulation pin or managed HIL pin. Trace
+0.13.1 is shared by the standalone and simulation routes, but it does not make
+their other dependencies interchangeable. A dedicated instrument environment
+keeps these selections explicit.
 
 ## Inspect the selected software
 

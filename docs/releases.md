@@ -1,5 +1,12 @@
 # Versioned releases
 
+Local 0.36.1 selects the published Trace 0.13.1 performance patch for standalone,
+simulation and instrument evidence. Their inventories are 28, 95 and 96 files.
+The other components and explicit historical candidate modes keep their pins.
+All selected files are still verified; static readiness does not verify an
+interpreter, release signature, backend runtime or physical device. Toolkit is
+a local candidate until its own release workflow and publication complete.
+
 Local 0.35.0 adds [saved thermal ROI routing](instrument-thermal.md), using
 published lab0.11/HIL0.12/Trace0.12 and 96 installed payloads. It retains digital,
 waveform and load evidence compatibility, historical candidate mode and independent

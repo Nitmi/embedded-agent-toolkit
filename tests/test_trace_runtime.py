@@ -45,7 +45,7 @@ class TraceInspectionTests(unittest.TestCase):
             report = trace.inspect_environment(self.environment)
         self.assertTrue(report["ok"], report)
         self.assertEqual(report["status"], "payload_verified")
-        self.assertEqual(report["verified_files"], 16)
+        self.assertEqual(report["verified_files"], 28)
         for key in (
             "hardware_access",
             "executables_started",
@@ -68,7 +68,7 @@ class TraceInspectionTests(unittest.TestCase):
         self.assertFalse(trace.inspect_environment(self.environment)["ok"])
 
     def test_metadata_is_part_of_payload_identity(self):
-        (self.site / "embedded_trace-0.1.0.dist-info/entry_points.txt").write_bytes(
+        (self.site / "embedded_trace-0.13.1.dist-info/entry_points.txt").write_bytes(
             b"wrong CLI"
         )
         self.assertFalse(trace.inspect_environment(self.environment)["ok"])
@@ -175,6 +175,52 @@ class TraceInspectionTests(unittest.TestCase):
 
 
 class TracePinAndCliTests(unittest.TestCase):
+    def test_all_three_routes_select_the_same_complete_trace_payload(self):
+        from scripts import instrument_runtime, simulation_runtime
+
+        standalone = trace.load_pin()
+        for runtime in (simulation_runtime, instrument_runtime):
+            selected = runtime.load_pin()["components"]["embedded-trace"]
+            for field in ("version", "source_revision", "wheel", "files"):
+                self.assertEqual(standalone[field], selected[field])
+        self.assertEqual(standalone["version"], "0.13.1")
+
+    def test_audited_legacy_layout_remains_valid_but_cannot_hide_new_files(self):
+        legacy = copy.deepcopy(trace.load_pin())
+        legacy["version"] = "0.1.0"
+        wheel = "embedded_trace-0.1.0-py3-none-any.whl"
+        legacy["wheel"].update(
+            name=wheel,
+            url="https://github.com/Nitmi/embedded-trace/releases/download/v0.1.0/"
+            + wheel,
+        )
+        legacy["files"] = [
+            dict(
+                item,
+                path=item["path"].replace("-0.13.1.dist-info/", "-0.1.0.dist-info/"),
+            )
+            for item in legacy["files"]
+            if item["path"] in trace.LEGACY_PACKAGE_FILES
+            or ".dist-info/" in item["path"]
+        ]
+        self.assertEqual(len(legacy["files"]), 16)
+        self.assertEqual(trace.parse_pin(json.dumps(legacy).encode()), legacy)
+        legacy["files"].append(
+            next(
+                item
+                for item in trace.load_pin()["files"]
+                if item["path"] == "embedded_trace/thermal.py"
+            )
+        )
+        with self.assertRaises(ValueError):
+            trace.parse_pin(json.dumps(legacy).encode())
+
+    def test_semver_alone_cannot_select_an_unaudited_payload_layout(self):
+        pin = copy.deepcopy(trace.load_pin())
+        pin["version"] = "0.13.2"
+        with self.assertRaisesRegex(ValueError, "Unsupported pinned Trace version"):
+            trace.parse_pin(json.dumps(pin).encode())
+
     def test_pin_cannot_drop_payloads_redirect_or_override_runtime_paths(self):
         original = trace.load_pin()
         for mode in ("drop", "duplicate", "traverse", "redirect", "bad-size"):
