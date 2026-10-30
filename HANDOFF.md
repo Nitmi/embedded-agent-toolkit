@@ -4,6 +4,42 @@ Read this file and AGENTS.md before starting another task.
 
 ## Current local work
 
+- Local0.38.0 on feat/published-watchdog-simulation routes the released watchdog
+  profile and independent plan/report schemas. Published selection is sim0.10 /
+  HIL0.15 / Trace0.15 with99 files (34/37/28). Instrument lab0.11/HIL0.12 stays
+  fixed; only its Trace changes to the same0.15 wheel/source,96 files; standalone28.
+  Pins are generated from actual formal wheel bytes, bound to the completed24
+  real GitHub signature results. The previous release is not re-published or
+  re-installed. Reuse its joint311/joint313 environments and saved31 watchdog
+  results; only new isolated instrument and Toolkit candidate installs are needed.
+- Read docs/simulation-watchdog.md. Keep native sim verdicts, HIL preflight /
+  fail-stop / cleanup and Trace raw model/reset/callback/guest spans separate.
+  An observed fault cannot turn a failed nominal regression into a pass; timeout
+  remains unknown. Model resets, CONFIG tags and guest reboot markers establish
+  no physical reset, power, protection or complete-model qualification. Three
+  Skills gain short routes; no executor, MCP or per-run confirmation is added.
+- Historical candidate69/74 inventories, native catalog/managed pins, active
+  Toolkit/plugin0.37, workstation selection/locks/PATH and old environments are
+  independent. Standalone retains explicit audited0.1/0.13.1/0.14 layouts and
+  adds0.15 only, not arbitrary semver. Missing/drifted watchdog code/model or a
+  coherent previous0.9/0.14/0.14 selection must fail without fallback.
+- Local acceptance D:/Code/tmp/toolkit-watchdog-0380-20261030 owns source checks,
+  clean dual builds, two candidate plugin installs,99/96/28 static checks,
+  saved watchdog/instrument compatibility and measured cost. Read its final
+  completed.json for actual completion; this integration does not publish or
+  activate Toolkit or rerun native simulation/captures. The new watchdog guide
+  must stay in release.REQUIRED_FILES; bootstrap and manifests are0.38.0.
+- Source qualification on3.11/3.13 each ran279 tests,276 passed/three existing
+  platform skips; Ruff/format, repository plugin layout/release identity and
+  four official Skill validators passed. The official plugin-creator validator
+  is absent. Saved31 watchdog results per Python match complete frozen hashes;
+  26 existing instrument bundles retain52 full/empty views per Python after
+  normalizing only the root viewer_version. Native captures were not repeated.
+- Harness reuse pitfall: a bulk version replacement also changed the historical
+  instrument-candidate path in the temporary helper. It was corrected before
+  any candidate checks; the source historical pin and installed environment were
+  never modified. Preserve instrument project fields when regenerating Trace.
+
 - Local0.37.0 on feat/published-spi-simulation adds SPI0/LM74 routing. The
   simulation default selects authenticated published sim0.9/HIL0.14/Trace0.14
   and97 payloads; instruments retain lab0.11/HIL0.12 with the same Trace0.14

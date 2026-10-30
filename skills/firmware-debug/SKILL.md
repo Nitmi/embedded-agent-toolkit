@@ -48,6 +48,10 @@ For LM74 signed Q4, two-byte framing or SPI model faults, read
 [SPI simulation](../../docs/simulation-spi.md). Keep raw words, paused model
 observations, frame-slip byte spans and failed/unknown nominal outcomes distinct;
 the monitor-byte fault does not establish an electrical or physical root cause.
+For watchdog reload failures or modeled reboots, read
+[watchdog simulation](../../docs/simulation-watchdog.md). Keep native model,
+reset/callback and guest spans together; a failed regression with an observed
+effect establishes neither physical reset nor low-power behavior.
 
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only

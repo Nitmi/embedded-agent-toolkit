@@ -1,12 +1,12 @@
 # Optional simulation workflow
 
-Toolkit 0.37.0 routes the published
-[sim-runner 0.9.0](https://github.com/Nitmi/sim-runner/releases/tag/v0.9.0),
-[HIL Runner 0.14.0](https://github.com/Nitmi/hil-runner/releases/tag/v0.14.0) and
-[Embedded Trace 0.14.0](https://github.com/Nitmi/embedded-trace/releases/tag/v0.14.0).
+Toolkit 0.38.0 routes the published
+[sim-runner 0.10.0](https://github.com/Nitmi/sim-runner/releases/tag/v0.10.0),
+[HIL Runner 0.15.0](https://github.com/Nitmi/hil-runner/releases/tag/v0.15.0) and
+[Embedded Trace 0.15.0](https://github.com/Nitmi/embedded-trace/releases/tag/v0.15.0).
 `simulation-runtime.json`
 v2 binds each component's official tag/ref and source commit, exact release wheel
-URL and hash, and all 97 installed source/schema/metadata/license files.
+URL and hash, and all 99 installed source/schema/metadata/license files.
 Use those official wheels; there is no implicit download or install step.
 The separate `hil-runtime.json` retains its earlier hardware workflow.
 `trace-runtime.json` selects the same Trace release as both optional domains.
@@ -17,6 +17,8 @@ For TMP103 signed-temperature and fixed sensor faults, read
 read [model fault evidence](simulation-faults.md).
 For LM74 signed Q4, two-byte framing and fixed SPI faults, read
 [SPI simulation](simulation-spi.md).
+For dual-channel watchdog reload, stopped feeding and modeled guest reboot,
+read [watchdog simulation](simulation-watchdog.md).
 Default inspection selects these published releases, including the
 [experimental ESP-EMU WASM workflow](simulation-wasm.md). The separate
 `simulation-candidates.json` v1 preserves the recorded sim 0.7 / HIL 0.8 / Trace 0.8 local builds.
@@ -109,6 +111,10 @@ bounded:
 
 - Renode 1.17.0: `nrf52840-uart-v1`, raw Cortex-M vector-table BIN, UART readiness;
   zero-initialized model state, a virtual execution budget and host deadline.
+- Renode 1.17.0: `nrf52840-watchdog-v1`, dual RR reload, 16 nominal samples and
+  four paused observations in 82 ms; explicit `none`, `feed-timer-stop` or
+  `watchdog-stop`. Keep raw reset/callback/model evidence and failed/unknown
+  outcomes as described in the [watchdog guide](simulation-watchdog.md).
 - Renode 1.17.0: `nrf52840-spi-sensor-v1`, fixed legacy SPI0/LM74 two-byte reads,
   signed Q4, 16 samples/four observations in 82 ms; explicit `none`,
   `temperature-stuck` or model-byte `frame-slip`. Read the [SPI guide](simulation-spi.md).
@@ -181,13 +187,13 @@ pin schedules or timer modes require another audited profile.
 
 ## Coordinate a bounded suite
 
-Use HIL 0.14.0's `embedded-hil-runner.simulation-spec.v1` with 1..8 ordered cases:
+Use HIL 0.15.0's `embedded-hil-runner.simulation-spec.v1` with 1..8 ordered cases:
 
 ```json
 {
   "schema_version": "embedded-hil-runner.simulation-spec.v1",
   "python": {"path": "<trusted-absolute-python-path>", "sha256": "<python-sha256>"},
-  "sim_runner_wheel": {"path": "<selected-0.9.0-wheel>", "sha256": "<wheel-sha256>"},
+  "sim_runner_wheel": {"path": "<selected-0.10.0-wheel>", "sha256": "<wheel-sha256>"},
   "cases": [
     {"id": "a", "plan": {"path": "a.json", "sha256": "<native-plan-sha256>"}},
     {"id": "b", "plan": {"path": "b.json", "sha256": "<native-plan-sha256>"}}
@@ -236,7 +242,7 @@ partial evidence and must not be fabricated into a Trace source.
   --output '<new-report.md>' --json
 ```
 
-Trace 0.14.0's `sim-runner-report` adapter checks the selected report and adjacent
+Trace 0.15.0's `sim-runner-report` adapter checks the selected report and adjacent
 hash-bound artifacts offline. Keep the native reports, plans, locks, firmware,
 UART bytes, CLI outputs and suite journal. UART is labelled `simulation.uart`;
 line windows cover the host run, with no invented per-byte timestamps or measured

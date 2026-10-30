@@ -1,12 +1,12 @@
 # Embedded Agent Toolkit
 
-Local **0.37.0** adds [SPI / LM74 model regressions](docs/simulation-spi.md)
-through published sim 0.9 / HIL 0.14 / Trace 0.14 (97 files). Signed Q4 words,
-raw model observations, frame-slip spans and failed/unknown outcomes remain
-visible in saved evidence. [TMP103](docs/simulation-sensors.md),
+Local **0.38.0** adds [watchdog model regressions](docs/simulation-watchdog.md)
+through published sim 0.10 / HIL 0.15 / Trace 0.15 (99 files). Dual reload,
+raw reset/callback/model spans and failed/unknown outcomes remain visible in
+saved evidence. [SPI / LM74](docs/simulation-spi.md), [TMP103](docs/simulation-sensors.md),
 [GPIO faults](docs/simulation-faults.md) and [WASM](docs/simulation-wasm.md)
 keep their separate model limits. Standalone and instrument routes use the same
-Trace 0.14; instruments retain lab 0.11 / HIL 0.12 and 96 files. Historical
+Trace 0.15; instruments retain lab 0.11 / HIL 0.12 and 96 files. Historical
 candidate modes, native station selection and default doctor remain independent.
 
 [![CI](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/ci.yml)
@@ -36,9 +36,9 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The current published Toolkit is [0.36.1](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.36.1):
-simulation uses sim 0.8 / HIL 0.13 / Trace 0.13.1 (95 files); saved instrument
-evidence uses lab 0.11 / HIL 0.12 / Trace 0.13.1 (96 files). Local 0.37.0 above
+The current published Toolkit is [0.37.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.37.0):
+simulation uses sim 0.9 / HIL 0.14 / Trace 0.14 (97 files); saved instrument
+evidence uses lab 0.11 / HIL 0.12 / Trace 0.14 (96 files). Local 0.38.0 above
 is not a published Toolkit release yet.
 
 For the selected Toolkit version, use `simulation_runtime.py inspect <venv> --json`.

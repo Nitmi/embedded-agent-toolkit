@@ -111,7 +111,7 @@ def parse_pin(data: bytes) -> dict:
         "Pin identity differs",
     )
     require(
-        isinstance(version, str) and version in ("0.1.0", "0.13.1", "0.14.0"),
+        isinstance(version, str) and version in ("0.1.0", "0.13.1", "0.14.0", "0.15.0"),
         "Unsupported pinned Trace version",
     )
     require(

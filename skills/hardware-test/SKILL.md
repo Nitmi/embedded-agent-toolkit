@@ -65,6 +65,10 @@ For LM74 signed Q4, two-byte framing or SPI fault regressions, read
 [SPI simulation](../../docs/simulation-spi.md). Use the published simulation
 selection, preserve raw words/model/slip spans and fail-stop behavior, and
 reuse the agreed task authorization without per-run confirmation.
+For watchdog reload, stopped feeding or guest reboot regressions, read
+[watchdog simulation](../../docs/simulation-watchdog.md). Use native watchdog
+schemas and preserve reset/callback/model spans, unknowns and the failed nominal
+verdict even when a fault effect is observed; reuse the agreed task scope.
 
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only

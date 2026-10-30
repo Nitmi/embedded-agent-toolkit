@@ -1,7 +1,7 @@
 # SPI / LM74 model regressions
 
-Toolkit 0.37.0 routes published sim-runner 0.9.0, HIL Runner 0.14.0 and
-Embedded Trace 0.14.0 for `nrf52840-spi-sensor-v1`. Use it for signed fractional
+Toolkit 0.38.0 routes published sim-runner 0.10.0, HIL Runner 0.15.0 and
+Embedded Trace 0.15.0 for `nrf52840-spi-sensor-v1`. Use it for signed fractional
 temperature, two-byte frame order, stale reads and bounded model faults. It
 does not qualify a physical SPI driver, sensor or board.
 
@@ -9,7 +9,7 @@ does not qualify a physical SPI driver, sensor or board.
 
 Follow [simulation setup](simulation.md) to authenticate the selected release
 wheels and install them offline without dependencies in an isolated environment.
-The default pin binds 97 installed files: sim 32, HIL 37, Trace 28.
+The default pin binds 99 installed files: sim 34, HIL 37, Trace 28.
 
 ```powershell
 python scripts/simulation_runtime.py inspect '<simulation-venv>' --json
@@ -45,8 +45,8 @@ The independent native schemas are `embedded-sim-runner.spi-sensor-plan.v1`
 and `embedded-sim-runner.spi-sensor-report.v1`; do not relabel an I2C report.
 The native inspector owns readiness, sample and fault assertions.
 
-For ordered SPI or mixed SPI/I2C/GPIO suites, use HIL 0.14's existing
-`embedded-hil-runner.simulation-spec.v1` with the exact 0.9.0 sim wheel.
+For ordered SPI or mixed SPI/I2C/GPIO suites, use HIL 0.15's existing
+`embedded-hil-runner.simulation-spec.v1` with the exact 0.10.0 sim wheel.
 HIL preflights every plan before starting a backend, executes each case once
 and stops after failure or uncertainty. Reuse the agreed development task's
 authorization; no new per-run hash confirmation or hardware fallback is added.
@@ -99,7 +99,7 @@ Keep paused model times, guest timer ticks and the host UART window distinct.
 Host defaults remain 30 seconds, 1 MiB/output, one backend process, 1024 MiB
 Windows Job memory and zero retries. HIL retains eight cases and bounded child
 deadlines. Trace validates the full timeline before filtering; a small or empty
-page is not a cheaper validation shortcut. Static inspection reads at most 97
+page is not a cheaper validation shortcut. Static inspection reads at most 99
 payloads, 1 MiB/file, 4 MiB/component and 256 package entries/component. Measure
 host wall time and Python allocation separately from virtual time, startup,
 cold IO, backend RSS and physical throughput.

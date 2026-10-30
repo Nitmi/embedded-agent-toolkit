@@ -32,6 +32,10 @@ For a model-only SPI bring-up, use [SPI simulation](../../docs/simulation-spi.md
 and skip board discovery, attach and hardware doctor. Inspect the published
 simulation environment, then use native sim/HIL execution and Trace evidence;
 model success does not establish physical wiring or driver correctness.
+For a model-only watchdog startup or reboot, read
+[watchdog simulation](../../docs/simulation-watchdog.md). Use its published
+selection and native schemas without hardware discovery; modeled reset and
+READY markers do not qualify physical reset or protection.
 
 ## Establish identities
 

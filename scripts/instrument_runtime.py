@@ -107,7 +107,7 @@ CANDIDATE_SPECS = {
 PUBLISHED_VERSIONS = {
     "lab-instruments": "0.11.0",
     "hil-runner": "0.12.0",
-    "embedded-trace": "0.14.0",
+    "embedded-trace": "0.15.0",
 }
 WAVEFORM_FILES = {
     "lab-instruments": {"waveform.py"},

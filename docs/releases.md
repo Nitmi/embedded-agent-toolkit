@@ -1,11 +1,16 @@
 # Versioned releases
 
-Local 0.37.0 adds [SPI model regression routing](simulation-spi.md), with
-published sim0.9/HIL0.14/Trace0.14 and 97 simulation payload files. Instrument
-routing retains lab0.11/HIL0.12 and selects Trace0.14 (96 files); standalone
+Local 0.38.0 adds [watchdog model regression routing](simulation-watchdog.md), with
+published sim0.10/HIL0.15/Trace0.15 and 99 simulation payload files. Instrument
+routing retains lab0.11/HIL0.12 and selects Trace0.15 (96 files); standalone
 Trace selects that same 28-file payload. Historical 69/74-file candidate modes,
 native component catalog, managed HIL pins and workstation locks stay independent.
-Toolkit0.37 is local until its own CI/provenance and publication complete.
+Toolkit0.38 is local until its own CI/provenance and publication complete.
+
+Published [0.37.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.37.0)
+routes SPI/LM74 through sim0.9/HIL0.14/Trace0.14 (97 simulation files), with
+96 instrument and 28 standalone Trace files. Watchdog selection is local above;
+its new defaults reject older/mixed environments rather than falling back.
 
 Published [0.36.1](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.36.1)
 selects the Trace0.13.1 performance patch for standalone, simulation and

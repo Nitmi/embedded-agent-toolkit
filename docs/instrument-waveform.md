@@ -2,8 +2,8 @@
 
 Use this workflow for voltage assertions on saved AD3 or SIGLENT SDS804X data.
 First inspect the explicitly selected published environment as described in
-[instrument setup](instruments.md). Toolkit 0.37.0 selects lab-instruments 0.11.0,
-HIL Runner 0.12.0 and Embedded Trace 0.14.0. Native verifier0.11 accepts waveform
+[instrument setup](instruments.md). Toolkit 0.38.0 selects lab-instruments 0.11.0,
+HIL Runner 0.12.0 and Embedded Trace 0.15.0. Native verifier0.11 accepts waveform
 producers0.9..0.11; older verifier matrices remain narrower. Digital UART/I2C/SPI/PWM checks
 continue to use `logic` in lab and `instrument` in HIL/Trace.
 

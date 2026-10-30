@@ -233,7 +233,7 @@ class SimulationRuntimeTests(unittest.TestCase):
                 self.assertEqual(report["layout"], layout)
                 self.assertEqual(report["resolution_source"], "pinned_releases")
                 self.assertEqual(
-                    sum(x["verified_files"] for x in report["components"]), 97
+                    sum(x["verified_files"] for x in report["components"]), 99
                 )
                 for flag in (
                     "executables_started",
@@ -258,6 +258,8 @@ class SimulationRuntimeTests(unittest.TestCase):
             "assets/nrf52840-i2c-sensor.repl",
             "spi_sensor.py",
             "assets/nrf52840-spi-sensor.repl",
+            "watchdog.py",
+            "assets/nrf52840-watchdog.repl",
         ):
             for change in ("missing", "drift"):
                 with (
@@ -298,7 +300,11 @@ class SimulationRuntimeTests(unittest.TestCase):
                 self.assertFalse(self.inspect(root, pin, [name])["ok"])
 
     def test_sensor_model_cannot_be_substituted_by_rehashing_the_pin(self):
-        for model in ("nrf52840-i2c-sensor.repl", "nrf52840-spi-sensor.repl"):
+        for model in (
+            "nrf52840-i2c-sensor.repl",
+            "nrf52840-spi-sensor.repl",
+            "nrf52840-watchdog.repl",
+        ):
             with self.subTest(model=model):
                 pin = copy.deepcopy(sim.load_pin())
                 item = next(
@@ -310,13 +316,13 @@ class SimulationRuntimeTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     sim.parse_pin(json.dumps(pin).encode())
 
-    def test_coherent_previous_release_or_mixed_versions_cannot_replace_spi_selection(
+    def test_coherent_previous_release_or_mixed_versions_cannot_replace_watchdog_selection(
         self,
     ):
         versions = {
-            "sim-runner": "0.8.0",
-            "hil-runner": "0.13.0",
-            "embedded-trace": "0.13.1",
+            "sim-runner": "0.9.0",
+            "hil-runner": "0.14.0",
+            "embedded-trace": "0.14.0",
         }
         selections = [[name] for name in versions] + [list(versions)]
         for names in selections:
@@ -344,8 +350,8 @@ class SimulationRuntimeTests(unittest.TestCase):
                             for row in item["files"]
                             if row["path"]
                             not in {
-                                "sim_runner/spi_sensor.py",
-                                "sim_runner/assets/nrf52840-spi-sensor.repl",
+                                "sim_runner/watchdog.py",
+                                "sim_runner/assets/nrf52840-watchdog.repl",
                             }
                         ]
                 with self.assertRaisesRegex(ValueError, "component identity"):
