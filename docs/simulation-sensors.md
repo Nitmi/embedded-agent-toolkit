@@ -1,8 +1,8 @@
 # TMP103 sensor simulation
 
-Toolkit 0.38.0 routes published [sim-runner 0.10.0](https://github.com/Nitmi/sim-runner/releases/tag/v0.10.0),
-[HIL Runner 0.15.0](https://github.com/Nitmi/hil-runner/releases/tag/v0.15.0) and
-[Embedded Trace 0.15.0](https://github.com/Nitmi/embedded-trace/releases/tag/v0.15.0).
+Toolkit 0.39.0 routes published [sim-runner 0.11.0](https://github.com/Nitmi/sim-runner/releases/tag/v0.11.0),
+[HIL Runner 0.16.0](https://github.com/Nitmi/hil-runner/releases/tag/v0.16.0) and
+[Embedded Trace 0.16.0](https://github.com/Nitmi/embedded-trace/releases/tag/v0.16.0).
 Use this workflow for signed-temperature conversion, stale reads or bounded
 sensor-response regressions in Renode. It does not test physical sensors,
 board wiring or I2C electrical behavior.
@@ -11,7 +11,7 @@ board wiring or I2C electrical behavior.
 
 Follow [simulation setup](simulation.md) to authenticate the exact release
 wheels and install them with `--no-index --no-deps` in an isolated environment.
-The default pin checks 99 installed files: sim 34, HIL 37, Trace 28. HIL/Trace's
+The default pin checks 102 installed files: sim 36, HIL 37, Trace 29. HIL/Trace's
 complete wheels include instrument modules; that does not select an instrument
 workflow. Inspect before component execution:
 
@@ -51,7 +51,7 @@ $python = '<simulation-venv>\Scripts\python.exe'
 `--fault` is required even for `none`. Continue with native inspect-plan/run/
 inspect-report in the [simulation guide](simulation.md); sim-runner emits JSON
 without `--json`. Sequential/mixed suites use HIL's existing simulation spec and
-exact 0.10.0 wheel. HIL preflights all plans, runs each case once and stops after
+exact 0.11.0 wheel. HIL preflights all plans, runs each case once and stops after
 failure or uncertainty. Reuse development-task authorization without per-run
 hash confirmation. Do not switch to a physical board when a model fails.
 
@@ -104,6 +104,6 @@ Native defaults remain 30 host seconds, 1 MiB/output, one backend process,
 bounded 1..600 s child deadlines; include startup and runtime hashing overhead.
 Trace keeps an 8 MiB sensor-source budget and validates the whole timeline before
 filtering; empty pages do not reduce verification work. Sixteen samples/four
-spans bound added data. Static inspection reads at most 99 files (1 MiB/file,
+spans bound added data. Static inspection reads at most 102 files (1 MiB/file,
 4 MiB/component) and 256 package entries/component. Warm timings and Python
 allocation costs exclude startup, cold I/O, runtime RSS and physical timing.

@@ -102,9 +102,9 @@ CANDIDATE_SPECS = {
 }
 CANDIDATE_VERSIONS = {name: spec[2] for name, spec in CANDIDATE_SPECS.items()}
 PUBLISHED_VERSIONS = {
-    "sim-runner": "0.10.0",
-    "hil-runner": "0.15.0",
-    "embedded-trace": "0.15.0",
+    "sim-runner": "0.11.0",
+    "hil-runner": "0.16.0",
+    "embedded-trace": "0.16.0",
 }
 PUBLISHED_FILES = {
     "sim-runner": {
@@ -114,6 +114,8 @@ PUBLISHED_FILES = {
         "assets/nrf52840-spi-sensor.repl",
         "watchdog.py",
         "assets/nrf52840-watchdog.repl",
+        "rtc.py",
+        "assets/nrf52840-rtc.repl",
     },
     "hil-runner": {
         "instrument.py",
@@ -132,6 +134,7 @@ PUBLISHED_FILES = {
         "schemas/thermal-report.schema.json",
     },
     "embedded-trace": {
+        "rtc.py",
         "instrument.py",
         "waveform.py",
         "load.py",

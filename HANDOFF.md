@@ -4,6 +4,43 @@ Read this file and AGENTS.md before starting another task.
 
 ## Current local work
 
+- Local0.39.0 on feat/published-rtc-simulation routes published sim0.11 /
+  HIL0.16 / Trace0.16,102 files (36/37/29). Instruments retain lab0.11/HIL0.12
+  and select that same Trace0.16 wheel/source,97 files; standalone29. Pins come
+  from formal wheel bytes and completed24 genuine GitHub signature results in
+  D:/Code/tmp/rtc-release-20261102, not a new network verification. Reuse the two
+  formal rtc-0110-0160-0160 joint environments; old installations stay intact.
+- Read docs/simulation-rtc.md. Native sim owns the RTC verdict; HIL preserves
+  preflight/fail-stop/cleanup; Trace preserves ordered counter/event/compare/IRQ
+  spans, raw snapshots and a separate request marker. Observed stop/mask effects
+  remain failed nominal regressions. BUILD mismatch parses no samples; timeout
+  nulls remain unknown. No LFCLK, overflow/wrap, PPI, sleep/power/wakeup or
+  physical clock qualification, executor/MCP or per-run confirmation is added.
+- Published readers admit exact new RTC source/model inventories. Standalone
+  retains audited0.1/0.13.1/0.14/0.15 layouts and admits rtc.py only at0.16;
+  a matching version string never expands an older layout. Historical69/74,
+  native catalog/managed HIL pins, station/locks/PATH and active Toolkit/plugin
+  0.38 are independent. This task does not publish or activate Toolkit.
+- Acceptance root D:/Code/tmp/toolkit-rtc-0390-20261102 owns source checks,
+  clean-source builds, two candidate plugin installs,102/97/29 static checks,
+  saved31 RTC results and26 instrument bundles/52 views per Python. Use its
+  final completed.json before claiming later steps complete. No native captures
+  or component formal cold installations are repeated. The RTC guide stays in
+  release.REQUIRED_FILES; bootstrap and manifests are0.39.0.
+- Initial auxiliary reads included a nonexistent pyproject.toml and an unexpanded
+  PowerShell glob for rg. The repository has no pyproject; use actual files and
+  rg -g filters. Wide combined output truncated; subsequent targeted reads
+  recover actual content. These are host read errors, not evidence failures.
+- Python3.11/3.13 final suites each ran280 tests,277 passed/three existing skips;
+  Ruff/format, repository plugin layout/release identity and four official Skill
+  validators passed. The official plugin-creator validator is absent. Each
+  Python's31 RTC saved results match complete formal hashes, and26 instrument
+  bundles retain52 full/empty views after only root viewer_version normalization.
+  A new RTC inspection negative was initially placed in TracePinAndCliTests,
+  which has no inspection fixture; move fixture-dependent tests to
+  TraceInspectionTests. The initial AttributeError remains in tests-311 logs;
+  both corrected complete suites pass, with no evidence or simulator retry.
+
 - Local0.38.0 on feat/published-watchdog-simulation routes the released watchdog
   profile and independent plan/report schemas. Published selection is sim0.10 /
   HIL0.15 / Trace0.15 with99 files (34/37/28). Instrument lab0.11/HIL0.12 stays

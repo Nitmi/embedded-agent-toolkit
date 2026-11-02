@@ -36,6 +36,9 @@ For a model-only watchdog startup or reboot, read
 [watchdog simulation](../../docs/simulation-watchdog.md). Use its published
 selection and native schemas without hardware discovery; modeled reset and
 READY markers do not qualify physical reset or protection.
+For model-only RTC0 startup and compare interrupts, read
+[RTC simulation](../../docs/simulation-rtc.md). Use its published selection and
+native RTC schemas; IRQ samples do not qualify LFCLK, wakeup or physical timing.
 
 ## Establish identities
 

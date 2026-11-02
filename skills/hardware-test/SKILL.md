@@ -69,6 +69,9 @@ For watchdog reload, stopped feeding or guest reboot regressions, read
 [watchdog simulation](../../docs/simulation-watchdog.md). Use native watchdog
 schemas and preserve reset/callback/model spans, unknowns and the failed nominal
 verdict even when a fault effect is observed; reuse the agreed task scope.
+For RTC0 compare, event clearing or stop/mask regressions, read
+[RTC simulation](../../docs/simulation-rtc.md). Keep counter/event/IRQ spans,
+native failures and unknown effects intact; reuse the agreed task authorization.
 
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only

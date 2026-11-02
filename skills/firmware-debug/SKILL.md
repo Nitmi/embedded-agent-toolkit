@@ -52,6 +52,10 @@ For watchdog reload failures or modeled reboots, read
 [watchdog simulation](../../docs/simulation-watchdog.md). Keep native model,
 reset/callback and guest spans together; a failed regression with an observed
 effect establishes neither physical reset nor low-power behavior.
+For RTC0 compare stalls or masked interrupts, read
+[RTC simulation](../../docs/simulation-rtc.md). Distinguish frozen counters from
+pending events using saved model/guest spans; neither establishes a physical
+clock fault, wakeup failure or root cause.
 
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only

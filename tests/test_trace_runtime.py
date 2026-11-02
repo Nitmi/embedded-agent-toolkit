@@ -45,7 +45,7 @@ class TraceInspectionTests(unittest.TestCase):
             report = trace.inspect_environment(self.environment)
         self.assertTrue(report["ok"], report)
         self.assertEqual(report["status"], "payload_verified")
-        self.assertEqual(report["verified_files"], 28)
+        self.assertEqual(report["verified_files"], 29)
         for key in (
             "hardware_access",
             "executables_started",
@@ -63,12 +63,22 @@ class TraceInspectionTests(unittest.TestCase):
         self.assertFalse(report["ok"])
         self.assertIn("Installed payload differs", report["errors"][0])
 
+    def test_rtc_payload_cannot_be_missing_or_drifted(self):
+        path = self.site / "embedded_trace/rtc.py"
+        for mode in ("drift", "missing"):
+            with self.subTest(mode=mode):
+                if mode == "drift":
+                    path.write_bytes(b"changed RTC policy")
+                else:
+                    path.unlink()
+                self.assertFalse(trace.inspect_environment(self.environment)["ok"])
+
     def test_missing_schema_is_a_failure(self):
         (self.site / "embedded_trace/schemas/input.v1.schema.json").unlink()
         self.assertFalse(trace.inspect_environment(self.environment)["ok"])
 
     def test_metadata_is_part_of_payload_identity(self):
-        (self.site / "embedded_trace-0.15.0.dist-info/entry_points.txt").write_bytes(
+        (self.site / "embedded_trace-0.16.0.dist-info/entry_points.txt").write_bytes(
             b"wrong CLI"
         )
         self.assertFalse(trace.inspect_environment(self.environment)["ok"])
@@ -183,7 +193,7 @@ class TracePinAndCliTests(unittest.TestCase):
             selected = runtime.load_pin()["components"]["embedded-trace"]
             for field in ("version", "source_revision", "wheel", "files"):
                 self.assertEqual(standalone[field], selected[field])
-        self.assertEqual(standalone["version"], "0.15.0")
+        self.assertEqual(standalone["version"], "0.16.0")
 
     def test_audited_legacy_layout_remains_valid_but_cannot_hide_new_files(self):
         legacy = copy.deepcopy(trace.load_pin())
@@ -197,7 +207,7 @@ class TracePinAndCliTests(unittest.TestCase):
         legacy["files"] = [
             dict(
                 item,
-                path=item["path"].replace("-0.15.0.dist-info/", "-0.1.0.dist-info/"),
+                path=item["path"].replace("-0.16.0.dist-info/", "-0.1.0.dist-info/"),
             )
             for item in legacy["files"]
             if item["path"] in trace.LEGACY_PACKAGE_FILES
@@ -222,24 +232,32 @@ class TracePinAndCliTests(unittest.TestCase):
             trace.parse_pin(json.dumps(pin).encode())
 
     def test_audited_previous_trace_layout_can_still_be_selected_explicitly(self):
-        pin = copy.deepcopy(trace.load_pin())
-        pin["version"] = "0.13.1"
-        wheel = "embedded_trace-0.13.1-py3-none-any.whl"
-        pin["wheel"].update(
-            name=wheel,
-            url="https://github.com/Nitmi/embedded-trace/releases/download/v0.13.1/"
-            + wheel,
+        current = trace.load_pin()
+        rtc = next(
+            row for row in current["files"] if row["path"] == "embedded_trace/rtc.py"
         )
-        for item in pin["files"]:
-            item["path"] = item["path"].replace(
-                "-0.15.0.dist-info/", "-0.13.1.dist-info/"
-            )
-        self.assertEqual(trace.parse_pin(json.dumps(pin).encode()), pin)
-        pin["files"].append(
-            {"path": "embedded_trace/unreviewed.py", "size": 0, "sha256": "0" * 64}
-        )
-        with self.assertRaises(ValueError):
-            trace.parse_pin(json.dumps(pin).encode())
+        for version in ("0.13.1", "0.14.0", "0.15.0"):
+            with self.subTest(version=version):
+                pin = copy.deepcopy(current)
+                pin["version"] = version
+                wheel = f"embedded_trace-{version}-py3-none-any.whl"
+                pin["wheel"].update(
+                    name=wheel,
+                    url=f"https://github.com/Nitmi/embedded-trace/releases/download/v{version}/{wheel}",
+                )
+                pin["files"] = [
+                    row
+                    for row in pin["files"]
+                    if row["path"] != "embedded_trace/rtc.py"
+                ]
+                for item in pin["files"]:
+                    item["path"] = item["path"].replace(
+                        "-0.16.0.dist-info/", f"-{version}.dist-info/"
+                    )
+                self.assertEqual(trace.parse_pin(json.dumps(pin).encode()), pin)
+                pin["files"].append(rtc)
+                with self.assertRaises(ValueError):
+                    trace.parse_pin(json.dumps(pin).encode())
 
     def test_pin_cannot_drop_payloads_redirect_or_override_runtime_paths(self):
         original = trace.load_pin()

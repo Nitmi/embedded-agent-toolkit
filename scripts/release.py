@@ -63,6 +63,7 @@ REQUIRED_FILES = {
     "docs/simulation-sensors.md",
     "docs/simulation-spi.md",
     "docs/simulation-watchdog.md",
+    "docs/simulation-rtc.md",
     "docs/simulation-wasm.md",
     "docs/embedded-trace.md",
     "docs/hil-runner.md",

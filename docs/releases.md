@@ -1,15 +1,20 @@
 # Versioned releases
 
-Local 0.38.0 adds [watchdog model regression routing](simulation-watchdog.md), with
-published sim0.10/HIL0.15/Trace0.15 and 99 simulation payload files. Instrument
-routing retains lab0.11/HIL0.12 and selects Trace0.15 (96 files); standalone
-Trace selects that same 28-file payload. Historical 69/74-file candidate modes,
+Local 0.39.0 adds [RTC compare regression routing](simulation-rtc.md), with
+published sim0.11/HIL0.16/Trace0.16 and 102 simulation payload files. Instrument
+routing retains lab0.11/HIL0.12 and selects Trace0.16 (97 files); standalone
+Trace selects that same 29-file payload. Historical 69/74-file candidate modes,
 native component catalog, managed HIL pins and workstation locks stay independent.
-Toolkit0.38 is local until its own CI/provenance and publication complete.
+Toolkit0.39 is local until its own CI/provenance and publication complete.
+
+Published [0.38.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.38.0)
+routes watchdog evidence through sim0.10/HIL0.15/Trace0.15 (99 simulation files),
+with 96 instrument and 28 standalone Trace files. RTC defaults reject this older
+environment without fallback; the older pin and installed environment stay intact.
 
 Published [0.37.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.37.0)
 routes SPI/LM74 through sim0.9/HIL0.14/Trace0.14 (97 simulation files), with
-96 instrument and 28 standalone Trace files. Watchdog selection is local above;
+96 instrument and 28 standalone Trace files. RTC selection is local above;
 its new defaults reject older/mixed environments rather than falling back.
 
 Published [0.36.1](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.36.1)

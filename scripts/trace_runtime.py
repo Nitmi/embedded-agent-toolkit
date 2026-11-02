@@ -34,7 +34,7 @@ LEGACY_PACKAGE_FILES = {
         "schemas/timeline.v1.schema.json",
     )
 }
-PACKAGE_FILES = LEGACY_PACKAGE_FILES | {
+PRE_RTC_PACKAGE_FILES = LEGACY_PACKAGE_FILES | {
     "embedded_trace/" + name
     for name in (
         "report.py",
@@ -51,6 +51,7 @@ PACKAGE_FILES = LEGACY_PACKAGE_FILES | {
         "schemas/thermal-report.schema.json",
     )
 }
+PACKAGE_FILES = PRE_RTC_PACKAGE_FILES | {"embedded_trace/rtc.py"}
 
 
 def require(condition: bool, message: str) -> None:
@@ -111,7 +112,8 @@ def parse_pin(data: bytes) -> dict:
         "Pin identity differs",
     )
     require(
-        isinstance(version, str) and version in ("0.1.0", "0.13.1", "0.14.0", "0.15.0"),
+        isinstance(version, str)
+        and version in ("0.1.0", "0.13.1", "0.14.0", "0.15.0", "0.16.0"),
         "Unsupported pinned Trace version",
     )
     require(
@@ -131,7 +133,13 @@ def parse_pin(data: bytes) -> dict:
         and HASH.fullmatch(wheel["sha256"]) is not None,
         "Invalid wheel pin",
     )
-    package_files = LEGACY_PACKAGE_FILES if version == "0.1.0" else PACKAGE_FILES
+    package_files = (
+        LEGACY_PACKAGE_FILES
+        if version == "0.1.0"
+        else PACKAGE_FILES
+        if version == "0.16.0"
+        else PRE_RTC_PACKAGE_FILES
+    )
     expected = package_files | {
         f"embedded_trace-{version}.dist-info/" + leaf
         for leaf in ("METADATA", "WHEEL", "entry_points.txt", "licenses/LICENSE")

@@ -107,7 +107,7 @@ CANDIDATE_SPECS = {
 PUBLISHED_VERSIONS = {
     "lab-instruments": "0.11.0",
     "hil-runner": "0.12.0",
-    "embedded-trace": "0.15.0",
+    "embedded-trace": "0.16.0",
 }
 WAVEFORM_FILES = {
     "lab-instruments": {"waveform.py"},
@@ -151,7 +151,11 @@ SPECS = {
         package,
         distribution,
         PUBLISHED_VERSIONS[name],
-        names | WAVEFORM_FILES[name] | LOAD_FILES[name] | THERMAL_FILES[name],
+        names
+        | WAVEFORM_FILES[name]
+        | LOAD_FILES[name]
+        | THERMAL_FILES[name]
+        | ({"rtc.py"} if name == "embedded-trace" else set()),
     )
     for name, (package, distribution, _, names) in CANDIDATE_SPECS.items()
 }
