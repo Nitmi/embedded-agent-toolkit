@@ -4,6 +4,37 @@ Read this file and AGENTS.md before starting another task.
 
 ## Current local work
 
+- Local0.40.0 on feat/published-egu-simulation routes published sim0.12 /
+  HIL0.17 / Trace0.17:105 files (38/37/30). Instruments retain lab0.11/HIL0.12
+  with the same Trace0.17,98 files; standalone30. Exact wheel bytes and the
+  completed24 genuine signature checks come from D:/Code/tmp/egu-release-20261103.
+  Static readers do not verify signatures or authenticate interpreters.
+- Read docs/simulation-egu.md. Native sim owns EGU policy; HIL preserves
+  preflight/fail-stop/cleanup; Trace preserves PRE/POST, ISR and request spans,
+  including bounded asynchronous INFO. A fault effect can be observed while
+  nominal stays failed. Unknowns and wrong-BUILD model snapshots stay explicit.
+  No PPI, guest producer, all-channel or physical IRQ timing claim follows.
+- Historical Trace layouts remain explicit:0.16 admits rtc.py but no egu.py;
+  0.13.1/0.14/0.15 admit neither. Candidate69/74 inventories, native catalog /
+  managed HIL pins and station selections remain independent. The active
+  Toolkit/plugin0.39 and old environments are not changed by this local task.
+- Acceptance work is D:/Code/tmp/toolkit-egu-0400-20261103. Source checks,
+  dual builds/candidate installs,105/98/30 static readers,31 saved EGU operations
+  and26 instrument bundles/52 views per Python are tracked there. Consult its
+  final completed.json before claiming them complete. Reuse the two formal EGU
+  joint environments; do not repeat native captures or component cold installs.
+- This task uses skill-creator for three short EGU routes to one guide; no
+  executor/MCP or extra per-case confirmation is added. Keep the EGU guide in
+  release.REQUIRED_FILES and bootstrap/manifests at0.40.0.
+- Source Python3.11/3.13 suites each ran281 tests:278 passed/three existing
+  platform skips. Ruff/format, repository plugin layout/release identity and
+  four official Skill validators passed. No official plugin-creator validator
+  is installed; do not label the repository layout check as that validator.
+  Candidate builds/installs, saved evidence and cost are tracked separately.
+- An initial auxiliary rg used an unexpanded Windows docs/simulation*.md
+  argument and failed. Use `rg ... docs -g 'simulation*.md'` instead. Earlier
+  combined reads truncated; inspect focused ranges and keep output bounded.
+
 - Local0.39.0 on feat/published-rtc-simulation routes published sim0.11 /
   HIL0.16 / Trace0.16,102 files (36/37/29). Instruments retain lab0.11/HIL0.12
   and select that same Trace0.16 wheel/source,97 files; standalone29. Pins come

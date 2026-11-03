@@ -56,6 +56,9 @@ For RTC0 compare stalls or masked interrupts, read
 [RTC simulation](../../docs/simulation-rtc.md). Distinguish frozen counters from
 pending events using saved model/guest spans; neither establishes a physical
 clock fault, wakeup failure or root cause.
+For EGU masked interrupts or task misrouting in the model, read
+[EGU simulation](../../docs/simulation-egu.md). Compare event latches, enable masks
+and raw guest/model spans; a fault marker alone does not establish its effect.
 
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only

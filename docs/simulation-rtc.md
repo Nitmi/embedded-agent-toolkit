@@ -1,14 +1,14 @@
 # RTC0 compare regressions
 
-Toolkit 0.39.0 routes published sim-runner 0.11.0, HIL Runner 0.16.0 and
-Embedded Trace 0.16.0 for `nrf52840-rtc-v1`. It covers a fixed CC0 interrupt,
+Toolkit 0.40.0 routes published sim-runner 0.12.0, HIL Runner 0.17.0 and
+Embedded Trace 0.17.0 for `nrf52840-rtc-v1`. It covers a fixed CC0 interrupt,
 event-clear protocol and two bounded model faults. It does not qualify LFCLK,
 physical timing, sleep, power or wakeup.
 
 ## Select and plan
 
 Follow [simulation setup](simulation.md) to authenticate the exact wheels.
-The default pin checks 102 installed files: sim 36, HIL 37 and Trace 29.
+The default pin checks 105 installed files: sim 38, HIL 37 and Trace 30.
 Static inspection never imports the selected components, starts their
 interpreter/backend, or verifies a signature. Historical candidate mode has no
 RTC profile; coherent older environments cannot satisfy this published pin.
@@ -33,8 +33,8 @@ run and inspect-report from the simulation guide. Keep the independent
 `embedded-sim-runner.rtc-plan.v1` and `embedded-sim-runner.rtc-report.v1`
 schemas; do not relabel a timer, watchdog or sensor report.
 
-For an ordered RTC or mixed RTC/SPI/watchdog/I2C/GPIO suite, use HIL 0.16's
-`embedded-hil-runner.simulation-spec.v1` with the exact sim 0.11.0 wheel.
+For an ordered RTC or mixed RTC/SPI/watchdog/I2C/GPIO suite, use HIL 0.17's
+`embedded-hil-runner.simulation-spec.v1` with the exact sim 0.12.0 wheel.
 HIL preflights all plans, runs each case once and stops on failed or
 indeterminate evidence, retaining later cases as not run. Reuse the agreed
 development task's authorization without per-run confirmation; declare negative
@@ -81,7 +81,7 @@ windows remain separate domains.
 
 Host bounds remain 30 seconds, 1 MiB per output, one backend process and
 1024 MiB Windows Job memory, with zero retries. HIL retains eight cases and
-bounded child deadlines. Static inspection reads at most 102 payloads,
+bounded child deadlines. Static inspection reads at most 105 payloads,
 1 MiB/file, 4 MiB/component and 256 entries/component. Trace validates the full
 timeline before filtering. Record wall time and Python allocation separately
 from startup, cold IO, backend RSS and physical timing; no SLA follows.

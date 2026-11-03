@@ -72,6 +72,10 @@ verdict even when a fault effect is observed; reuse the agreed task scope.
 For RTC0 compare, event clearing or stop/mask regressions, read
 [RTC simulation](../../docs/simulation-rtc.md). Keep counter/event/IRQ spans,
 native failures and unknown effects intact; reuse the agreed task authorization.
+For EGU task/event/interrupt regressions, read
+[EGU simulation](../../docs/simulation-egu.md). Preserve raw PRE/POST and ISR spans,
+unknowns and the failed nominal verdict even when masking or misrouting is observed;
+reuse the agreed task authorization without per-case confirmation.
 
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only

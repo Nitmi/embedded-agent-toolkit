@@ -1,28 +1,28 @@
 {
   "files": [
     {
-      "path": "embedded_trace-0.16.0.dist-info/METADATA",
-      "sha256": "6f9f7c899142f79b158cd74ea2e3ca68678308f31eca2c301eec40896fc1c5e6",
-      "size": 9149
+      "path": "embedded_trace-0.17.0.dist-info/METADATA",
+      "sha256": "c8617348a32b620417cf6584a4ba6d0c353b10f610cbbcca913687a13790ae6c",
+      "size": 9480
     },
     {
-      "path": "embedded_trace-0.16.0.dist-info/WHEEL",
+      "path": "embedded_trace-0.17.0.dist-info/WHEEL",
       "sha256": "5b77e4a649bbfb07fdbc123967eeecd1e5a478cfaca6eefc23c35e6fdf037848",
       "size": 87
     },
     {
-      "path": "embedded_trace-0.16.0.dist-info/entry_points.txt",
+      "path": "embedded_trace-0.17.0.dist-info/entry_points.txt",
       "sha256": "e180a3647b9cfcfff5b791785e23468834bc0ddc426fbdd7c84fc51797e71dcd",
       "size": 59
     },
     {
-      "path": "embedded_trace-0.16.0.dist-info/licenses/LICENSE",
+      "path": "embedded_trace-0.17.0.dist-info/licenses/LICENSE",
       "sha256": "cd24e7704a2b7505c01595eb602ad9be91edbb95650364fb428b2150c7044559",
       "size": 1062
     },
     {
       "path": "embedded_trace/__init__.py",
-      "sha256": "eaec3cce52e6e76b44439587166c4ad559ae35bfd5016558cda29ac615a7fa1c",
+      "sha256": "a863bab09fe889cd9ebf3836d7ddc4c22e6b8e4df9fe93b0f57c5b01f5630247",
       "size": 66
     },
     {
@@ -51,14 +51,19 @@
       "size": 6923
     },
     {
+      "path": "embedded_trace/egu.py",
+      "sha256": "9fbd1df892bbd598bc29505f5abc6a3faebb69629a1dfcdcb4db6d21509fe797",
+      "size": 11776
+    },
+    {
       "path": "embedded_trace/framing.py",
       "sha256": "61fed107efdd72f19be6b1f16437c8e4de4517a076411e2b3e50c582d71dbde6",
       "size": 4782
     },
     {
       "path": "embedded_trace/instrument.py",
-      "sha256": "460a9aa5d107772bdd6a3b2a57accc859f86984a033e43d6ffd293d849c107c2",
-      "size": 15075
+      "sha256": "f60a94c97f71751ae9a95ca02fa1b5e60638b371ebccbe25ce19e5bc7ad0ad47",
+      "size": 15085
     },
     {
       "path": "embedded_trace/load.py",
@@ -67,18 +72,18 @@
     },
     {
       "path": "embedded_trace/load_protocol.py",
-      "sha256": "ab05b597c7fb1a2c0a06d172adb0d414d29aa42ffbf12960b22b2f87138719a0",
-      "size": 24298
+      "sha256": "fe302dff57174e9e8d2b38e8d046f4016830803b6ae8544eced5e2a89a686049",
+      "size": 24308
     },
     {
       "path": "embedded_trace/query.py",
-      "sha256": "f635b5f7d89771a35fe5698fa8fe9995a75e3b250b007a442638c9160b3961ee",
-      "size": 28828
+      "sha256": "6a05e828bb5cbd3af7a3ba338da992c6f41d88ccef8b4b0e0f17b76318a49fc5",
+      "size": 29717
     },
     {
       "path": "embedded_trace/report.py",
-      "sha256": "4172acde63838b194768eb4d662e78bc958d5c7aaa1e0879487a933b6ab2202e",
-      "size": 8882
+      "sha256": "b9e54d382aed62eafe2719fbf66d628b196c73d514dc4fd853197bf110e902f0",
+      "size": 9111
     },
     {
       "path": "embedded_trace/rtc.py",
@@ -92,13 +97,13 @@
     },
     {
       "path": "embedded_trace/schemas/instrument-report.schema.json",
-      "sha256": "44e48f9cb1b39cc08a5425d2fb71c23e63f8dbbe37002df13b0563e3048a8614",
-      "size": 5539
+      "sha256": "aa5f6c515cf9c1ac2ea3f6534fe52c7f35d2af63f82edb9ea45e28a703d72355",
+      "size": 5549
     },
     {
       "path": "embedded_trace/schemas/load-report.schema.json",
-      "sha256": "89c77a4d1f27e42f49fbdb2a8a231885333b92172a4a0b5e3e56f1985b26c4c6",
-      "size": 9076
+      "sha256": "73bde28df81f38c4b6b7d153878e2c6d830a3a1c766ce949429a237ec8068dcf",
+      "size": 9086
     },
     {
       "path": "embedded_trace/schemas/result.v1.schema.json",
@@ -107,8 +112,8 @@
     },
     {
       "path": "embedded_trace/schemas/thermal-report.schema.json",
-      "sha256": "549583adf7ac841a8d287729ffc5afc5390bb66a68a69e8aa88923d29f8a6a51",
-      "size": 8258
+      "sha256": "096b7b9fdcf9516ec2b2ab0e4578b6a446f163372e338de5251488b5b960e00b",
+      "size": 8268
     },
     {
       "path": "embedded_trace/schemas/timeline.v1.schema.json",
@@ -117,13 +122,13 @@
     },
     {
       "path": "embedded_trace/schemas/waveform-report.schema.json",
-      "sha256": "24e6092a625374ecae4f4f68adc15fb02c95e71798f782d1b912a6e0f2a23d3b",
-      "size": 5165
+      "sha256": "452253dff2117ac686ff8d8c93f09c0ee236eb758f253e1e080a9f7d7b7b25bd",
+      "size": 5175
     },
     {
       "path": "embedded_trace/simulation.py",
-      "sha256": "0336b940d76b900cffaf2a251650b7da5ba641dad134f67ac5a0d36c6553972f",
-      "size": 66336
+      "sha256": "92080ccb4f3b4f7f6ef4cc89f2ef12491c8bc5afd7c9a708fd9784376689d375",
+      "size": 67740
     },
     {
       "path": "embedded_trace/thermal.py",
@@ -132,8 +137,8 @@
     },
     {
       "path": "embedded_trace/thermal_protocol.py",
-      "sha256": "fe10dc3b7834914f80c4dbb0c7c1221d0734c0fbd3dfc9d7ef5dc04fc2d045f3",
-      "size": 26154
+      "sha256": "5056a95b5be18f97e6fad88c6652e09497e8b55d0702f42ed68ba7d668a34c39",
+      "size": 26164
     },
     {
       "path": "embedded_trace/timeline.py",
@@ -142,17 +147,17 @@
     },
     {
       "path": "embedded_trace/waveform.py",
-      "sha256": "20a1de28cf042d69679378493f316a6c55dfd8f1af3dafff0c63ae8a0deb59fd",
-      "size": 17030
+      "sha256": "eca538756cf7db03bf6d9dc33a6da903b5e2d6de15f8f26261a8ea7a5d02ca0c",
+      "size": 17040
     }
   ],
   "repository": "Nitmi/embedded-trace",
   "schema_version": "embedded-agent-toolkit.trace-runtime.v1",
-  "source_revision": "a7b8cceb337227d482101bd3f1149d547749c92e",
-  "version": "0.16.0",
+  "source_revision": "aaf91f3c6f32e7dcb627155365f9f67768d8842e",
+  "version": "0.17.0",
   "wheel": {
-    "name": "embedded_trace-0.16.0-py3-none-any.whl",
-    "sha256": "b0befe61623635c0642a060059d0539f17e9872a9070b30db629f3ee15681821",
-    "url": "https://github.com/Nitmi/embedded-trace/releases/download/v0.16.0/embedded_trace-0.16.0-py3-none-any.whl"
+    "name": "embedded_trace-0.17.0-py3-none-any.whl",
+    "sha256": "66bb96eacd5f3bc7264afbb9768d7c54e8b30bfa47c96ce16b9e455379d1c96a",
+    "url": "https://github.com/Nitmi/embedded-trace/releases/download/v0.17.0/embedded_trace-0.17.0-py3-none-any.whl"
   }
 }

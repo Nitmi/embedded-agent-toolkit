@@ -1,11 +1,16 @@
 # Versioned releases
 
-Local 0.39.0 adds [RTC compare regression routing](simulation-rtc.md), with
-published sim0.11/HIL0.16/Trace0.16 and 102 simulation payload files. Instrument
-routing retains lab0.11/HIL0.12 and selects Trace0.16 (97 files); standalone
-Trace selects that same 29-file payload. Historical 69/74-file candidate modes,
+Local 0.40.0 adds [EGU task/event/IRQ routing](simulation-egu.md), with
+published sim0.12/HIL0.17/Trace0.17 and 105 simulation payload files. Instrument
+routing retains lab0.11/HIL0.12 and selects Trace0.17 (98 files); standalone
+Trace selects that same 30-file payload. Historical 69/74-file candidate modes,
 native component catalog, managed HIL pins and workstation locks stay independent.
-Toolkit0.39 is local until its own CI/provenance and publication complete.
+Toolkit0.40 is local until its own CI/provenance and publication complete.
+
+Published [0.39.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.39.0)
+routes RTC through sim0.11/HIL0.16/Trace0.16 (102 simulation files), with 97
+instrument and 29 standalone Trace files. EGU defaults reject this older
+environment without fallback; its original pins and installed environments remain.
 
 Published [0.38.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.38.0)
 routes watchdog evidence through sim0.10/HIL0.15/Trace0.15 (99 simulation files),

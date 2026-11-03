@@ -233,7 +233,7 @@ class SimulationRuntimeTests(unittest.TestCase):
                 self.assertEqual(report["layout"], layout)
                 self.assertEqual(report["resolution_source"], "pinned_releases")
                 self.assertEqual(
-                    sum(x["verified_files"] for x in report["components"]), 102
+                    sum(x["verified_files"] for x in report["components"]), 105
                 )
                 for flag in (
                     "executables_started",
@@ -262,6 +262,8 @@ class SimulationRuntimeTests(unittest.TestCase):
             "assets/nrf52840-watchdog.repl",
             "rtc.py",
             "assets/nrf52840-rtc.repl",
+            "egu.py",
+            "assets/nrf52840-egu.repl",
         ):
             for change in ("missing", "drift"):
                 with (
@@ -294,6 +296,7 @@ class SimulationRuntimeTests(unittest.TestCase):
             ("hil-runner", "hil_runner", "thermal_protocol.py"),
             ("embedded-trace", "embedded_trace", "schemas/load-report.schema.json"),
             ("embedded-trace", "embedded_trace", "rtc.py"),
+            ("embedded-trace", "embedded_trace", "egu.py"),
         ):
             with self.subTest(component=name), tempfile.TemporaryDirectory() as tmp:
                 root = Path(tmp)
@@ -308,6 +311,7 @@ class SimulationRuntimeTests(unittest.TestCase):
             "nrf52840-spi-sensor.repl",
             "nrf52840-watchdog.repl",
             "nrf52840-rtc.repl",
+            "nrf52840-egu.repl",
         ):
             with self.subTest(model=model):
                 pin = copy.deepcopy(sim.load_pin())
@@ -320,13 +324,13 @@ class SimulationRuntimeTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     sim.parse_pin(json.dumps(pin).encode())
 
-    def test_coherent_previous_release_or_mixed_versions_cannot_replace_rtc_selection(
+    def test_coherent_previous_release_or_mixed_versions_cannot_replace_egu_selection(
         self,
     ):
         versions = {
-            "sim-runner": "0.10.0",
-            "hil-runner": "0.15.0",
-            "embedded-trace": "0.15.0",
+            "sim-runner": "0.11.0",
+            "hil-runner": "0.16.0",
+            "embedded-trace": "0.16.0",
         }
         selections = [[name] for name in versions] + [list(versions)]
         for names in selections:
@@ -354,9 +358,9 @@ class SimulationRuntimeTests(unittest.TestCase):
                             for row in item["files"]
                             if row["path"]
                             not in {
-                                "sim_runner/rtc.py",
-                                "sim_runner/assets/nrf52840-rtc.repl",
-                                "embedded_trace/rtc.py",
+                                "sim_runner/egu.py",
+                                "sim_runner/assets/nrf52840-egu.repl",
+                                "embedded_trace/egu.py",
                             }
                         ]
                 with self.assertRaisesRegex(ValueError, "component identity"):

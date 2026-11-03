@@ -39,6 +39,9 @@ READY markers do not qualify physical reset or protection.
 For model-only RTC0 startup and compare interrupts, read
 [RTC simulation](../../docs/simulation-rtc.md). Use its published selection and
 native RTC schemas; IRQ samples do not qualify LFCLK, wakeup or physical timing.
+For model-only EGU task/event/interrupt startup, read
+[EGU simulation](../../docs/simulation-egu.md). Use native EGU schemas and keep
+monitor task generation distinct from guest ISR service and physical routing.
 
 ## Establish identities
 
