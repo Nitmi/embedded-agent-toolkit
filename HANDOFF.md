@@ -4,6 +4,30 @@ Read this file and AGENTS.md before starting another task.
 
 ## Current local work
 
+- Local0.42.0 on feat/published-ppi-simulation routes published sim0.14 /
+  HIL0.19 / Trace0.19:111 files (42/37/32). Instrument lab0.11/HIL0.12 stay
+  fixed, with the same Trace0.19 for100 files; standalone32. Inventories derive
+  from official wheels and24 completed genuine checks in ppi-release-20261104.
+- Read docs/simulation-ppi.md for the fixed TIMER0 compare0 / CH0 TEP+FORK /
+  GPIOTE task-output profile. Keep raw14-field PRE/POST, A/B/S guest samples,
+  failure stops and unknowns; nearest-synced task routing is not event alignment,
+  broad PPI qualification, physical timing or radio coverage. No new executor,
+  MCP or per-case confirmation is added.
+- Local acceptance root D:/Code/tmp/toolkit-ppi-0420-20261104. Reuse the formal
+  ppi-0140-0190-0190 joint311/joint313 and their31 saved results; recheck664
+  evidence bindings. Only new isolated instrument environments and candidate
+  plugin installs are needed. Active Toolkit/plugin0.41, station/locks/PATH,
+  prior environments and native catalog/managed HIL stay unchanged.
+- Source checks, candidate packaging, historical compatibility and warm static
+  cost measurements must complete before claiming acceptance. Windows shell
+  output truncation on a bulk pin read affected display only; use focused reads.
+  Do not copy previous batch version/failure/count assertions unchanged.
+- Source Python3.11/3.13 suites each283 tests:280 passed/three existing platform
+  skips. Ruff/format/diff, repository plugin layout/release identity and four
+  official Skill validators passed. Remaining local candidate, saved-instrument
+  compatibility and static-cost receipts are in the execution root; do not
+  infer publication or activation from those source results.
+
 - Local0.41.0 on feat/published-gpiote-simulation routes published sim0.13 /
   HIL0.18 / Trace0.18:108 files (40/37/31). Instruments retain lab0.11/HIL0.12,
   using the same Trace0.18 for99 files; standalone31. Pins derive from formal

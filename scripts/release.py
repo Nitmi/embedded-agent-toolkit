@@ -66,6 +66,7 @@ REQUIRED_FILES = {
     "docs/simulation-rtc.md",
     "docs/simulation-egu.md",
     "docs/simulation-gpiote.md",
+    "docs/simulation-ppi.md",
     "docs/simulation-wasm.md",
     "docs/embedded-trace.md",
     "docs/hil-runner.md",

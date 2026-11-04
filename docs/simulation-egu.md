@@ -1,19 +1,19 @@
 # EGU0 task, event and interrupt regressions
 
-Toolkit 0.41.0 routes published sim-runner 0.13.0, HIL Runner 0.18.0 and
-Embedded Trace 0.18.0 for `nrf52840-egu-v1`. The fixed model generates tasks on
+Toolkit 0.42.0 routes published sim-runner 0.14.0, HIL Runner 0.19.0 and
+Embedded Trace 0.19.0 for `nrf52840-egu-v1`. The fixed model generates tasks on
 channels 0/3/15 and observes guest IRQ service. Channel 1 is a disabled sentinel;
 PPI and physical timing remain unqualified.
 
 ## Select and plan
 
 Follow [simulation setup](simulation.md) to authenticate the exact wheels.
-The default pin checks 108 installed files: sim 40, HIL 37 and Trace 31.
+The default pin checks 111 installed files: sim 42, HIL 37 and Trace 32.
 Static inspection reads files without importing components, starting their
 interpreter/backend or verifying signatures. Historical candidate mode has no
 EGU profile; older or mixed published environments cannot satisfy this pin.
 
-Use sim-runner 0.13.0's `examples/nrf52840-egu` builder with the fixed
+Use sim-runner 0.14.0's `examples/nrf52840-egu` builder with the fixed
 Renode 1.17.0 runtime, or an already-built compatible Cortex-M4 raw BIN bound
 to its exact SHA-256 and BUILD marker. This is simulation-only fixture firmware.
 
@@ -33,8 +33,8 @@ run and inspect-report from the simulation guide. Preserve the independent
 `embedded-sim-runner.egu-plan.v1` and `embedded-sim-runner.egu-report.v1`
 schemas; do not relabel another peripheral's evidence.
 
-For ordered EGU or mixed EGU/RTC/watchdog suites, use HIL 0.18.0's
-`embedded-hil-runner.simulation-spec.v1` with the exact sim 0.13.0 wheel.
+For ordered EGU or mixed EGU/RTC/watchdog suites, use HIL 0.19.0's
+`embedded-hil-runner.simulation-spec.v1` with the exact sim 0.14.0 wheel.
 HIL preflights every plan before execution, runs each case once and stops at
 failed or indeterminate evidence, retaining later cases as not run. Reuse the
 agreed development-task scope without per-case approval. Keep negative paths
@@ -87,7 +87,7 @@ Sim 0.12 isolates each Renode history file using its absolute per-run INI path;
 parallel runs must not share AntShell history. Native host bounds remain
 30 seconds, 1 MiB/output, one backend process and 1024 MiB Windows Job memory,
 with zero retries. HIL retains eight cases and bounded child deadlines.
-Static inspection reads at most 108 payloads, 1 MiB/file, 4 MiB/component and
+Static inspection reads at most 111 payloads, 1 MiB/file, 4 MiB/component and
 256 entries/component. Trace validates the full timeline before filtering;
 a small page does not reduce validation cost. Record wall time and Python
 allocation separately from backend RSS, cold IO and startup; no SLA follows.

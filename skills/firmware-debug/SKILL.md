@@ -62,6 +62,9 @@ and raw guest/model spans; a fault marker alone does not establish its effect.
 For GPIOTE edge/polarity or pending-event failures, read
 [GPIOTE simulation](../../docs/simulation-gpiote.md). Compare CONFIG/current-state,
 input, event and ISR spans; modeled effects do not establish an electrical cause.
+For PPI channel-disable or fork-misroute failures, read
+[PPI simulation](../../docs/simulation-ppi.md). Compare route, output and guest
+spans; retain failed/unknown outcomes and the deferred model-task limitation.
 
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only

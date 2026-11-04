@@ -1,11 +1,16 @@
 # Versioned releases
 
-Local 0.41.0 adds [GPIOTE input-edge/IRQ routing](simulation-gpiote.md), with
-published sim0.13/HIL0.18/Trace0.18 and 108 simulation payload files. Instrument
-routing retains lab0.11/HIL0.12 and selects Trace0.18 (99 files); standalone
-Trace selects that same 31-file payload. Historical 69/74-file candidate modes,
+Local 0.42.0 adds [TIMER0/PPI/GPIOTE functional routing](simulation-ppi.md), with
+published sim0.14/HIL0.19/Trace0.19 and 111 simulation payload files. Instrument
+routing retains lab0.11/HIL0.12 and selects Trace0.19 (100 files); standalone
+Trace selects that same 32-file payload. Historical 69/74-file candidate modes,
 native component catalog, managed HIL pins and workstation locks stay independent.
-Toolkit0.41 is local until its own CI/provenance and publication complete.
+Toolkit0.42 is local until its own CI/provenance and publication complete.
+
+Published [0.41.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.41.0)
+routes GPIOTE inputs through sim0.13/HIL0.18/Trace0.18 (108 simulation files),
+with 99 instrument and 31 standalone Trace files. PPI defaults reject this older
+environment without fallback; its original pins and installed environments remain.
 
 Published [0.40.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.40.0)
 routes EGU through sim0.12/HIL0.17/Trace0.17 (105 simulation files), with 98

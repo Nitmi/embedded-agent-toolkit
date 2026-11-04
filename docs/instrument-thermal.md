@@ -2,7 +2,7 @@
 
 Use this file-only workflow for saved native PureThermal/Lepton captures. First
 inspect the explicitly selected environment as in [instrument setup](instruments.md).
-Toolkit 0.41.0 pins published lab0.11/HIL0.12/Trace0.18.0 and 99 payloads. Historical
+Toolkit 0.42.0 pins published lab0.11/HIL0.12/Trace0.19.0 and 100 payloads. Historical
 candidate mode lacks this domain; it cannot repair a mismatched published setup.
 Use the inspected trusted interpreter with `-I -B`. Hashes select bytes without
 per-command confirmations. No camera, SDK, board doctor or discovery is needed.

@@ -45,6 +45,9 @@ monitor task generation distinct from guest ISR service and physical routing.
 For model-only GPIO edge and GPIOTE interrupt startup, read
 [GPIOTE simulation](../../docs/simulation-gpiote.md). Preserve CONFIG, input,
 event and ISR evidence; input-model success does not qualify physical wiring.
+For model-only TIMER0-to-PPI-to-GPIOTE startup, read
+[PPI simulation](../../docs/simulation-ppi.md). Use its functional routing profile;
+preserve output/model evidence without inferring event alignment or physical timing.
 
 ## Establish identities
 

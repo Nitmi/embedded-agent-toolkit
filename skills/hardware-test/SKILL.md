@@ -79,6 +79,9 @@ reuse the agreed task authorization without per-case confirmation.
 For GPIOTE input-edge, polarity or masked-interrupt regressions, read
 [GPIOTE simulation](../../docs/simulation-gpiote.md). Preserve pin-level ISR and
 model spans, failed nominal outcomes and unknowns; reuse the agreed task scope.
+For TIMER0-to-PPI-to-GPIOTE functional regressions, read
+[PPI simulation](../../docs/simulation-ppi.md). Preserve route/output snapshots,
+fault effects and native failure stops; reuse task consent without per-case approval.
 
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only

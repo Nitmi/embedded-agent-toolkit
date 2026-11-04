@@ -1,24 +1,24 @@
 # Optional offline instrument workflows
 
-Toolkit 0.41.0 routes the published lab-instruments 0.11.0,
-HIL Runner 0.12.0 and Embedded Trace 0.18.0 releases. This optional domain
+Toolkit 0.42.0 routes the published lab-instruments 0.11.0,
+HIL Runner 0.12.0 and Embedded Trace 0.19.0 releases. This optional domain
 evaluates **saved** digital/analog captures, load/thermal measurements and native reports; it does not open an
 instrument or acquire a new waveform. Real devices, vendor SDK/ABI, wiring,
 calibration and timing accuracy have not been qualified by these software checks.
 
 `instrument-runtime.json` binds each repository, immutable source tag/revision,
-wheel download URL/SHA-256 and 99 installed code/schema/metadata/license files.
+wheel download URL/SHA-256 and 100 installed code/schema/metadata/license files.
 Its release identities are:
 
 | Component | Tag | Source revision |
 | --- | --- | --- |
 | [lab-instruments](https://github.com/Nitmi/lab-instruments/releases/tag/v0.11.0) | `v0.11.0` | `8d8ea1743699e3a0bd889d2612bdd19d4552b590` |
 | [HIL Runner](https://github.com/Nitmi/hil-runner/releases/tag/v0.12.0) | `v0.12.0` | `81c3b6fd8b23bc7ac2c3da5ce0d9b98bb39ed883` |
-| [Embedded Trace](https://github.com/Nitmi/embedded-trace/releases/tag/v0.18.0) | `v0.18.0` | `d78eecf8acffd5d8bf630547fbfd06558ae35726` |
+| [Embedded Trace](https://github.com/Nitmi/embedded-trace/releases/tag/v0.19.0) | `v0.19.0` | `b21fd336cdc12385c6c74bd3cbea43725d3b042a` |
 
 Published identity in a pin is not an attestation verification. Do not substitute the
 HIL versions selected by the separate simulation pin or managed HIL pin. Trace
-0.18.0 is shared by the standalone and simulation routes, but it does not make
+0.19.0 is shared by the standalone and simulation routes, but it does not make
 their other dependencies interchangeable. A dedicated instrument environment
 keeps these selections explicit.
 
@@ -167,7 +167,7 @@ origin and false physical/calibration/authorization claims remain visible.
 
 ## Bounds and cost
 
-Static inspection reads at most 99 published payload files (74 historical candidate
+Static inspection reads at most 100 published payload files (74 historical candidate
 files), each at most 1 MiB and
 each package at most 4 MiB, plus bounded venv configuration/pin data. Package
 inventory walks are capped at 256 entries per component. It rejects links,

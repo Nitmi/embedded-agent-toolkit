@@ -1,12 +1,12 @@
 # Embedded Agent Toolkit
 
-Local **0.41.0** adds [GPIOTE input-edge/interrupt regressions](docs/simulation-gpiote.md)
-through published sim 0.13 / HIL 0.18 / Trace 0.18 (108 files). CONFIG, input,
-event and pin-level ISR spans preserve masking/polarity effects and failed/unknown
-outcomes. [EGU](docs/simulation-egu.md), [RTC](docs/simulation-rtc.md), [Watchdog](docs/simulation-watchdog.md), [SPI / LM74](docs/simulation-spi.md), [TMP103](docs/simulation-sensors.md),
+Local **0.42.0** adds [TIMER0/PPI/GPIOTE functional regressions](docs/simulation-ppi.md)
+through published sim 0.14 / HIL 0.19 / Trace 0.19 (111 files). Route and output
+snapshots retain channel-disable/fork-misroute effects and failed/unknown outcomes.
+[GPIOTE inputs](docs/simulation-gpiote.md), [EGU](docs/simulation-egu.md), [RTC](docs/simulation-rtc.md), [Watchdog](docs/simulation-watchdog.md), [SPI / LM74](docs/simulation-spi.md), [TMP103](docs/simulation-sensors.md),
 [GPIO faults](docs/simulation-faults.md) and [WASM](docs/simulation-wasm.md)
 keep their separate model limits. Standalone and instrument routes use the same
-Trace 0.18; instruments retain lab 0.11 / HIL 0.12 and 99 files. Historical
+Trace 0.19; instruments retain lab 0.11 / HIL 0.12 and 100 files. Historical
 candidate modes, native station selection and default doctor remain independent.
 
 [![CI](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/Nitmi/embedded-agent-toolkit/actions/workflows/ci.yml)
@@ -36,9 +36,9 @@ BLE, and debug transports. Each component remains independently usable.
 
 ## Install the current release
 
-The current published Toolkit is [0.40.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.40.0):
-simulation uses sim 0.12 / HIL 0.17 / Trace 0.17 (105 files); saved instrument
-evidence uses lab 0.11 / HIL 0.12 / Trace 0.17 (98 files). Local 0.41.0 above
+The current published Toolkit is [0.41.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.41.0):
+simulation uses sim 0.13 / HIL 0.18 / Trace 0.18 (108 files); saved instrument
+evidence uses lab 0.11 / HIL 0.12 / Trace 0.18 (99 files). Local 0.42.0 above
 is not a published Toolkit release yet.
 
 For the selected Toolkit version, use `simulation_runtime.py inspect <venv> --json`.
