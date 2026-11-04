@@ -76,6 +76,9 @@ For EGU task/event/interrupt regressions, read
 [EGU simulation](../../docs/simulation-egu.md). Preserve raw PRE/POST and ISR spans,
 unknowns and the failed nominal verdict even when masking or misrouting is observed;
 reuse the agreed task authorization without per-case confirmation.
+For GPIOTE input-edge, polarity or masked-interrupt regressions, read
+[GPIOTE simulation](../../docs/simulation-gpiote.md). Preserve pin-level ISR and
+model spans, failed nominal outcomes and unknowns; reuse the agreed task scope.
 
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only

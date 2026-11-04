@@ -59,6 +59,9 @@ clock fault, wakeup failure or root cause.
 For EGU masked interrupts or task misrouting in the model, read
 [EGU simulation](../../docs/simulation-egu.md). Compare event latches, enable masks
 and raw guest/model spans; a fault marker alone does not establish its effect.
+For GPIOTE edge/polarity or pending-event failures, read
+[GPIOTE simulation](../../docs/simulation-gpiote.md). Compare CONFIG/current-state,
+input, event and ISR spans; modeled effects do not establish an electrical cause.
 
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only

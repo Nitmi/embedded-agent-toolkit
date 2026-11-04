@@ -1,14 +1,14 @@
 # Watchdog model regressions
 
-Toolkit 0.40.0 routes published sim-runner 0.12.0, HIL Runner 0.17.0 and
-Embedded Trace 0.17.0 for `nrf52840-watchdog-v1`. Use it for dual-channel reload,
+Toolkit 0.41.0 routes published sim-runner 0.13.0, HIL Runner 0.18.0 and
+Embedded Trace 0.18.0 for `nrf52840-watchdog-v1`. Use it for dual-channel reload,
 stopped feeding, disabled-model and guest reboot evidence. Model results do not
 qualify a physical watchdog, board reset, low-power behavior or protection.
 
 ## Select and plan
 
 Follow [simulation setup](simulation.md) to authenticate the exact release
-wheels. The default pin checks 105 installed files: sim 38, HIL 37, Trace 30.
+wheels. The default pin checks 108 installed files: sim 40, HIL 37, Trace 31.
 Historical candidate mode has no watchdog profile. Static inspection starts
 neither the selected interpreter nor a backend and does not verify a signature.
 
@@ -33,8 +33,8 @@ and inspect-report from the simulation guide. Preserve the independent
 `embedded-sim-runner.watchdog-report.v1` schemas;
 do not relabel a GPIO or sensor report. Native sim owns the verdict.
 
-For an ordered watchdog or mixed watchdog/SPI/I2C/GPIO suite, use HIL 0.17's
-`embedded-hil-runner.simulation-spec.v1` with the exact 0.12.0 sim wheel.
+For an ordered watchdog or mixed watchdog/SPI/I2C/GPIO suite, use HIL 0.18's
+`embedded-hil-runner.simulation-spec.v1` with the exact 0.13.0 sim wheel.
 HIL preflights every plan before a backend starts and stops after a failed or
 indeterminate case. Reuse the agreed development task's authorization without
 per-run hash confirmation. Keep negative paths in separately declared suites;
@@ -82,7 +82,7 @@ power behavior. Keep requested virtual time, guest ticks and host deadlines sepa
 
 Host bounds remain 30 seconds, 1 MiB/output, one backend process, 1024 MiB Windows
 Job memory and zero retries. HIL retains eight cases and bounded child deadlines.
-Static inspection reads at most 105 payloads, 1 MiB/file, 4 MiB/component and 256
+Static inspection reads at most 108 payloads, 1 MiB/file, 4 MiB/component and 256
 package entries/component. Trace validates a full timeline before filtering.
 Record wall time and Python allocation separately from startup, cold IO, backend
 RSS or physical throughput; no physical timing or safety qualification follows.

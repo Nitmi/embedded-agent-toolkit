@@ -4,6 +4,48 @@ Read this file and AGENTS.md before starting another task.
 
 ## Current local work
 
+- Local0.41.0 on feat/published-gpiote-simulation routes published sim0.13 /
+  HIL0.18 / Trace0.18:108 files (40/37/31). Instruments retain lab0.11/HIL0.12,
+  using the same Trace0.18 for99 files; standalone31. Pins derive from formal
+  wheel bytes and24 completed genuine checks in D:/Code/tmp/gpiote-release-20261103.
+  This task adds no signature verifier, executor, MCP or per-case confirmation.
+- Read docs/simulation-gpiote.md. Preserve CONFIG/current-state, GPIO input,
+  event, pin-level ISR and fault request spans; nominal faults remain failed,
+  BUILD mismatch keeps model observations and timeout stays unknown. TASKS_OUT,
+  PORT/SENSE/LATCH/DETECTMODE/PPI/electrical/physical timing remain unqualified.
+  Trace0.17 admits EGU but not GPIOTE; older layouts remain explicit.
+- Acceptance root D:/Code/tmp/toolkit-gpiote-0410-20261104. Reuse formal
+  gpiote-0130-0180-0180/joint311 and joint313 and saved31 GPIOTE results;
+  do not repeat native runs or component cold installs. New isolated instrument
+  environments and candidate plugin installs are local only. Toolkit/plugin0.40,
+  station/locks/PATH and existing environments remain unchanged.
+- Use skill-creator for three short routes to one guide; include the guide in
+  release.REQUIRED_FILES and keep both manifests/bootstrap at0.41.0. Current
+  source, package, compatibility and cost checks must finish before claiming
+  acceptance. Initial host reads guessed a missing fixture README; actual
+  native guide is sim-runner/docs/nrf52840-gpiote.md. One multi-file patch had
+  an incorrect simulation.md header and was rejected atomically; no partial
+  guide was created. Corrected with exact source context. Broad reads were
+  truncated; use focused ranges. Preserve these as host issues, not failures
+  of simulation or physical evidence. Review current-selection replacements
+  separately from historical introduction versions in docs/embedded-trace.md.
+- First Python3.11 full run reached282 tests with two failing subtests: the
+  instrument Windows/POSIX fixtures still expected current Trace0.17 instead
+  of0.18. Updated only that stale expectation; original tests-311 output remains.
+  New complete runs use tests-final-311/313, never overwrite the failed result.
+  An auxiliary progress read tried buffered stderr before call completion;
+  the file was not created yet. Wait for the controlled receipt instead.
+- The one-line fixture patch introduced extra indentation. format-final exited1
+  before another test run; Ruff formatting corrected it. Preserve this output,
+  use format-fixed for the completed check and do not replay passed lint.
+- Final Python3.11/3.13 suites each282 tests:279 passed/three existing platform
+  skips. Ruff/format/diff, repository plugin layout/release identity and four
+  official Skill validators passed. Both existing formal joint environments'
+  31 GPIOTE saved results match full baseline hashes; each new instrument
+  environment preserves52 views from26 old bundles after root viewer_version
+  normalization only. Candidate package/installation and static inspection
+  cost remain tracked in the execution root; no public write or activation.
+
 - Local0.40.0 on feat/published-egu-simulation routes published sim0.12 /
   HIL0.17 / Trace0.17:105 files (38/37/30). Instruments retain lab0.11/HIL0.12
   with the same Trace0.17,98 files; standalone30. Exact wheel bytes and the

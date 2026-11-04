@@ -102,9 +102,9 @@ CANDIDATE_SPECS = {
 }
 CANDIDATE_VERSIONS = {name: spec[2] for name, spec in CANDIDATE_SPECS.items()}
 PUBLISHED_VERSIONS = {
-    "sim-runner": "0.12.0",
-    "hil-runner": "0.17.0",
-    "embedded-trace": "0.17.0",
+    "sim-runner": "0.13.0",
+    "hil-runner": "0.18.0",
+    "embedded-trace": "0.18.0",
 }
 PUBLISHED_FILES = {
     "sim-runner": {
@@ -118,6 +118,8 @@ PUBLISHED_FILES = {
         "assets/nrf52840-rtc.repl",
         "egu.py",
         "assets/nrf52840-egu.repl",
+        "gpiote.py",
+        "assets/nrf52840-gpiote.repl",
     },
     "hil-runner": {
         "instrument.py",
@@ -138,6 +140,7 @@ PUBLISHED_FILES = {
     "embedded-trace": {
         "rtc.py",
         "egu.py",
+        "gpiote.py",
         "instrument.py",
         "waveform.py",
         "load.py",

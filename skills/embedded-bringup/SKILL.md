@@ -42,6 +42,9 @@ native RTC schemas; IRQ samples do not qualify LFCLK, wakeup or physical timing.
 For model-only EGU task/event/interrupt startup, read
 [EGU simulation](../../docs/simulation-egu.md). Use native EGU schemas and keep
 monitor task generation distinct from guest ISR service and physical routing.
+For model-only GPIO edge and GPIOTE interrupt startup, read
+[GPIOTE simulation](../../docs/simulation-gpiote.md). Preserve CONFIG, input,
+event and ISR evidence; input-model success does not qualify physical wiring.
 
 ## Establish identities
 
