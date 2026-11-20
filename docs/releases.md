@@ -1,11 +1,16 @@
 # Versioned releases
 
-Local 0.42.0 adds [TIMER0/PPI/GPIOTE functional routing](simulation-ppi.md), with
-published sim0.14/HIL0.19/Trace0.19 and 111 simulation payload files. Instrument
-routing retains lab0.11/HIL0.12 and selects Trace0.19 (100 files); standalone
-Trace selects that same 32-file payload. Historical 69/74-file candidate modes,
+Local 0.43.0 adds [UARTE1 EasyDMA RX and descriptor faults](simulation-uarte-dma.md),
+with published sim0.15/HIL0.20/Trace0.20 and 114 simulation payload files.
+Instrument routing retains lab0.11/HIL0.12 and selects Trace0.20 (101 files);
+standalone Trace selects that same 33-file payload. Historical 69/74-file modes,
 native component catalog, managed HIL pins and workstation locks stay independent.
-Toolkit0.42 is local until its own CI/provenance and publication complete.
+Toolkit0.43 is local until its own CI/provenance and publication complete.
+
+Published [0.42.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.42.0)
+routes [PPI](simulation-ppi.md) through sim0.14/HIL0.19/Trace0.19 (111 simulation
+files), with 100 instrument and 32 standalone Trace files. UARTE defaults reject
+this older environment without fallback; its original pins/installations remain.
 
 Published [0.41.0](https://github.com/Nitmi/embedded-agent-toolkit/releases/tag/v0.41.0)
 routes GPIOTE inputs through sim0.13/HIL0.18/Trace0.18 (108 simulation files),

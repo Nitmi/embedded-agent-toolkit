@@ -48,6 +48,9 @@ event and ISR evidence; input-model success does not qualify physical wiring.
 For model-only TIMER0-to-PPI-to-GPIOTE startup, read
 [PPI simulation](../../docs/simulation-ppi.md). Use its functional routing profile;
 preserve output/model evidence without inferring event alignment or physical timing.
+For model-only UARTE1 EasyDMA RX startup, read
+[UARTE DMA simulation](../../docs/simulation-uarte-dma.md). Preserve descriptor,
+event and guarded-SRAM evidence; model input does not qualify physical DMA.
 
 ## Establish identities
 

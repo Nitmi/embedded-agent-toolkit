@@ -65,6 +65,9 @@ input, event and ISR spans; modeled effects do not establish an electrical cause
 For PPI channel-disable or fork-misroute failures, read
 [PPI simulation](../../docs/simulation-ppi.md). Compare route, output and guest
 spans; retain failed/unknown outcomes and the deferred model-task limitation.
+For UARTE RX length, pointer or guard failures, read
+[UARTE DMA simulation](../../docs/simulation-uarte-dma.md). Compare raw descriptor,
+event, SRAM and guest spans while retaining native failures and unknowns.
 
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only

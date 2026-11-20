@@ -233,7 +233,7 @@ class SimulationRuntimeTests(unittest.TestCase):
                 self.assertEqual(report["layout"], layout)
                 self.assertEqual(report["resolution_source"], "pinned_releases")
                 self.assertEqual(
-                    sum(x["verified_files"] for x in report["components"]), 111
+                    sum(x["verified_files"] for x in report["components"]), 114
                 )
                 for flag in (
                     "executables_started",
@@ -268,6 +268,8 @@ class SimulationRuntimeTests(unittest.TestCase):
             "assets/nrf52840-gpiote.repl",
             "ppi.py",
             "assets/nrf52840-ppi.repl",
+            "uarte_dma.py",
+            "assets/nrf52840-uarte-dma.repl",
         ):
             for change in ("missing", "drift"):
                 with (
@@ -303,6 +305,7 @@ class SimulationRuntimeTests(unittest.TestCase):
             ("embedded-trace", "embedded_trace", "egu.py"),
             ("embedded-trace", "embedded_trace", "gpiote.py"),
             ("embedded-trace", "embedded_trace", "ppi.py"),
+            ("embedded-trace", "embedded_trace", "uarte_dma.py"),
         ):
             with self.subTest(component=name), tempfile.TemporaryDirectory() as tmp:
                 root = Path(tmp)
@@ -320,6 +323,7 @@ class SimulationRuntimeTests(unittest.TestCase):
             "nrf52840-egu.repl",
             "nrf52840-gpiote.repl",
             "nrf52840-ppi.repl",
+            "nrf52840-uarte-dma.repl",
         ):
             with self.subTest(model=model):
                 pin = copy.deepcopy(sim.load_pin())
@@ -332,13 +336,13 @@ class SimulationRuntimeTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     sim.parse_pin(json.dumps(pin).encode())
 
-    def test_coherent_previous_release_or_mixed_versions_cannot_replace_ppi_selection(
+    def test_coherent_previous_release_or_mixed_versions_cannot_replace_uarte_selection(
         self,
     ):
         versions = {
-            "sim-runner": "0.13.0",
-            "hil-runner": "0.18.0",
-            "embedded-trace": "0.18.0",
+            "sim-runner": "0.14.0",
+            "hil-runner": "0.19.0",
+            "embedded-trace": "0.19.0",
         }
         selections = [[name] for name in versions] + [list(versions)]
         for names in selections:
@@ -366,9 +370,9 @@ class SimulationRuntimeTests(unittest.TestCase):
                             for row in item["files"]
                             if row["path"]
                             not in {
-                                "sim_runner/ppi.py",
-                                "sim_runner/assets/nrf52840-ppi.repl",
-                                "embedded_trace/ppi.py",
+                                "sim_runner/uarte_dma.py",
+                                "sim_runner/assets/nrf52840-uarte-dma.repl",
+                                "embedded_trace/uarte_dma.py",
                             }
                         ]
                 with self.assertRaisesRegex(ValueError, "component identity"):

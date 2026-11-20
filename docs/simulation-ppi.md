@@ -1,19 +1,19 @@
 # TIMER0, PPI and GPIOTE functional routing
 
-Toolkit 0.42.0 routes published sim-runner 0.14.0, HIL Runner 0.19.0 and
-Embedded Trace 0.19.0 for `nrf52840-ppi-v1`. The fixed Renode 1.17 model
+Toolkit 0.43.0 routes published sim-runner 0.15.0, HIL Runner 0.20.0 and
+Embedded Trace 0.20.0 for `nrf52840-ppi-v1`. The fixed Renode 1.17 model
 checks TIMER0 compare0 routing through PPI channel 0 and its fork to GPIOTE
 task outputs. It does not establish event alignment or physical timing.
 
 ## Select and plan
 
 Follow [simulation setup](simulation.md) to authenticate the exact wheels.
-The default pin checks 111 installed files: sim 42, HIL 37 and Trace 32.
+The default pin checks 114 installed files: sim 44, HIL 37 and Trace 33.
 Static inspection reads files without importing components, launching their
 interpreter/backend or verifying signatures. Historical candidates and older
 published environments cannot satisfy this selection.
 
-Build simulation-only firmware with sim-runner 0.14.0's
+Build simulation-only firmware with sim-runner 0.15.0's
 `examples/nrf52840-ppi/build.py` into a new directory, or select compatible
 Cortex-M4 raw BIN firmware with an exact SHA-256 and BUILD marker.
 
@@ -33,8 +33,8 @@ run and inspect-report from the simulation guide. Keep the independent
 `embedded-sim-runner.ppi-plan.v1` and `embedded-sim-runner.ppi-report.v1`
 schemas; GPIO, GPIOTE input and EGU evidence are separate profiles.
 
-For ordered PPI or mixed PPI/GPIOTE/EGU suites, use HIL 0.19.0's
-`embedded-hil-runner.simulation-spec.v1` with the exact sim 0.14.0 wheel.
+For ordered PPI or mixed PPI/GPIOTE/EGU suites, use HIL 0.20.0's
+`embedded-hil-runner.simulation-spec.v1` with the exact sim 0.15.0 wheel.
 HIL preflights the whole suite, runs each case once and stops on failed or
 indeterminate evidence, retaining later cases as not run. Keep negative paths
 in separate suites. Reuse the agreed development-task scope without per-case
@@ -102,7 +102,7 @@ Native bounds remain 30 seconds, 1 MiB per captured output, one backend process
 and 1024 MiB Windows Job memory, with zero automatic retries and complete process
 and capture cleanup. Keep absolute Renode history paths isolated in parallel runs.
 HIL retains its eight-case bound and child deadlines. Static inspection checks
-111 selected files, at most 1 MiB/file, 4 MiB/component and 256 entries/component.
+114 selected files, at most 1 MiB/file, 4 MiB/component and 256 entries/component.
 Trace validates complete evidence before filtering; a small page does not lower
 that cost. Measure host wall time and Python allocations separately from startup,
 cold IO, backend RSS and virtual time; these checks establish no physical SLA.

@@ -3,28 +3,28 @@
     "embedded-trace": {
       "files": [
         {
-          "path": "embedded_trace-0.19.0.dist-info/METADATA",
-          "sha256": "b8e01fca2b86593f41f6a676e16f913561e68ed234b7d5f394e48551a5477692",
-          "size": 10232
+          "path": "embedded_trace-0.20.0.dist-info/METADATA",
+          "sha256": "1b4558d3ccd7288355e29665ed60b97899b9c3ec66c83abd7a1f4c3c10cafe18",
+          "size": 10626
         },
         {
-          "path": "embedded_trace-0.19.0.dist-info/WHEEL",
+          "path": "embedded_trace-0.20.0.dist-info/WHEEL",
           "sha256": "5b77e4a649bbfb07fdbc123967eeecd1e5a478cfaca6eefc23c35e6fdf037848",
           "size": 87
         },
         {
-          "path": "embedded_trace-0.19.0.dist-info/entry_points.txt",
+          "path": "embedded_trace-0.20.0.dist-info/entry_points.txt",
           "sha256": "e180a3647b9cfcfff5b791785e23468834bc0ddc426fbdd7c84fc51797e71dcd",
           "size": 59
         },
         {
-          "path": "embedded_trace-0.19.0.dist-info/licenses/LICENSE",
+          "path": "embedded_trace-0.20.0.dist-info/licenses/LICENSE",
           "sha256": "cd24e7704a2b7505c01595eb602ad9be91edbb95650364fb428b2150c7044559",
           "size": 1062
         },
         {
           "path": "embedded_trace/__init__.py",
-          "sha256": "e0a01f589202bc515155f87c5b088ca487d46e5ca35488dcf052141c2121fd65",
+          "sha256": "ecad9aa529eeed592d39747d6e421792e1fb8753ee2c36a5a057d8de10726d36",
           "size": 66
         },
         {
@@ -69,8 +69,8 @@
         },
         {
           "path": "embedded_trace/instrument.py",
-          "sha256": "c2f03e771b0b10931f17402b581fc7293790bf9e113137778878278278b324c3",
-          "size": 15248
+          "sha256": "4c056b82ace89bb2f7f8fe1e82a63eeacd62fe22dbf05be78cd74d57daece15d",
+          "size": 15270
         },
         {
           "path": "embedded_trace/load.py",
@@ -79,8 +79,8 @@
         },
         {
           "path": "embedded_trace/load_protocol.py",
-          "sha256": "7f6246c4eb0854be076b61626e657ad833a5fe3662aa1ba4fa73924a35de97b9",
-          "size": 24455
+          "sha256": "d618eb4665ccf1c1e12fa3af24afc3dde3db85cc379396a2fd13142518ecc4d6",
+          "size": 24477
         },
         {
           "path": "embedded_trace/ppi.py",
@@ -89,13 +89,13 @@
         },
         {
           "path": "embedded_trace/query.py",
-          "sha256": "d72ee7b12faeb9a491d5bd2fdfd23659e23161af9c03209c1448f7cd6eb3c8ad",
-          "size": 31525
+          "sha256": "f888e1a89e1dbce63d2fc4dc5211eca29befa9801f9c8fc0765988ae34dab58b",
+          "size": 32438
         },
         {
           "path": "embedded_trace/report.py",
-          "sha256": "4f26ad33a9353decab66c648a41553123fe0cce5eaa9365666aa875b1c862049",
-          "size": 9584
+          "sha256": "9af9bc7e4cacdcd3e86e0fe6368bc0a78fb06babbed2eff945a7205757af13de",
+          "size": 9827
         },
         {
           "path": "embedded_trace/rtc.py",
@@ -109,13 +109,13 @@
         },
         {
           "path": "embedded_trace/schemas/instrument-report.schema.json",
-          "sha256": "0b471d3321f7244d9d136becc670a427ce7854a971e892a1e1ab0a037053f65b",
-          "size": 5559
+          "sha256": "ccdede247cb1699b4de5bbd4c024958d9385999328f7b7e8188416465d35ef5e",
+          "size": 5579
         },
         {
           "path": "embedded_trace/schemas/load-report.schema.json",
-          "sha256": "82e5f329fc4af17b297d23878562e56779a393b5d55913cac34385afc2653930",
-          "size": 9096
+          "sha256": "9994423c28f1057d24c1d4713c829ede88713eb47a3ff6d6e0d9a866ff34b24e",
+          "size": 9116
         },
         {
           "path": "embedded_trace/schemas/result.v1.schema.json",
@@ -124,8 +124,8 @@
         },
         {
           "path": "embedded_trace/schemas/thermal-report.schema.json",
-          "sha256": "f3ff1eec25bdf8c8121a6e49891296706e267b34c0abb3095233a06270f5f2b2",
-          "size": 8278
+          "sha256": "c33f681c41423e3f3e0264cc12b489d6e2736a019566cebda6dfbb73291da4dd",
+          "size": 8298
         },
         {
           "path": "embedded_trace/schemas/timeline.v1.schema.json",
@@ -134,13 +134,13 @@
         },
         {
           "path": "embedded_trace/schemas/waveform-report.schema.json",
-          "sha256": "44a4db6b35737fb2b284cd9f774375e4ac8b1359cdb98537655823b44ae605ee",
-          "size": 5185
+          "sha256": "29a3c92fc0ed0788c474f2c09bd56de4497b223bdfe5bc61a9915458417e7680",
+          "size": 5205
         },
         {
           "path": "embedded_trace/simulation.py",
-          "sha256": "7ea438ead38609b4715e1b593d873aef0c9223afe10fb7da44fa6105e5ad2662",
-          "size": 70676
+          "sha256": "459312d7651e09bda5d28893058b9b10836288b26e4277a024de33878c18c4ab",
+          "size": 72172
         },
         {
           "path": "embedded_trace/thermal.py",
@@ -149,8 +149,8 @@
         },
         {
           "path": "embedded_trace/thermal_protocol.py",
-          "sha256": "76275bca35a3bbaf52c5f157d7203d1970d89b4f127e252601fb88bf629d44ec",
-          "size": 26184
+          "sha256": "04a30488af9ac91f3789702b15be1198618da0031cefab5e3c4517e7e24bf437",
+          "size": 26321
         },
         {
           "path": "embedded_trace/timeline.py",
@@ -158,47 +158,52 @@
           "size": 6004
         },
         {
+          "path": "embedded_trace/uarte_dma.py",
+          "sha256": "ab2677f1de1f61d093b98f96e98cd9b7e09a5a0d4a8e339be5b716eb25fa93f5",
+          "size": 12102
+        },
+        {
           "path": "embedded_trace/waveform.py",
-          "sha256": "bb60df19810e06a53a7b3dd023912390f3f60d897f919b028e8ef1d9649ae8ca",
-          "size": 17191
+          "sha256": "83f26ace53ca67ef14cedf31f13c67cc0dd2f03afe913e2830b5a07791f92c3e",
+          "size": 17213
         }
       ],
       "repository": "Nitmi/embedded-trace",
-      "source_ref": "refs/tags/v0.19.0",
-      "source_revision": "b21fd336cdc12385c6c74bd3cbea43725d3b042a",
+      "source_ref": "refs/tags/v0.20.0",
+      "source_revision": "33319f348c62ca7168faddf9e4271213ffabc94c",
       "status": "published",
-      "version": "0.19.0",
+      "version": "0.20.0",
       "wheel": {
-        "name": "embedded_trace-0.19.0-py3-none-any.whl",
-        "sha256": "81d841ac2f3464c252e5fbe5d3a5dc8c818ba189c7061b39d891ff9407b868e3",
-        "url": "https://github.com/Nitmi/embedded-trace/releases/download/v0.19.0/embedded_trace-0.19.0-py3-none-any.whl"
+        "name": "embedded_trace-0.20.0-py3-none-any.whl",
+        "sha256": "06706c2b0e0fc7b97e1e9a4dee90dd9aedcc09e9b557dcaca3c747549d740fbd",
+        "url": "https://github.com/Nitmi/embedded-trace/releases/download/v0.20.0/embedded_trace-0.20.0-py3-none-any.whl"
       }
     },
     "hil-runner": {
       "files": [
         {
-          "path": "embedded_hil_runner-0.19.0.dist-info/METADATA",
-          "sha256": "1d40e90af8438a8c473ecab20d49f1aadb1ad5824642dcc603d551f2c198b2d6",
-          "size": 13034
+          "path": "embedded_hil_runner-0.20.0.dist-info/METADATA",
+          "sha256": "e62a980178e35674815c821b290a2155139ce9fc4dc3f3d16590e8468c58015e",
+          "size": 13442
         },
         {
-          "path": "embedded_hil_runner-0.19.0.dist-info/WHEEL",
+          "path": "embedded_hil_runner-0.20.0.dist-info/WHEEL",
           "sha256": "5b77e4a649bbfb07fdbc123967eeecd1e5a478cfaca6eefc23c35e6fdf037848",
           "size": 87
         },
         {
-          "path": "embedded_hil_runner-0.19.0.dist-info/entry_points.txt",
+          "path": "embedded_hil_runner-0.20.0.dist-info/entry_points.txt",
           "sha256": "7c769c154ed617bd7476f3c91d085a05958f386bc8eeac2672866e191bda34cb",
           "size": 51
         },
         {
-          "path": "embedded_hil_runner-0.19.0.dist-info/licenses/LICENSE",
+          "path": "embedded_hil_runner-0.20.0.dist-info/licenses/LICENSE",
           "sha256": "cd24e7704a2b7505c01595eb602ad9be91edbb95650364fb428b2150c7044559",
           "size": 1062
         },
         {
           "path": "hil_runner/__init__.py",
-          "sha256": "cbdbf612b1788fe471b2f66208ec802996c7f4d85055f6d5c1fabdf9ec390014",
+          "sha256": "cd4b4049ff7db95434495d4c497b9e1f4ff74c4c67586f8d406af5faf2854f5c",
           "size": 89
         },
         {
@@ -223,8 +228,8 @@
         },
         {
           "path": "hil_runner/instrument.py",
-          "sha256": "f041341dc0a7866bdb022e2b43b2d19d5f170daa1174252dae19483ce814380e",
-          "size": 17870
+          "sha256": "a830b92ca3debe19b2acc0717c3f0c997709d94f853bb8ed5e98cfaf65cfb376",
+          "size": 17892
         },
         {
           "path": "hil_runner/lease.py",
@@ -238,8 +243,8 @@
         },
         {
           "path": "hil_runner/load_protocol.py",
-          "sha256": "7f6246c4eb0854be076b61626e657ad833a5fe3662aa1ba4fa73924a35de97b9",
-          "size": 24455
+          "sha256": "d618eb4665ccf1c1e12fa3af24afc3dde3db85cc379396a2fd13142518ecc4d6",
+          "size": 24477
         },
         {
           "path": "hil_runner/managed.py",
@@ -253,8 +258,8 @@
         },
         {
           "path": "hil_runner/schemas/instrument-report.schema.json",
-          "sha256": "e3ff75c8627f62ff9bd20bdaa7163c21c17050a20117461ec1551724d9052cbc",
-          "size": 5569
+          "sha256": "ccdede247cb1699b4de5bbd4c024958d9385999328f7b7e8188416465d35ef5e",
+          "size": 5579
         },
         {
           "path": "hil_runner/schemas/instrument-spec.schema.json",
@@ -263,8 +268,8 @@
         },
         {
           "path": "hil_runner/schemas/load-report.schema.json",
-          "sha256": "36757c279b42bf5923415721bcee1f58bad5050b3655925717c2e378473a2772",
-          "size": 9106
+          "sha256": "9994423c28f1057d24c1d4713c829ede88713eb47a3ff6d6e0d9a866ff34b24e",
+          "size": 9116
         },
         {
           "path": "hil_runner/schemas/load-spec.schema.json",
@@ -273,8 +278,8 @@
         },
         {
           "path": "hil_runner/schemas/managed-plan.schema.json",
-          "sha256": "193fc6074b61d5dbe203cf9d5f013c04f1d92fe5089acc551a78919b1314707b",
-          "size": 3730
+          "sha256": "790bf587ec0f9d846ac73f0ad85d639690ed618fbfff61dc9687221bbd4f3092",
+          "size": 3740
         },
         {
           "path": "hil_runner/schemas/managed-result.schema.json",
@@ -293,8 +298,8 @@
         },
         {
           "path": "hil_runner/schemas/simulation-plan.schema.json",
-          "sha256": "58a88da1b3725c1c229c9c7cc7501971c6d6a165fac8dc70914023306c29952b",
-          "size": 2548
+          "sha256": "45c57d4d28290194ad5ad241b2c195286a1d6a6489a581e22a2a214d42b0deb8",
+          "size": 2630
         },
         {
           "path": "hil_runner/schemas/simulation-report.schema.json",
@@ -308,8 +313,8 @@
         },
         {
           "path": "hil_runner/schemas/thermal-report.schema.json",
-          "sha256": "526ed10e5b48a92d526facb14c51f518c5836845fb669fa6cb9a4edbbae9d16d",
-          "size": 8288
+          "sha256": "c33f681c41423e3f3e0264cc12b489d6e2736a019566cebda6dfbb73291da4dd",
+          "size": 8298
         },
         {
           "path": "hil_runner/schemas/thermal-spec.schema.json",
@@ -318,8 +323,8 @@
         },
         {
           "path": "hil_runner/schemas/waveform-report.schema.json",
-          "sha256": "134caca19013ba56d9e976603a11eacf0acc4e8aa96f778021796941fcd341c2",
-          "size": 5195
+          "sha256": "29a3c92fc0ed0788c474f2c09bd56de4497b223bdfe5bc61a9915458417e7680",
+          "size": 5205
         },
         {
           "path": "hil_runner/schemas/waveform-spec.schema.json",
@@ -338,8 +343,8 @@
         },
         {
           "path": "hil_runner/simulation.py",
-          "sha256": "e3af2388eac46a919072c5c7829217672fdf0d339873affa5df9b0f4942e9916",
-          "size": 59363
+          "sha256": "d7a0bde2ea5832425e072340059f5f4a80163614f28a8c6f9215732345a0f349",
+          "size": 63151
         },
         {
           "path": "hil_runner/thermal.py",
@@ -348,13 +353,13 @@
         },
         {
           "path": "hil_runner/thermal_protocol.py",
-          "sha256": "76275bca35a3bbaf52c5f157d7203d1970d89b4f127e252601fb88bf629d44ec",
-          "size": 26184
+          "sha256": "04a30488af9ac91f3789702b15be1198618da0031cefab5e3c4517e7e24bf437",
+          "size": 26321
         },
         {
           "path": "hil_runner/waveform.py",
-          "sha256": "63d062087fb8a86ef21b3e4e3d4050f9303ee7e8c844d7e157b51442aaf217cf",
-          "size": 25217
+          "sha256": "d17a44d53bcc55567f4757f211ffc14abf9f256729b9ced0c0df6a8a32396a78",
+          "size": 25239
         },
         {
           "path": "hil_runner/winjob.py",
@@ -363,41 +368,41 @@
         }
       ],
       "repository": "Nitmi/hil-runner",
-      "source_ref": "refs/tags/v0.19.0",
-      "source_revision": "2676ad316a305810fdbecac40a8d14841ba39916",
+      "source_ref": "refs/tags/v0.20.0",
+      "source_revision": "a278ef4a66607a87908fca748a5651b3a0410a23",
       "status": "published",
-      "version": "0.19.0",
+      "version": "0.20.0",
       "wheel": {
-        "name": "embedded_hil_runner-0.19.0-py3-none-any.whl",
-        "sha256": "4370d08dfe293179e6667852d192b6b54adeb960db0c66398388e6885a065ff2",
-        "url": "https://github.com/Nitmi/hil-runner/releases/download/v0.19.0/embedded_hil_runner-0.19.0-py3-none-any.whl"
+        "name": "embedded_hil_runner-0.20.0-py3-none-any.whl",
+        "sha256": "d1f13525632912ec3950a924ec98519982b0ce6fee50f621b8e247c961a3cf0d",
+        "url": "https://github.com/Nitmi/hil-runner/releases/download/v0.20.0/embedded_hil_runner-0.20.0-py3-none-any.whl"
       }
     },
     "sim-runner": {
       "files": [
         {
-          "path": "embedded_sim_runner-0.14.0.dist-info/METADATA",
-          "sha256": "d876aa85652acd8fc8e73f3eccd8d4119dbbe19c75fddbd06b3d6392fc362451",
-          "size": 11607
+          "path": "embedded_sim_runner-0.15.0.dist-info/METADATA",
+          "sha256": "77d19b58da469a13ad3d7cb81c480650b96afab56160cf3cb3d003a24d3fe9cc",
+          "size": 12087
         },
         {
-          "path": "embedded_sim_runner-0.14.0.dist-info/WHEEL",
+          "path": "embedded_sim_runner-0.15.0.dist-info/WHEEL",
           "sha256": "5b77e4a649bbfb07fdbc123967eeecd1e5a478cfaca6eefc23c35e6fdf037848",
           "size": 87
         },
         {
-          "path": "embedded_sim_runner-0.14.0.dist-info/entry_points.txt",
+          "path": "embedded_sim_runner-0.15.0.dist-info/entry_points.txt",
           "sha256": "eeaa2a7cdeec89db2b002a0fe7e2576da546cc981381be3645ebb51a3fdbe859",
           "size": 51
         },
         {
-          "path": "embedded_sim_runner-0.14.0.dist-info/licenses/LICENSE",
+          "path": "embedded_sim_runner-0.15.0.dist-info/licenses/LICENSE",
           "sha256": "cd24e7704a2b7505c01595eb602ad9be91edbb95650364fb428b2150c7044559",
           "size": 1062
         },
         {
           "path": "sim_runner/__init__.py",
-          "sha256": "bb5367223f6a264cafae74fc6a20afbd7bb6082d7df91b7317c1d3d5ef157c07",
+          "sha256": "cec9556c1c0627134164fabce87ab8adf86c9386da15ab996d45ad4ced55f21c",
           "size": 84
         },
         {
@@ -471,6 +476,11 @@
           "size": 515
         },
         {
+          "path": "sim_runner/assets/nrf52840-uarte-dma.repl",
+          "sha256": "b2993f98874fbfd5669cec17b7d000f230028f08392c0dcc1c47f93f9a68e60e",
+          "size": 513
+        },
+        {
           "path": "sim_runner/assets/nrf52840-watchdog.repl",
           "sha256": "8604bc832c2fb37b2dccb0c13413dee704148aac41f295e0feeb3c7a836420a9",
           "size": 591
@@ -482,8 +492,8 @@
         },
         {
           "path": "sim_runner/cli.py",
-          "sha256": "326b5aca6642bc8015ec4e9d5484d4bee949a4c11a014ac78d24b633d27a5dc8",
-          "size": 14923
+          "sha256": "a0a869d3aa04cb4a2ea363310b8b2c32217f35aa802cf620f8098edc6843a597",
+          "size": 15519
         },
         {
           "path": "sim_runner/common.py",
@@ -576,6 +586,11 @@
           "size": 16544
         },
         {
+          "path": "sim_runner/uarte_dma.py",
+          "sha256": "c4096fb5377098b7430f1dd163cf3b55f594bfd14856a1e32df0fe9453fbeab0",
+          "size": 16111
+        },
+        {
           "path": "sim_runner/watchdog.py",
           "sha256": "9ed3448b69acea9db668930dfb0f5393ceb3274ee138c1824995e1a5c494b3a2",
           "size": 17669
@@ -587,14 +602,14 @@
         }
       ],
       "repository": "Nitmi/sim-runner",
-      "source_ref": "refs/tags/v0.14.0",
-      "source_revision": "7497744fa00975181441a76372b4d6fe23bc16c0",
+      "source_ref": "refs/tags/v0.15.0",
+      "source_revision": "1d185ec695340410def3c5620c9d486d1625d644",
       "status": "published",
-      "version": "0.14.0",
+      "version": "0.15.0",
       "wheel": {
-        "name": "embedded_sim_runner-0.14.0-py3-none-any.whl",
-        "sha256": "fe5c282202ddfb5d82d12876b770b243278ab6820a149ba1a4ced81faaf3ad17",
-        "url": "https://github.com/Nitmi/sim-runner/releases/download/v0.14.0/embedded_sim_runner-0.14.0-py3-none-any.whl"
+        "name": "embedded_sim_runner-0.15.0-py3-none-any.whl",
+        "sha256": "57b5a61782b5afc82c0a9db64b49562e35aa9531404e3cbf52f96f4708d195bc",
+        "url": "https://github.com/Nitmi/sim-runner/releases/download/v0.15.0/embedded_sim_runner-0.15.0-py3-none-any.whl"
       }
     }
   },

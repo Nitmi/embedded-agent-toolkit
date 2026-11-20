@@ -82,6 +82,9 @@ model spans, failed nominal outcomes and unknowns; reuse the agreed task scope.
 For TIMER0-to-PPI-to-GPIOTE functional regressions, read
 [PPI simulation](../../docs/simulation-ppi.md). Preserve route/output snapshots,
 fault effects and native failure stops; reuse task consent without per-case approval.
+For UARTE1 EasyDMA RX or descriptor-fault regressions, read
+[UARTE DMA simulation](../../docs/simulation-uarte-dma.md). Preserve raw snapshots,
+guest spans and failed nominal outcomes; reuse the agreed task authorization.
 
 If the project supplies `.embedded/toolchain-lock.json`, validate it with the
 installed toolkit's `component_lock.py inspect`, pass it to doctor, and use only

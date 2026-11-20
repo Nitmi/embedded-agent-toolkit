@@ -4,6 +4,38 @@ Read this file and AGENTS.md before starting another task.
 
 ## Current local work
 
+- Local0.43.0 on feat/published-uarte-dma-simulation routes published Sim0.15 /
+  HIL0.20 / Trace0.20:114 files (44/37/33). Instruments retain lab0.11/HIL0.12
+  with the same Trace0.20 for101 files; standalone33. Pins derive from formal
+  wheels and the24 completed genuine checks in uarte-release-20261105.
+- Read docs/simulation-uarte-dma.md for fixed UARTE1 RX descriptors,12-field
+  PRE/POST observations, guarded SRAM and guest word/amount/guard spans.
+  MAXCNT/PTR fault effects retain failed nominal outcomes; wrong BUILD and
+  unsupported MMIO retain unknown/coverage-failed evidence. No TX DMA, IRQ/PPI,
+  physical UART/DMA/timing, full model coverage or memory protection follows.
+- Acceptance root D:/Code/tmp/toolkit-uarte-0430-20261120. Reuse the two formal
+  uarte-0150-0200-0200 environments and their52 saved operations each; no native
+  matrix or component cold install is repeated. Only new isolated instrument
+  environments and candidate plugin installs are needed. Active plugin, station,
+  locks/PATH and old installations stay unchanged; no publication is implied.
+- The station.json was already absent at task start. Local candidate doctor
+  checks use the existing explicit lock without restoring workstation settings;
+  report command_line selection honestly. Skill-creator keeps three new routes
+  short and detailed guidance in one packaged reference. Source/candidate tests,
+  legacy compatibility and warm static inspection costs must pass before release.
+- Review mechanical version/count edits against actual semantics. The existing
+  thermal source-snapshot101-file limit is independent of installed file counts;
+  preserve it. Keep historical Trace layouts and their introduction versions.
+- Source Python3.11/3.13 each ran284 tests:281 passed/three existing platform
+  skips. Lint, final formatting, repository plugin layout/release identity and
+  all four official Skill validators passed. The initial format check rejected
+  one long fixture expression; Ruff formatted it, with the original failed
+  receipt retained. Both new instrument environments preserve52 views of26
+  old bundles after viewer_version-only normalization;505 saved evidence bindings
+  and both52-operation formal simulation result sets match. Candidate build,
+  installation and static cost results are recorded outside Git; final external
+  receipts supersede this pre-commit checkpoint.
+
 - Local0.42.0 on feat/published-ppi-simulation routes published sim0.14 /
   HIL0.19 / Trace0.19:111 files (42/37/32). Instrument lab0.11/HIL0.12 stay
   fixed, with the same Trace0.19 for100 files; standalone32. Inventories derive

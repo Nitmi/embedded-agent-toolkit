@@ -54,7 +54,8 @@ PRE_RTC_PACKAGE_FILES = LEGACY_PACKAGE_FILES | {
 PRE_EGU_PACKAGE_FILES = PRE_RTC_PACKAGE_FILES | {"embedded_trace/rtc.py"}
 PRE_GPIOTE_PACKAGE_FILES = PRE_EGU_PACKAGE_FILES | {"embedded_trace/egu.py"}
 PRE_PPI_PACKAGE_FILES = PRE_GPIOTE_PACKAGE_FILES | {"embedded_trace/gpiote.py"}
-PACKAGE_FILES = PRE_PPI_PACKAGE_FILES | {"embedded_trace/ppi.py"}
+PRE_UARTE_PACKAGE_FILES = PRE_PPI_PACKAGE_FILES | {"embedded_trace/ppi.py"}
+PACKAGE_FILES = PRE_UARTE_PACKAGE_FILES | {"embedded_trace/uarte_dma.py"}
 
 
 def require(condition: bool, message: str) -> None:
@@ -126,6 +127,7 @@ def parse_pin(data: bytes) -> dict:
             "0.17.0",
             "0.18.0",
             "0.19.0",
+            "0.20.0",
         ),
         "Unsupported pinned Trace version",
     )
@@ -150,6 +152,8 @@ def parse_pin(data: bytes) -> dict:
         LEGACY_PACKAGE_FILES
         if version == "0.1.0"
         else PACKAGE_FILES
+        if version == "0.20.0"
+        else PRE_UARTE_PACKAGE_FILES
         if version == "0.19.0"
         else PRE_PPI_PACKAGE_FILES
         if version == "0.18.0"
